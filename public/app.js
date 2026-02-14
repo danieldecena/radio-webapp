@@ -351,6 +351,50 @@ function scheduleDJBreaks() {
   }, secsUntil * 1000);
 }
 
+// --- Check if we're "tuning in" during a live DJ break ---
+function checkLiveDJBreak() {
+  const now = new Date();
+  const secsIntoHour = now.getMinutes() * 60 + now.getSeconds();
+  const cycleLen = 13 * 60; // 13 minutes = 780 seconds
+  const secsIntoCycle = secsIntoHour % cycleLen;
+
+  // DJ breaks happen at the start of each cycle and last ~30-60 seconds
+  // If we're within first 45 seconds of a cycle, we're "tuning in" during a break
+  return secsIntoCycle < 45;
+}
+
+// --- Start Spotify at random position (simulate catching mid-song) ---
+async function startSpotifyLive() {
+  if (!spotifyCtrl) return;
+
+  const attemptPlay = async () => {
+    try {
+      await spotifyCtrl.play();
+      console.log('Spotify playing!');
+
+      // Wait a moment for playback to start, then seek to random position
+      setTimeout(async () => {
+        try {
+          const state = await spotifyCtrl.getPlaybackState();
+          if (state && state.duration) {
+            // Seek to random position between 10% and 70% of song
+            const randomPosition = Math.floor(state.duration * (0.1 + Math.random() * 0.6));
+            await spotifyCtrl.seek(randomPosition);
+            console.log(`Tuned in mid-song at ${Math.floor(randomPosition/1000)}s`);
+          }
+        } catch (e) {
+          console.warn('Could not seek to random position:', e);
+        }
+      }, 1500);
+
+    } catch(e) {
+      console.warn('Spotify play attempt failed:', e);
+      setTimeout(attemptPlay, 1000);
+    }
+  };
+  attemptPlay();
+}
+
 // --- Power On ---
 async function powerOn() {
   if (isScanning) return;
@@ -381,21 +425,6 @@ async function powerOn() {
 
   await sleep(300);
 
-  // Try to play Spotify with multiple attempts (browser autoplay restrictions)
-  if (spotifyCtrl) {
-    const attemptPlay = async () => {
-      try {
-        await spotifyCtrl.play();
-        console.log('Spotify playing!');
-      } catch(e) {
-        console.warn('Spotify play attempt failed:', e);
-        // Retry after 1 second
-        setTimeout(attemptPlay, 1000);
-      }
-    };
-    attemptPlay();
-  }
-
   showPanel('normal');
   signalBars.classList.add('active');
   onAirDot.classList.add('active');
@@ -411,11 +440,27 @@ async function powerOn() {
   updateClock();
   clockInterval = setInterval(updateClock, 10000);
 
-  // Fire break if right at a cycle boundary
-  const now2 = new Date();
-  const secs  = now2.getMinutes() * 60 + now2.getSeconds();
-  if (secs % (13 * 60) < 30) { await sleep(1500); if (isOn) triggerDJBreak(); }
+  // === LIVE BROADCAST SIMULATION ===
+  // Check if we're "tuning in" during a DJ break window
+  const isLiveDJBreak = checkLiveDJBreak();
 
+  if (isLiveDJBreak) {
+    // We caught the station during a DJ break! Play it immediately
+    const now = new Date();
+    const secsIntoCycle = (now.getMinutes() * 60 + now.getSeconds()) % (13 * 60);
+    console.log(`📻 LIVE: Caught DJ break in progress (${secsIntoCycle}s into cycle)`);
+    await sleep(800);
+    if (isOn) triggerDJBreak();
+  } else {
+    // We're between breaks - start music at random position (mid-song)
+    const now = new Date();
+    const secsIntoCycle = (now.getMinutes() * 60 + now.getSeconds()) % (13 * 60);
+    const minsUntilBreak = Math.floor((13 * 60 - secsIntoCycle) / 60);
+    console.log(`📻 LIVE: Tuned in mid-song (Next DJ break in ~${minsUntilBreak} min)`);
+    startSpotifyLive();
+  }
+
+  // Schedule future DJ breaks
   scheduleDJBreaks();
 }
 

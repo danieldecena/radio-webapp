@@ -9,7 +9,8 @@ export default async function handler(req, res) {
 
   // Get API key from environment variable
   const ELEVEN_KEY = process.env.ELEVENLABS_API_KEY;
-  const ELEVEN_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || '34lPwSZ54D8fWbX1aHzk';
+  // Use free-tier premade voice: Adam (professional male voice)
+  const ELEVEN_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'pNInz6obpgDQGcFmaJgB';
 
   console.log('API Key present:', !!ELEVEN_KEY, 'Key length:', ELEVEN_KEY?.length);
   console.log('Voice ID:', ELEVEN_VOICE_ID);

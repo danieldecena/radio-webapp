@@ -381,8 +381,19 @@ async function powerOn() {
 
   await sleep(300);
 
+  // Try to play Spotify with multiple attempts (browser autoplay restrictions)
   if (spotifyCtrl) {
-    try { spotifyCtrl.play(); } catch(e) { console.warn('Spotify play:', e); }
+    const attemptPlay = async () => {
+      try {
+        await spotifyCtrl.play();
+        console.log('Spotify playing!');
+      } catch(e) {
+        console.warn('Spotify play attempt failed:', e);
+        // Retry after 1 second
+        setTimeout(attemptPlay, 1000);
+      }
+    };
+    attemptPlay();
   }
 
   showPanel('normal');
@@ -473,6 +484,19 @@ volBtn.addEventListener('click', toggleVolume);
 
 volumeSlider.addEventListener('input', (e) => {
   if (volValue) volValue.textContent = e.target.value;
+});
+
+// --- Global click handler to overcome autoplay restrictions ---
+let hasTriedManualPlay = false;
+document.addEventListener('click', () => {
+  if (isOn && spotifyCtrl && !hasTriedManualPlay) {
+    hasTriedManualPlay = true;
+    spotifyCtrl.play().then(() => {
+      console.log('Spotify playing after user click!');
+    }).catch(e => {
+      console.warn('Manual play also failed:', e);
+    });
+  }
 });
 
 // --- Init ---

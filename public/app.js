@@ -502,3 +502,6 @@ document.addEventListener('click', () => {
 // --- Init ---
 songTitle.textContent  = STATION_CONFIG.stationName;
 songArtist.textContent = 'PLAYING THE HITS, DEDICATED TO YOU';
+
+// --- Expose for testing ---
+window.triggerDJBreak = triggerDJBreak;

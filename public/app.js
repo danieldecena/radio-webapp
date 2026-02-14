@@ -130,8 +130,6 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
   };
   IFrameAPI.createController(el, options, (ctrl) => {
     spotifyCtrl = ctrl;
-    // Enable shuffle to play through the entire playlist
-    ctrl.setShuffle(true);
     ctrl.addListener('playback_update', (e) => {
       if (!isOn) return;
       if (e.data && e.data.title) {
@@ -140,10 +138,6 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
         stopTaglineRotation();
         songTitle.textContent  = lastSong.title;
         songArtist.textContent = lastSong.artist;
-      }
-      // Auto-advance to next track when current song ends
-      if (e.data && e.data.isPaused && e.data.position >= e.data.duration - 1) {
-        ctrl.skipToNext();
       }
     });
   });

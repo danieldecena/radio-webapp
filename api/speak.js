@@ -11,6 +11,9 @@ export default async function handler(req, res) {
   const ELEVEN_KEY = process.env.ELEVENLABS_API_KEY;
   const ELEVEN_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || '34lPwSZ54D8fWbX1aHzk';
 
+  console.log('API Key present:', !!ELEVEN_KEY, 'Key length:', ELEVEN_KEY?.length);
+  console.log('Voice ID:', ELEVEN_VOICE_ID);
+
   if (!ELEVEN_KEY) {
     console.error('ELEVENLABS_API_KEY not set');
     return res.status(500).json({ error: 'API key not configured' });
@@ -47,8 +50,13 @@ export default async function handler(req, res) {
     );
 
     if (!response.ok) {
-      console.error('ElevenLabs API error:', response.status);
-      return res.status(response.status).json({ error: 'TTS service unavailable' });
+      const errorText = await response.text();
+      console.error('ElevenLabs API error:', response.status, errorText);
+      return res.status(response.status).json({
+        error: 'TTS service unavailable',
+        details: `Status: ${response.status}`,
+        debug: errorText.substring(0, 200)
+      });
     }
 
     // Get audio data as buffer

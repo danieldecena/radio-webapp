@@ -32,10 +32,10 @@ const STATION_TAGLINES = [
 // TIME-BASED CATEGORY WEIGHTS
 // ============================================
 const TIME_WEIGHTS = {
-  morning:   { shoutouts: 4, weather: 3, traffic: 3, news: 1 },
-  afternoon: { shoutouts: 4, weather: 2, traffic: 2, news: 2 },
-  evening:   { shoutouts: 5, weather: 1, traffic: 1, news: 3 },
-  latenight: { shoutouts: 4, news: 4, weather: 1, traffic: 1 },
+  morning:   { shoutouts: 3, weather: 3, traffic: 3, commercials: 1, news: 1 },
+  afternoon: { shoutouts: 2, weather: 2, traffic: 2, commercials: 2, news: 2 },
+  evening:   { shoutouts: 3, commercials: 2, weather: 1, traffic: 1, news: 3 },
+  latenight: { shoutouts: 2, news: 4,    commercials: 2, weather: 1, traffic: 1 },
 };
 
 function getWeightedCategory() {
@@ -149,6 +149,52 @@ const DJ_BREAKS = {
     "You're on 93.4 ROM. Daniel called in to say he's lucky. We told him Pauline is luckier. He disagreed respectfully.",
     "93.4 ROM, Victoria's number one station for love, music, and occasional Nacho updates. Stay locked in.",
     "That was perfect. Just like Pauline. This is 93.4 ROM and we'll be right back after this.",
+  ],
+
+  // ============================================
+  // FAKE COMMERCIALS (40)
+  // ============================================
+  commercials: [
+    "Quick word from Raising Cane's Victoria before we get back into it. Look, if Pauline's already thinking about the sauce, I fully support that decision. Raising Cane's. Open now.",
+    "This segment is brought to you by Nacho. Not the food. The cat. Soft, mysterious, fully in charge. Nacho — Pauline's cat, Daniel's aspiration.",
+    "93.4 ROM is brought to you by the Sims building, downtown Victoria. You built it. You named it. It lives rent free in all of our heads now. The Sims building.",
+    "A word from Pauline's reading list. It's long. It's impressive. It's already better than yours. Pauline's reading list — still growing, not accepting suggestions.",
+    "Today's broadcast is brought to you by Daniel's feelings for Pauline. No expiry date. No fine print. Just that.",
+    "Nacho's afternoon nap is sponsoring this hour. Do not interrupt. Do not negotiate. Nacho's nap — scheduled, sacred, non-negotiable.",
+    "We'll be right back. But first — Raising Cane's sauce. You know what it is. Pauline knows what it is. That's enough said.",
+    "Quick break. Brought to you by the Sims building. Still the most fictional real building in Victoria. Still Pauline's favourite landmark. Still standing.",
+    "93.4 ROM is sponsored this hour by Pauline's laugh. Clinically proven to make everything better. No known side effects except happiness.",
+    "Brought to you by Daniel's dedication to Pauline. Unlimited supply. No fine print. No terms. Just ongoing.",
+    "Nacho's judging stare is sponsoring this moment. He sees everything. He says nothing. He knows. Nacho — always watching, never explaining.",
+    "This hour is sponsored by Victoria BC — home of Pauline, the Sims building, and the best mild weather in Canada. Victoria. She deserves it.",
+    "Pauline's book collection is sponsoring this segment. Impressive, curated, and not lending anything out. Pauline's books — read, loved, stacked correctly.",
+    "Raising Cane's Victoria wants you to know they're open and Pauline is welcome anytime. Everyone else too. But especially Pauline.",
+    "Brought to you by Pauline's taste. In music. In food. In people. Consistently excellent. Pauline's taste — the gold standard.",
+    "This segment is sponsored by Nacho, the cat who chose Pauline and never looked back. Smart animal. Great judge of character.",
+    "The Sims building downtown Victoria is sponsoring this break. Still standing. Still iconic. Still waiting for its expansion pack.",
+    "Daniel's admiration for Pauline is sponsoring this hour. Currently at maximum capacity with room for more somehow.",
+    "Pauline being funny is sponsoring this moment. Free of charge. Unplanned. Devastating every single time.",
+    "Nacho's personal space requirements are sponsoring this segment. Respected by Pauline. Actively negotiated with Daniel. Nacho — firm on boundaries.",
+    "Raising Cane's chicken fingers are sponsoring this break. The official meal of great taste and Pauline's approval. High bar. Cleared easily.",
+    "This hour is sponsored by the concept of a perfect Sunday with Pauline. Daniel submitted this ad himself. We approved it immediately.",
+    "Pauline's sweet side is sponsoring this segment. Always present. Always genuine. Always appreciated. Pauline — consistent, excellent, the whole thing.",
+    "Victoria's Inner Harbour is sponsoring this break. Beautiful year round. Even better when Pauline is somewhere near it.",
+    "Nacho's selective affection is sponsoring this moment. Earned, not given. Daniel is still working on it. Progress is being made slowly.",
+    "Pauline reading in comfortable silence is sponsoring this hour. Peaceful. Perfect. Please do not disturb either of them.",
+    "The Sims building is back. Still the most fictional real building in Victoria. Still Pauline's call from day one. Still correct.",
+    "Daniel's playlist for Pauline is sponsoring this segment. Every song chosen with purpose. Every song approved by love.",
+    "Raising Cane's lemonade is sponsoring this break. Cold, refreshing, Pauline's trusted companion at the table. Raising Cane's lemonade — correct choice.",
+    "This hour is sponsored by Pauline existing. Simply existing. Doing incredible things for Victoria's overall energy just by being here.",
+    "Nacho's warmth is sponsoring this moment. Reserved for Pauline. Occasionally extended to Daniel on cold nights. Nacho — selective but fair.",
+    "Sponsored by the first time Daniel realized Pauline was something special. That exact moment. It's still going.",
+    "Pauline's sarcasm is sponsoring this segment. Sharp. Well timed. Always landing. A gift to everyone in the room. Pauline's sarcasm — free, frequent, elite.",
+    "Victoria sunsets are sponsoring this break. Best viewed with someone you love. Daniel has someone in mind. One specific person.",
+    "Nacho knocking something off the table is sponsoring this hour. No witnesses. Pauline knows it was him. Nacho maintains his innocence.",
+    "Pauline's smile is sponsoring this segment. No further description needed. You already know. Pauline's smile — that's the whole ad.",
+    "Raising Cane's Victoria is sponsoring this break. Where Pauline goes to be happy and Daniel goes to watch Pauline be happy. Raising Cane's.",
+    "The Sims building at night is sponsoring this moment. Somehow even more fictional after dark. Pauline was right about this from the start.",
+    "This hour is sponsored by Daniel and Pauline. Together. That's it. That's the whole ad. That's enough.",
+    "Nacho sleeping on Pauline's book is sponsoring this segment. The original bookmark. Unasked for. Irreplaceable. Nacho — always in the right spot.",
   ],
 
   // ============================================

@@ -314,7 +314,20 @@ function closeBreakPanel() {
   startEQ();
 }
 
-// --- DJ Breaks ---
+// --- Quick Station ID (10-20 sec) ---
+function triggerQuickID() {
+  const stationIDs = DJ_BREAKS.stationids;
+  const text = stationIDs[Math.floor(Math.random() * stationIDs.length)];
+
+  djBreakContent.textContent = text;
+  showPanel('djbreak');
+  onAirDot.classList.add('active');
+  onAirEl.classList.add('active');
+  stopEQ();
+  speakDJBreak(text);
+}
+
+// --- Full DJ Breaks (30-60 sec) ---
 function triggerDJBreak() {
   // Check special date first (70% chance when available)
   const now     = new Date();
@@ -337,30 +350,70 @@ function triggerDJBreak() {
   speakDJBreak(text);
 }
 
+// Store intervals for both types
+let quickIDInterval = null;
+let quickIDTimeout = null;
+
 function scheduleDJBreaks() {
   clearInterval(breakInterval);
   clearTimeout(breakTimeout);
-  const now          = new Date();
+  clearInterval(quickIDInterval);
+  clearTimeout(quickIDTimeout);
+
+  const now = new Date();
   const secsIntoHour = now.getMinutes() * 60 + now.getSeconds();
-  const cycleLen     = 13 * 60;
-  const secsUntil    = cycleLen - (secsIntoHour % cycleLen);
+
+  // Full DJ breaks every 7 minutes (420 seconds)
+  const fullBreakCycle = 7 * 60;
+  const secsUntilFullBreak = fullBreakCycle - (secsIntoHour % fullBreakCycle);
 
   breakTimeout = setTimeout(() => {
     if (isOn) triggerDJBreak();
-    breakInterval = setInterval(() => { if (isOn) triggerDJBreak(); }, cycleLen * 1000);
-  }, secsUntil * 1000);
+    breakInterval = setInterval(() => { if (isOn) triggerDJBreak(); }, fullBreakCycle * 1000);
+  }, secsUntilFullBreak * 1000);
+
+  // Quick station IDs every 2.5 minutes (150 seconds)
+  // Offset by 90 seconds so they don't overlap with full breaks
+  const quickIDCycle = 2.5 * 60;
+  const offset = 90; // Start 90 seconds after full break
+  let secsUntilQuickID = (quickIDCycle - (secsIntoHour % quickIDCycle)) + offset;
+
+  // Make sure first quick ID doesn't conflict with upcoming full break
+  if (secsUntilQuickID > secsUntilFullBreak - 30) {
+    secsUntilQuickID += quickIDCycle;
+  }
+
+  quickIDTimeout = setTimeout(() => {
+    if (isOn) triggerQuickID();
+    quickIDInterval = setInterval(() => { if (isOn) triggerQuickID(); }, quickIDCycle * 1000);
+  }, secsUntilQuickID * 1000);
 }
 
 // --- Check if we're "tuning in" during a live DJ break ---
 function checkLiveDJBreak() {
   const now = new Date();
   const secsIntoHour = now.getMinutes() * 60 + now.getSeconds();
-  const cycleLen = 13 * 60; // 13 minutes = 780 seconds
-  const secsIntoCycle = secsIntoHour % cycleLen;
 
-  // DJ breaks happen at the start of each cycle and last ~30-60 seconds
-  // If we're within first 45 seconds of a cycle, we're "tuning in" during a break
-  return secsIntoCycle < 45;
+  // Full breaks every 7 minutes (420 seconds)
+  const fullBreakCycle = 7 * 60;
+  const secsIntoFullCycle = secsIntoHour % fullBreakCycle;
+
+  // Quick IDs every 2.5 minutes (150 seconds), offset by 90 seconds
+  const quickIDCycle = 2.5 * 60;
+  const quickIDOffset = 90;
+  const secsIntoQuickCycle = (secsIntoHour - quickIDOffset) % quickIDCycle;
+
+  // If within first 45 seconds of full break cycle
+  if (secsIntoFullCycle < 45) {
+    return { type: 'full', secsInto: secsIntoFullCycle };
+  }
+
+  // If within first 20 seconds of quick ID cycle (shorter duration)
+  if (secsIntoQuickCycle >= 0 && secsIntoQuickCycle < 20) {
+    return { type: 'quick', secsInto: secsIntoQuickCycle };
+  }
+
+  return false;
 }
 
 // --- Start Spotify at random position (simulate catching mid-song) ---
@@ -442,25 +495,35 @@ async function powerOn() {
 
   // === LIVE BROADCAST SIMULATION ===
   // Check if we're "tuning in" during a DJ break window
-  const isLiveDJBreak = checkLiveDJBreak();
+  const liveBreakCheck = checkLiveDJBreak();
 
-  if (isLiveDJBreak) {
-    // We caught the station during a DJ break! Play it immediately
-    const now = new Date();
-    const secsIntoCycle = (now.getMinutes() * 60 + now.getSeconds()) % (13 * 60);
-    console.log(`📻 LIVE: Caught DJ break in progress (${secsIntoCycle}s into cycle)`);
-    await sleep(800);
-    if (isOn) triggerDJBreak();
+  if (liveBreakCheck) {
+    // We caught the station during a DJ break or quick ID!
+    if (liveBreakCheck.type === 'full') {
+      console.log(`📻 LIVE: Caught full DJ break in progress (${liveBreakCheck.secsInto}s in)`);
+      await sleep(800);
+      if (isOn) triggerDJBreak();
+    } else if (liveBreakCheck.type === 'quick') {
+      console.log(`📻 LIVE: Caught quick station ID in progress (${liveBreakCheck.secsInto}s in)`);
+      await sleep(800);
+      if (isOn) triggerQuickID();
+    }
   } else {
     // We're between breaks - start music at random position (mid-song)
     const now = new Date();
-    const secsIntoCycle = (now.getMinutes() * 60 + now.getSeconds()) % (13 * 60);
-    const minsUntilBreak = Math.floor((13 * 60 - secsIntoCycle) / 60);
-    console.log(`📻 LIVE: Tuned in mid-song (Next DJ break in ~${minsUntilBreak} min)`);
+    const secsIntoHour = now.getMinutes() * 60 + now.getSeconds();
+    const fullCycle = 7 * 60;
+    const quickCycle = 2.5 * 60;
+    const secsUntilFull = fullCycle - (secsIntoHour % fullCycle);
+    const minsUntilFull = Math.floor(secsUntilFull / 60);
+    const secsUntilQuick = quickCycle - (secsIntoHour % quickCycle);
+    const minsUntilQuick = Math.floor(secsUntilQuick / 60);
+
+    console.log(`📻 LIVE: Tuned in mid-song (Next ID in ~${minsUntilQuick}m, Full break in ~${minsUntilFull}m)`);
     startSpotifyLive();
   }
 
-  // Schedule future DJ breaks
+  // Schedule future DJ breaks and quick IDs
   scheduleDJBreaks();
 }
 
@@ -471,6 +534,8 @@ function powerOff() {
   clearInterval(clockInterval);
   clearInterval(breakInterval);
   clearTimeout(breakTimeout);
+  clearInterval(quickIDInterval);
+  clearTimeout(quickIDTimeout);
   stopTaglineRotation();
 
   if (spotifyCtrl) spotifyCtrl.pause();
@@ -550,3 +615,4 @@ songArtist.textContent = 'PLAYING THE HITS, DEDICATED TO YOU';
 
 // --- Expose for testing ---
 window.triggerDJBreak = triggerDJBreak;
+window.triggerQuickID = triggerQuickID;

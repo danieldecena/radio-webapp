@@ -86,6 +86,47 @@ const SPECIAL_DATES = {
 const DJ_BREAKS = {
 
   // ============================================
+  // QUICK STATION IDs (35) - SHORT 10-20 SEC
+  // ============================================
+  stationids: [
+    "93.4 ROM, Victoria BC.",
+    "You're listening to 93.4 ROM, dedicated to Pauline.",
+    "This is 93.4 ROM, playing the hits.",
+    "93.4 ROM, Victoria's station for love.",
+    "You're tuned into 93.4 ROM.",
+    "This is 93.4 ROM, broadcasting live from Victoria.",
+    "93.4 ROM, where every song is for Pauline.",
+    "You're locked in to 93.4 ROM.",
+    "This is 93.4 ROM, Victoria's warmest frequency.",
+    "93.4 ROM, playing the hits dedicated to you.",
+    "You're listening to 93.4 ROM, stay tuned.",
+    "This is 93.4 ROM, broadcasting live from Daniel's heart.",
+    "93.4 ROM, Victoria BC, playing non-stop music.",
+    "You're on 93.4 ROM, the station built for Pauline.",
+    "This is 93.4 ROM, more music coming right up.",
+    "93.4 ROM, Victoria's most romantic station.",
+    "You're tuned into 93.4 ROM, stay with us.",
+    "This is 93.4 ROM, live from Victoria.",
+    "93.4 ROM, the only station that matters.",
+    "You're listening to 93.4 ROM, good music only.",
+    "This is 93.4 ROM, Pauline's station.",
+    "93.4 ROM, broadcasting love since day one.",
+    "You're on 93.4 ROM, Victoria's finest.",
+    "This is 93.4 ROM, keep it locked.",
+    "93.4 ROM, where the music never stops.",
+    "You're tuned in to 93.4 ROM, more hits ahead.",
+    "This is 93.4 ROM, Victoria's number one.",
+    "93.4 ROM, dedicated entirely to Pauline.",
+    "You're listening to 93.4 ROM, stay right here.",
+    "This is 93.4 ROM, your soundtrack.",
+    "93.4 ROM, live and direct from Victoria.",
+    "You're on 93.4 ROM, don't touch that dial.",
+    "This is 93.4 ROM, coming at you live.",
+    "93.4 ROM, the station powered by love.",
+    "You're locked into 93.4 ROM, Victoria BC.",
+  ],
+
+  // ============================================
   // DJ SHOUTOUTS (60)
   // ============================================
   shoutouts: [

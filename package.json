@@ -1,0 +1,14 @@
+{
+  "name": "93.4-rom-radio",
+  "version": "1.0.0",
+  "description": "Personal web radio station with Spotify integration and AI DJ breaks",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": ["radio", "spotify", "tts", "web-app"],
+  "author": "Daniel",
+  "license": "MIT"
+}

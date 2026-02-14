@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="93.4 ROM" />
+  <title>93.4 ROM Radio</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" href="icon.png" />
+</head>
+<body>
+
+  <!-- Spotify Embed (hidden, audio only) -->
+  <iframe
+    id="spotifyEmbed"
+    src=""
+    allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+    loading="lazy"
+    style="position:absolute; width:1px; height:1px; border:none; bottom:0; left:0; opacity:0; pointer-events:none;"
+  ></iframe>
+
+  <div class="screen">
+    <div class="ambient-glow"></div>
+
+    <div class="radio">
+
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="signal" id="signalBars">
+          <span class="bar b1"></span>
+          <span class="bar b2"></span>
+          <span class="bar b3"></span>
+          <span class="bar b4"></span>
+        </div>
+        <div class="frequency-display">
+          <span class="freq-number" id="freqDisplay">93.4 FM</span>
+        </div>
+        <div class="on-air" id="onAirEl">
+          <span class="on-air-dot" id="onAirDot"></span>
+          <span class="on-air-text">ON AIR</span>
+        </div>
+      </div>
+
+      <!-- Station Name -->
+      <div class="station-identity">
+        <div class="station-name">93.4 ROM</div>
+        <div class="station-tagline">Playing the hits, dedicated to you</div>
+      </div>
+
+      <!-- Car Display Panel -->
+      <div class="car-display">
+
+        <!-- Normal view -->
+        <div id="displayNormal">
+          <div class="display-song-title" id="songTitle">93.4 ROM</div>
+          <div class="display-song-artist" id="songArtist">PLAYING THE HITS, DEDICATED TO YOU</div>
+          <div class="display-time-row">
+            <span class="display-live-dot" id="liveDot"></span>
+            <span class="display-live-text" id="liveText">OFF AIR</span>
+            <span class="display-clock" id="displayClock">--:--</span>
+          </div>
+          <div class="eq-visualizer">
+            <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+            <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+            <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+            <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+            <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+            <span class="eq-bar"></span><span class="eq-bar"></span><span class="eq-bar"></span>
+            <span class="eq-bar"></span><span class="eq-bar"></span>
+          </div>
+        </div>
+
+        <!-- Scanning view -->
+        <div id="displayScanning" style="display:none;">
+          <div class="scanning-label">SCANNING</div>
+          <div class="tuner-bar">
+            <div class="tuner-needle" id="tunerNeedle" style="left:0%"></div>
+            <div class="tuner-marks">
+              <span>88</span><span>92</span><span>96</span><span>100</span><span>104</span>
+            </div>
+          </div>
+          <div class="scanning-text" id="scanningText">Scanning...</div>
+        </div>
+
+        <!-- DJ Break view -->
+        <div id="displayDJBreak" style="display:none;">
+          <div class="dj-break-label">DJ BREAK</div>
+          <div class="dj-break-content" id="djBreakContent"></div>
+        </div>
+
+      </div>
+
+      <!-- Controls -->
+      <div class="controls">
+        <button class="ctrl-btn power-btn" id="powerBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+            <line x1="12" y1="2" x2="12" y2="12"></line>
+          </svg>
+        </button>
+        <button class="ctrl-btn vol-btn" id="volBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Volume Slider -->
+      <div class="volume-container" id="volumeContainer" style="display:none;">
+        <div class="volume-label">
+          <span>VOL</span>
+          <span id="volValue">100</span>
+        </div>
+        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" />
+      </div>
+
+      <!-- Bottom Label -->
+      <div class="bottom-label">
+        <span>STEREO</span>
+        <span>◆</span>
+        <span>DIGITAL</span>
+        <span>◆</span>
+        <span>VICTORIA BC</span>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+  <script src="breaks.js" type="module"></script>
+  <script src="app.js" type="module"></script>
+</body>
+</html>

@@ -573,6 +573,50 @@ async function powerOn() {
   // Start background hiss
   noiseGen.startHiss();
 
+  // 50% chance to do instant-on (simulate tuning into live broadcast)
+  const instantOn = Math.random() < 0.5;
+
+  if (instantOn) {
+    // INSTANT-ON MODE: Skip scanning, go straight to broadcast
+    showPanel('normal');
+    signalBars.classList.add('active');
+    onAirDot.classList.add('active');
+    onAirEl.classList.add('active');
+    liveDot.classList.add('active');
+    liveText.textContent = 'LIVE';
+    
+    // Set needle to 93.4 instantly
+    function freqToPercent(f) { return ((f - 87.5) / (108 - 87.5)) * 100; }
+    tunerNeedle.style.left = freqToPercent(93.4) + '%';
+    freqDisplay.textContent = '93.4 FM';
+
+    isOn = true;
+    isScanning = false;
+
+    startTaglineRotation();
+    startEQ();
+    updateClock();
+    clockInterval = setInterval(updateClock, 10000);
+
+    // 50% chance to start mid-DJ break, 50% mid-song
+    if (Math.random() < 0.5) {
+      // Start mid-DJ break
+      const randomBreak = breaks[Math.floor(Math.random() * breaks.length)];
+      speakDJBreak(randomBreak);
+    } else {
+      // Start mid-song (Spotify or local music)
+      if (musicPlayer.playlist.length > 0) {
+        musicPlayer.playRandomTrack();
+      } else {
+        startSpotifyLive();
+      }
+    }
+
+    scheduleDJBreaks();
+    return;
+  }
+
+  // NORMAL MODE: Full scanning animation
   showPanel('scanning');
   scanningText.textContent = 'Searching...';
 
@@ -760,7 +804,7 @@ class NoiseGenerator {
 
     const gain = audioCtx.createGain();
     // Very subtle background hiss (-50dB)
-    gain.gain.value = 0.005;
+    gain.gain.value = 0.001; // Reduced from 0.005 - subtle background hiss
 
     source.connect(gain);
     // Connect to FM effects for "radio" sound, or direct
@@ -790,7 +834,7 @@ class NoiseGenerator {
     
     const gain = audioCtx.createGain();
     // Louder burst for tuning (-12dB)
-    gain.gain.value = 0.15;
+    gain.gain.value = 0.05; // Reduced from 0.15 - quieter scanning bursts
     
     // Envelope for burst (fade in/out fast)
     const now = audioCtx.currentTime;

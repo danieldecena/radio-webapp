@@ -122,6 +122,9 @@ function makeWarmthCurve(amount) {
 }
 
 // --- Spotify Embed API ---
+let shuffledTrackIndices = [];
+let currentTrackIndex = 0;
+
 window.onSpotifyIframeApiReady = (IFrameAPI) => {
   const el = document.getElementById('spotifyEmbed');
   const options = {
@@ -130,6 +133,29 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
   };
   IFrameAPI.createController(el, options, (ctrl) => {
     spotifyCtrl = ctrl;
+    
+    // Initialize shuffle on load
+    ctrl.addListener('ready', async () => {
+      try {
+        // Get playlist info to know how many tracks
+        const state = await ctrl.getPlaybackState();
+        if (state && state.context && state.context.metadata) {
+          // Create shuffled indices (simulating shuffle)
+          const trackCount = 50; // Approximate playlist size
+          shuffledTrackIndices = Array.from({length: trackCount}, (_, i) => i);
+          // Fisher-Yates shuffle
+          for (let i = shuffledTrackIndices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledTrackIndices[i], shuffledTrackIndices[j]] = [shuffledTrackIndices[j], shuffledTrackIndices[i]];
+          }
+          currentTrackIndex = Math.floor(Math.random() * shuffledTrackIndices.length);
+          console.log('Shuffle initialized, starting at track', currentTrackIndex);
+        }
+      } catch (e) {
+        console.warn('Could not initialize shuffle:', e);
+      }
+    });
+    
     ctrl.addListener('playback_update', (e) => {
       if (!isOn) return;
       if (e.data && e.data.title) {
@@ -139,9 +165,31 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
         songTitle.textContent  = lastSong.title;
         songArtist.textContent = lastSong.artist;
       }
+      
+      // Auto-advance to next shuffled track when song ends
+      if (e.data && e.data.isPaused === false && e.data.position >= e.data.duration - 1000) {
+        setTimeout(() => playNextShuffledTrack(), 500);
+      }
     });
   });
 };
+
+// Play next track in shuffled order
+async function playNextShuffledTrack() {
+  if (!spotifyCtrl) return;
+  try {
+    currentTrackIndex = (currentTrackIndex + 1) % shuffledTrackIndices.length;
+    // Skip to next track multiple times to simulate shuffle
+    const skips = shuffledTrackIndices[currentTrackIndex] % 5;
+    for (let i = 0; i < skips; i++) {
+      await spotifyCtrl.skipToNext();
+      await sleep(100);
+    }
+    console.log('Skipped to shuffled track index:', currentTrackIndex);
+  } catch (e) {
+    console.warn('Could not skip to next track:', e);
+  }
+}
 
 // --- Clock ---
 function updateClock() {
@@ -469,6 +517,13 @@ async function startSpotifyLive() {
 
   const attemptPlay = async () => {
     try {
+      // Skip to a random track first (simulate tuning into random song)
+      const randomSkips = Math.floor(Math.random() * 10);
+      for (let i = 0; i < randomSkips; i++) {
+        await spotifyCtrl.skipToNext();
+        await sleep(50);
+      }
+      
       await spotifyCtrl.play();
       console.log('Spotify playing!');
 
@@ -477,8 +532,8 @@ async function startSpotifyLive() {
         try {
           const state = await spotifyCtrl.getPlaybackState();
           if (state && state.duration) {
-            // Seek to random position between 10% and 70% of song
-            const randomPosition = Math.floor(state.duration * (0.1 + Math.random() * 0.6));
+            // Seek to random position between 20% and 80% of song (more mid-song feel)
+            const randomPosition = Math.floor(state.duration * (0.2 + Math.random() * 0.6));
             await spotifyCtrl.seek(randomPosition);
             console.log(`Tuned in mid-song at ${Math.floor(randomPosition/1000)}s`);
           }

@@ -8,7 +8,24 @@
     "build": "echo 'Static site - no build needed'",
     "deploy": "netlify deploy --prod"
   },
-  "keywords": ["radio", "spotify", "tts", "web-app"],
+  "keywords": [
+    "radio",
+    "spotify",
+    "tts",
+    "web-app"
+  ],
   "author": "Daniel",
-  "license": "MIT"
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danieldecena/93.4-rom-radio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/danieldecena/93.4-rom-radio/issues"
+  },
+  "homepage": "https://github.com/danieldecena/93.4-rom-radio#readme",
+  "dependencies": {
+    "dotenv": "^17.3.1"
+  }
 }

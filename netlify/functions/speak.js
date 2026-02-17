@@ -12,7 +12,8 @@ exports.handler = async (event, context) => {
 
   // Get API key from environment variable
   const ELEVEN_KEY = process.env.ELEVENLABS_API_KEY;
-  const ELEVEN_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || '34lPwSZ54D8fWbX1aHzk';
+  // New specific voice ID from user
+  const ELEVEN_VOICE_ID = process.env.ELEVENLABS_VOICE_ID || 'KLoixBflzS2a9rg6nT8x';
 
   if (!ELEVEN_KEY) {
     console.error('ELEVENLABS_API_KEY not set');

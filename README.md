@@ -1,6 +1,7 @@
 # 93.4 ROM Radio 📻
 
 A personal web radio station dedicated to Pauline, featuring:
+
 - 🎵 Spotify playlist integration
 - 🎙️ AI-powered DJ breaks with ElevenLabs TTS
 - 📱 Progressive Web App (PWA) support
@@ -41,6 +42,7 @@ gh repo create 93.4-rom-radio --private --source=. --remote=origin --push
 ```
 
 **Or manually:**
+
 1. Go to [GitHub](https://github.com/new)
 2. Create a new **private** repository named `93.4-rom-radio`
 3. Push your code:
@@ -97,6 +99,7 @@ netlify deploy --prod
 Once deployed, your site will be live at `https://your-site-name.netlify.app`
 
 **Test checklist:**
+
 - ✅ Power button turns on the radio
 - ✅ Spotify playlist starts playing
 - ✅ DJ breaks play with AI voice (wait ~13 minutes for first break)
@@ -109,6 +112,7 @@ Once deployed, your site will be live at `https://your-site-name.netlify.app`
 ### Update DJ Breaks Content
 
 Edit `public/breaks.js`:
+
 - `STATION_CONFIG` - Station name, tagline, city
 - `STATION_TAGLINES` - Rotating taglines
 - `SPECIAL_DATES` - Birthday, anniversary messages
@@ -117,6 +121,7 @@ Edit `public/breaks.js`:
 ### Change Spotify Playlist
 
 Edit `public/index.html` line 61:
+
 ```javascript
 uri: 'spotify:playlist:YOUR_PLAYLIST_ID',
 ```
@@ -136,6 +141,7 @@ Get playlist ID from Spotify URL:
 ## 📊 Usage Limits & Costs
 
 ### ElevenLabs Free Tier
+
 - **10,000 characters/month** free
 - Each DJ break ≈ 150 characters
 - At 13-minute intervals = ~67 breaks per day
@@ -144,6 +150,7 @@ Get playlist ID from Spotify URL:
 **Recommendation**: With casual listening (1-2 hours/day), you'll stay within free tier easily.
 
 ### Netlify Free Tier
+
 - **100 GB bandwidth/month**
 - **300 build minutes/month**
 - Unlimited sites
@@ -182,6 +189,7 @@ User Browser
 ## 📱 PWA Installation
 
 On mobile devices (iOS/Android):
+
 1. Open site in browser
 2. Tap **"Add to Home Screen"**
 3. App installs with icon
@@ -190,17 +198,20 @@ On mobile devices (iOS/Android):
 ## 🐛 Troubleshooting
 
 ### DJ breaks not speaking
+
 - Check Netlify environment variable is set correctly
 - Check ElevenLabs API key is valid and has credits
 - Check browser console for errors
 - Fallback: Web Speech API will play instead (robotic voice)
 
 ### Spotify not playing
+
 - Check Spotify playlist is **public**
 - Try refreshing the page
 - Check browser console for Spotify embed errors
 
 ### Site not deploying
+
 ```bash
 # Check build logs in Netlify dashboard
 # Redeploy with clear cache:
@@ -215,3 +226,28 @@ Personal project - All rights reserved
 
 **Made with ❤️ for Pauline**
 **93.4 ROM - Victoria's station for love**
+
+## 🎧 Generating Audio Snippets (Zero Cost Mode)
+
+To save ElevenLabs credits, you can pre-generate the ~40 static DJ snippets as MP3s.
+
+1. **Set your API Key**:
+
+   ```bash
+   export ELEVENLABS_API_KEY="your_api_key"
+   ```
+
+2. **Run the Generator Script**:
+
+   ```bash
+   # Make sure you are in the project folder
+   cd ~/Development/93.4-rom-radio
+
+   # Run the script
+   node scripts/generate_breaks.js
+   ```
+
+3. **Deploy**:
+   ```bash
+   npm run deploy
+   ```

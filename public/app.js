@@ -211,7 +211,49 @@ function restoreLastHeard() {
 }
 
 // --- ElevenLabs TTS with fallbacks ---
+// --- Snippet Manifest (Local Audio) ---
+let snippetManifest = {};
+
+async function loadSnippetManifest() {
+  try {
+    const res = await fetch('audio/snippets/manifest.json');
+    if (res.ok) {
+      snippetManifest = await res.json();
+      console.log('Loaded snippet manifest:', Object.keys(snippetManifest).length, 'items');
+    }
+  } catch (e) {
+    console.warn('Could not load snippet manifest (using API only)');
+  }
+}
+loadSnippetManifest();
+
+// --- ElevenLabs TTS with fallbacks ---
 async function speakDJBreak(text) {
+  
+  // Tier 0: Pre-generated Local Audio (Zero Cost)
+  if (snippetManifest[text]) {
+    try {
+      console.log('Playing local snippet:', text);
+      const audio = new Audio(snippetManifest[text]);
+      
+      const source = audioCtx.createMediaElementSource(audio);
+      const gain = audioCtx.createGain();
+      
+      // Connect to FM chain
+      source.connect(gain);
+      if (fmFilter) {
+        gain.connect(fmFilter);
+      } else {
+        gain.connect(audioCtx.destination);
+      }
+      
+      audio.onended = () => { closeBreakPanel(); };
+      audio.play();
+      return;
+    } catch (e) {
+      console.warn('Local snippet failed, falling back to API', e);
+    }
+  }
 
   // Tier 1: ElevenLabs via secure serverless function
   try {
@@ -237,7 +279,7 @@ async function speakDJBreak(text) {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') await audioCtx.resume();
 
-      // Initialize FM radio effects if not already set up
+      // FM effects are already initialized in powerOn(), but safety check:
       if (!fmFilter) initFMEffects();
 
       const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
@@ -312,6 +354,11 @@ function closeBreakPanel() {
   restoreLastHeard();
   showPanel('normal');
   startEQ();
+  
+  // If we have local music, play the next track
+  if (musicPlayer.playlist.length > 0) {
+    musicPlayer.playNext();
+  }
 }
 
 // --- Quick Station ID (10-20 sec) ---
@@ -451,8 +498,25 @@ async function startSpotifyLive() {
 // --- Power On ---
 async function powerOn() {
   if (isScanning) return;
+
+  // iOS AUDIO UNLOCK: Must happen synchronously on user interaction
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (audioCtx.state === 'suspended') {
+    await audioCtx.resume();
+  }
+  // Initialize effects chain immediately if not ready
+  if (!fmFilter) initFMEffects();
+
+  // Initialize noise buffer
+  if (!noiseBuffer) createNoiseBuffer();
+
   isScanning = true;
   powerBtn.classList.add('on');
+
+  // Start background hiss
+  noiseGen.startHiss();
 
   showPanel('scanning');
   scanningText.textContent = 'Searching...';
@@ -461,6 +525,8 @@ async function powerOn() {
 
   const stations = [88.1, 91.3, 93.4];
   for (let i = 0; i < stations.length; i++) {
+    // Play static burst with each needle move
+    noiseGen.playBurst(0.4);
     await animateNeedle(tunerNeedle, freqToPercent(stations[i]), i === stations.length - 1 ? 700 : 350);
     freqDisplay.textContent = stations[i].toFixed(1) + ' FM';
     if (i < stations.length - 1) await sleep(150);
@@ -494,6 +560,14 @@ async function powerOn() {
   clockInterval = setInterval(updateClock, 10000);
 
   // === LIVE BROADCAST SIMULATION ===
+  
+  // If we have local music loaded, prioritize that
+  if (musicPlayer.playlist.length > 0) {
+    musicPlayer.playNext();
+    scheduleDJBreaks(); // Still schedule random breaks
+    return;
+  }
+
   // Check if we're "tuning in" during a DJ break window
   const liveBreakCheck = checkLiveDJBreak();
 
@@ -541,6 +615,9 @@ function powerOff() {
   if (spotifyCtrl) spotifyCtrl.pause();
   if (currentSource) { try { currentSource.stop(); } catch(e) {} currentSource = null; }
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  
+  // Stop Radio Static
+  noiseGen.stopHiss();
 
   powerBtn.classList.remove('on');
   signalBars.classList.remove('active');
@@ -596,10 +673,274 @@ volumeSlider.addEventListener('input', (e) => {
   if (volValue) volValue.textContent = e.target.value;
 });
 
+// --- Noise Generator (Static & Hiss) ---
+let noiseBuffer = null;
+
+function createNoiseBuffer() {
+  if (!audioCtx) return;
+  const bufferSize = audioCtx.sampleRate * 2; // 2 seconds of noise
+  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = buffer.getChannelData(0);
+
+  for (let i = 0; i < bufferSize; i++) {
+    // White noise: random values between -1.0 and 1.0
+    data[i] = Math.random() * 2 - 1;
+  }
+  noiseBuffer = buffer;
+}
+
+class NoiseGenerator {
+  constructor() {
+    this.hissSource = null;
+    this.hissGain = null;
+  }
+
+  startHiss() {
+    if (!audioCtx || !noiseBuffer) return;
+    this.stopHiss();
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = noiseBuffer;
+    source.loop = true;
+
+    const gain = audioCtx.createGain();
+    // Very subtle background hiss (-50dB)
+    gain.gain.value = 0.005;
+
+    source.connect(gain);
+    // Connect to FM effects for "radio" sound, or direct
+    if (fmFilter) {
+      gain.connect(fmFilter);
+    } else {
+      gain.connect(audioCtx.destination);
+    }
+
+    source.start();
+    this.hissSource = source;
+    this.hissGain = gain;
+  }
+
+  stopHiss() {
+    if (this.hissSource) {
+      try { this.hissSource.stop(); } catch(e) {}
+      this.hissSource = null;
+    }
+  }
+
+  playBurst(duration = 0.2) {
+    if (!audioCtx || !noiseBuffer) return;
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = noiseBuffer;
+    
+    const gain = audioCtx.createGain();
+    // Louder burst for tuning (-12dB)
+    gain.gain.value = 0.15;
+    
+    // Envelope for burst (fade in/out fast)
+    const now = audioCtx.currentTime;
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(0.15, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+    source.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    source.start();
+    source.stop(now + duration + 0.1);
+  }
+}
+
+const noiseGen = new NoiseGenerator();
+
+// --- Music Player (Local Files) ---
+class MusicPlayer {
+  constructor() {
+    this.playlist = [];
+    this.currentIndex = -1;
+    this.audio = new Audio();
+    this.audio.crossOrigin = 'anonymous';
+    this.fadeOutTimer = null;
+    this.isFading = false;
+    
+    // Connect to AudioContext for visualizer
+    this.audioSource = null;
+    
+    this.audio.addEventListener('ended', () => this.handleSongEnd());
+    this.audio.addEventListener('timeupdate', () => this.checkForCrossfade());
+    
+    // Auto-advance if not fading
+    this.audio.addEventListener('error', (e) => {
+      console.warn('Audio error:', e);
+      this.playNext();
+    });
+  }
+
+  loadFiles(files) {
+    this.playlist = Array.from(files)
+      .filter(f => f.type.startsWith('audio/'))
+      .sort(() => Math.random() - 0.5); // Shuffle
+      
+    if (this.playlist.length > 0) {
+      console.log(`Loaded ${this.playlist.length} songs.`);
+      this.currentIndex = -1;
+      // If radio is on, start playing
+      if (isOn) this.playNext();
+    }
+  }
+
+  connectToVisualizer() {
+    if (!audioCtx) return;
+    if (this.audioSource) return;
+
+    try {
+      this.audioSource = audioCtx.createMediaElementSource(this.audio);
+      // Connect to FM effects chain if available, otherwise destination
+      if (fmFilter) {
+        this.audioSource.connect(fmFilter);
+      } else {
+        this.audioSource.connect(audioCtx.destination);
+      }
+    } catch (e) {
+      console.warn('Visualizer connection failed:', e);
+    }
+  }
+
+  playNext() {
+    if (this.playlist.length === 0) return;
+    
+    this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
+    const file = this.playlist[this.currentIndex];
+    
+    const url = URL.createObjectURL(file);
+    this.audio.src = url;
+    this.audio.volume = 1.0;
+    this.audio.play().catch(e => console.error('Play failed:', e));
+    
+    // Update UI
+    const metadata = this.parseFilename(file.name);
+    lastSong.title = metadata.title;
+    lastSong.artist = metadata.artist;
+    
+    songTitle.textContent = lastSong.title;
+    songArtist.textContent = lastSong.artist;
+    stopTaglineRotation();
+    
+    // Ensure visualizer is connected
+    this.connectToVisualizer();
+    this.isFading = false;
+  }
+
+  parseFilename(name) {
+    // Basic "Artist - Title.mp3" parser
+    const nameWithoutExt = name.replace(/\.[^/.]+$/, "");
+    if (nameWithoutExt.includes(' - ')) {
+      const parts = nameWithoutExt.split(' - ');
+      return { artist: parts[0].toUpperCase(), title: parts[1] };
+    }
+    return { artist: 'LOCAL LIBRARY', title: nameWithoutExt };
+  }
+
+  checkForCrossfade() {
+    if (this.isFading || this.audio.paused) return;
+    
+    const timeLeft = this.audio.duration - this.audio.currentTime;
+    // Start crossfade 8 seconds before end
+    if (timeLeft > 0 && timeLeft <= 8) {
+      this.startCrossfade();
+    }
+  }
+
+  startCrossfade() {
+    this.isFading = true;
+    console.log('Starting crossfade/DJ break...');
+    
+    // Fade out over 4 seconds
+    const fadeDuration = 4000;
+    const step = 0.05;
+    const interval = fadeDuration * step;
+    
+    let vol = 1.0;
+    const timer = setInterval(() => {
+      vol -= step;
+      if (vol <= 0) {
+        vol = 0;
+        clearInterval(timer);
+        this.audio.pause();
+        this.triggerBreakOrNext();
+      }
+      this.audio.volume = vol;
+    }, interval);
+  }
+
+  triggerBreakOrNext() {
+    // 60% chance of ANY break transition
+    if (Math.random() < 0.6) {
+        // DECISION: 90% Short Snippet (Cheap), 10% Full Break (Expensive)
+        if (Math.random() < 0.9) {
+            this.triggerShortSnippet();
+        } else {
+            triggerDJBreak();
+        }
+    } else {
+        // Just play next song (Gapless-ish)
+        this.playNext();
+    }
+  }
+
+  triggerShortSnippet() {
+    const snippets = DJ_BREAKS.short;
+    const text = snippets[Math.floor(Math.random() * snippets.length)];
+    
+    // Update UI minimally
+    djBreakContent.textContent = text;
+    // Don't show full panel, just flash message or keep normal view 
+    // but maybe pulse the On Air light? 
+    // For now, let's just use the panel but it will be quick.
+    showPanel('djbreak');
+    
+    speakDJBreak(text);
+  }
+  
+  handleSongEnd() {
+    if (!this.isFading) this.playNext();
+  }
+
+  stop() {
+    this.audio.pause();
+    this.audio.currentTime = 0;
+  }
+  
+  resume() {
+    if (this.playlist.length > 0 && this.audio.paused) {
+        this.audio.play();
+    } else if (this.playlist.length > 0) {
+        // already playing
+    } else {
+        // no music
+    }
+  }
+}
+
+const musicPlayer = new MusicPlayer();
+
+// Hook up events
+document.getElementById('musicFolder').addEventListener('change', (e) => {
+  musicPlayer.loadFiles(e.target.files);
+});
+
+document.getElementById('loadBtn').addEventListener('click', () => {
+  document.getElementById('musicFolder').click();
+});
+
+// Update powerOn to use local music if available
+// (Modified logic in powerOn function below)
+
+
 // --- Global click handler to overcome autoplay restrictions ---
 let hasTriedManualPlay = false;
 document.addEventListener('click', () => {
-  if (isOn && spotifyCtrl && !hasTriedManualPlay) {
+  if (isOn && !musicPlayer.playlist.length && spotifyCtrl && !hasTriedManualPlay) {
     hasTriedManualPlay = true;
     spotifyCtrl.play().then(() => {
       console.log('Spotify playing after user click!');

@@ -165,30 +165,6 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
         songTitle.textContent  = lastSong.title;
         songArtist.textContent = lastSong.artist;
       }
-      
-      // Auto-advance to next shuffled track when song ends
-      if (e.data && e.data.isPaused === false && e.data.position >= e.data.duration - 1000) {
-        setTimeout(() => playNextShuffledTrack(), 500);
-      }
-    });
-  });
-};
-
-// Play next track in shuffled order
-async function playNextShuffledTrack() {
-  if (!spotifyCtrl) return;
-  try {
-    currentTrackIndex = (currentTrackIndex + 1) % shuffledTrackIndices.length;
-    // Skip to next track multiple times to simulate shuffle
-    const skips = shuffledTrackIndices[currentTrackIndex] % 5;
-    for (let i = 0; i < skips; i++) {
-      await spotifyCtrl.skipToNext();
-      await sleep(100);
-    }
-    console.log('Skipped to shuffled track index:', currentTrackIndex);
-  } catch (e) {
-    console.warn('Could not skip to next track:', e);
-  }
 }
 
 // --- Clock ---
@@ -530,12 +506,17 @@ async function startSpotifyLive() {
       // Wait a moment for playback to start, then seek to random position
       setTimeout(async () => {
         try {
-          const state = await spotifyCtrl.getPlaybackState();
-          if (state && state.duration) {
-            // Seek to random position between 20% and 80% of song (more mid-song feel)
-            const randomPosition = Math.floor(state.duration * (0.2 + Math.random() * 0.6));
-            await spotifyCtrl.seek(randomPosition);
-            console.log(`Tuned in mid-song at ${Math.floor(randomPosition/1000)}s`);
+          // Check if getPlaybackState exists (API compatibility)
+          if (typeof spotifyCtrl.getPlaybackState === 'function') {
+            const state = await spotifyCtrl.getPlaybackState();
+            if (state && state.duration) {
+              // Seek to random position between 20% and 80% of song (more mid-song feel)
+              const randomPosition = Math.floor(state.duration * (0.2 + Math.random() * 0.6));
+              await spotifyCtrl.seek(randomPosition);
+              console.log(`Tuned in mid-song at ${Math.floor(randomPosition/1000)}s`);
+            }
+          } else {
+            console.warn('getPlaybackState not available in this Spotify API version');
           }
         } catch (e) {
           console.warn('Could not seek to random position:', e);

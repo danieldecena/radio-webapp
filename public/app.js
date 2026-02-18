@@ -57,6 +57,11 @@ let taglineIdx    = 0;
 let lastSong      = { title: '', artist: '' };
 let spotifyVolume = 1.0; // Track current Spotify volume (0.0 to 1.0)
 
+// Station continuity - simulate "station keeps broadcasting"
+let lastPowerOffTime = null;
+let lastSongPosition = 0;
+let lastTrackUri = null;
+
 // --- FM Radio Effects Chain ---
 let fmFilter      = null;
 let fmCompressor  = null;
@@ -531,6 +536,93 @@ function checkLiveDJBreak() {
   return false;
 }
 
+// --- Continue from last position (station kept broadcasting) ---
+async function continueFromLastPosition() {
+  if (!spotifyCtrl) return false;
+
+  const timeElapsed = (Date.now() - lastPowerOffTime) / 1000; // seconds
+  const MAX_CONTINUITY_TIME = 300; // 5 minutes
+
+  console.log(`📻 Station was off for ${Math.floor(timeElapsed)}s`);
+
+  if (timeElapsed > MAX_CONTINUITY_TIME) {
+    console.log('📻 Too long - fresh tune-in');
+    return false; // Too long, do fresh tune-in
+  }
+
+  try {
+    // Calculate where the song would be now
+    const projectedPosition = lastSongPosition + (timeElapsed * 1000);
+
+    // Check if we would have hit a DJ break during downtime
+    const djBreakDuringDowntime = checkIfDJBreakOccurred(lastPowerOffTime, Date.now());
+
+    if (djBreakDuringDowntime) {
+      console.log('📻 DJ break happened while off - playing it now');
+      await spotifyCtrl.play();
+      await sleep(500);
+      // Trigger the DJ break that would have happened
+      if (djBreakDuringDowntime === 'full') {
+        await triggerDJBreak();
+      } else {
+        await triggerQuickID();
+      }
+      return true;
+    }
+
+    // Try to resume from projected position
+    await spotifyCtrl.play();
+    await sleep(500);
+
+    // Get current track info
+    const state = await spotifyCtrl.getPlaybackState();
+
+    if (state && state.duration) {
+      // If projected position is beyond song duration, let Spotify handle it (auto-skip)
+      if (projectedPosition < state.duration) {
+        await spotifyCtrl.seek(projectedPosition);
+        console.log(`📻 Continued from ${Math.floor(projectedPosition/1000)}s (${Math.floor(timeElapsed)}s later)`);
+      } else {
+        console.log('📻 Song ended while off - Spotify auto-skipped to next');
+      }
+    }
+
+    return true;
+  } catch (e) {
+    console.warn('Failed to continue from last position:', e);
+    return false;
+  }
+}
+
+// --- Check if DJ break occurred during downtime ---
+function checkIfDJBreakOccurred(startTime, endTime) {
+  const startSecs = Math.floor((new Date(startTime).getMinutes() * 60 + new Date(startTime).getSeconds()));
+  const endSecs = Math.floor((new Date(endTime).getMinutes() * 60 + new Date(endTime).getSeconds()));
+  const elapsedSecs = Math.floor((endTime - startTime) / 1000);
+
+  // Check for full DJ breaks (every 7 minutes)
+  const fullBreakCycle = 7 * 60;
+  const startCyclePos = startSecs % fullBreakCycle;
+  const endCyclePos = endSecs % fullBreakCycle;
+
+  // If we crossed a cycle boundary, a break occurred
+  if (endCyclePos < startCyclePos || elapsedSecs >= fullBreakCycle) {
+    return 'full';
+  }
+
+  // Check for quick IDs (every 2.5 minutes, offset by 90s)
+  const quickIDCycle = 2.5 * 60;
+  const quickIDOffset = 90;
+  const startQuickPos = (startSecs - quickIDOffset) % quickIDCycle;
+  const endQuickPos = (endSecs - quickIDOffset) % quickIDCycle;
+
+  if (endQuickPos < startQuickPos || elapsedSecs >= quickIDCycle) {
+    return 'quick';
+  }
+
+  return false;
+}
+
 // --- Start Spotify at random position (simulate catching mid-song) ---
 async function startSpotifyLive() {
   if (!spotifyCtrl) return;
@@ -623,7 +715,18 @@ async function powerOn() {
     updateClock();
     clockInterval = setInterval(updateClock, 10000);
 
-    // 50% chance to start mid-DJ break, 50% mid-song
+    // Check if we should continue from last position (station kept broadcasting)
+    if (lastPowerOffTime && (Date.now() - lastPowerOffTime) < 300000) {
+      // Power was off for less than 5 minutes - continue where station would be
+      const continued = await continueFromLastPosition();
+      if (continued) {
+        scheduleDJBreaks();
+        return;
+      }
+      // If continue failed, fall through to random tune-in
+    }
+
+    // Fresh tune-in: 50% chance to start mid-DJ break, 50% mid-song
     if (Math.random() < 0.5) {
       // Start mid-DJ break
       const randomBreak = breaks[Math.floor(Math.random() * breaks.length)];
@@ -684,12 +787,23 @@ async function powerOn() {
   clockInterval = setInterval(updateClock, 10000);
 
   // === LIVE BROADCAST SIMULATION ===
-  
+
   // If we have local music loaded, prioritize that
   if (musicPlayer.playlist.length > 0) {
     musicPlayer.playNext();
     scheduleDJBreaks(); // Still schedule random breaks
     return;
+  }
+
+  // Check if we should continue from last position (station kept broadcasting)
+  if (lastPowerOffTime && (Date.now() - lastPowerOffTime) < 300000) {
+    // Power was off for less than 5 minutes - continue where station would be
+    const continued = await continueFromLastPosition();
+    if (continued) {
+      scheduleDJBreaks();
+      return;
+    }
+    // If continue failed, fall through to normal tune-in
   }
 
   // Check if we're "tuning in" during a DJ break window
@@ -726,7 +840,7 @@ async function powerOn() {
 }
 
 // --- Power Off ---
-function powerOff() {
+async function powerOff() {
   isOn = false;
   clearInterval(eqInterval);
   clearInterval(clockInterval);
@@ -736,10 +850,29 @@ function powerOff() {
   clearTimeout(quickIDTimeout);
   stopTaglineRotation();
 
-  if (spotifyCtrl) spotifyCtrl.pause();
+  // Record current state so station can "continue broadcasting" when powered back on
+  lastPowerOffTime = Date.now();
+
+  if (spotifyCtrl) {
+    try {
+      // Try to get current playback position
+      const state = await spotifyCtrl.getPlaybackState();
+      if (state) {
+        lastSongPosition = state.position || 0;
+        lastTrackUri = state.track?.uri || null;
+        console.log(`📻 Power OFF - Station at ${Math.floor(lastSongPosition/1000)}s`);
+      }
+    } catch (e) {
+      console.warn('Could not save playback state:', e);
+      lastSongPosition = 0;
+      lastTrackUri = null;
+    }
+    spotifyCtrl.pause();
+  }
+
   if (currentSource) { try { currentSource.stop(); } catch(e) {} currentSource = null; }
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  
+
   // Stop Radio Static
   noiseGen.stopHiss();
 

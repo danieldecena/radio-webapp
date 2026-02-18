@@ -55,6 +55,7 @@ let currentSource = null;
 let taglineTimer  = null;
 let taglineIdx    = 0;
 let lastSong      = { title: '', artist: '' };
+let spotifyVolume = 1.0; // Track current Spotify volume (0.0 to 1.0)
 
 // --- FM Radio Effects Chain ---
 let fmFilter      = null;
@@ -373,13 +374,49 @@ function fallbackTextOnly() {
   setTimeout(() => closeBreakPanel(), 9000);
 }
 
-function closeBreakPanel() {
+// --- Spotify Volume Ducking (Fade In/Out) ---
+async function fadeSpotifyVolume(targetVolume, duration = 1500) {
+  if (!spotifyCtrl) return;
+
+  try {
+    // Check if Spotify Embed API supports volume control
+    if (typeof spotifyCtrl.setVolume === 'function') {
+      const steps = 20;
+      const stepTime = duration / steps;
+      const startVolume = spotifyVolume;
+      const volumeDelta = (targetVolume - startVolume) / steps;
+
+      for (let i = 0; i < steps; i++) {
+        spotifyVolume = startVolume + (volumeDelta * (i + 1));
+        await spotifyCtrl.setVolume(spotifyVolume);
+        await sleep(stepTime);
+      }
+      spotifyVolume = targetVolume; // Ensure exact final value
+    } else {
+      // Fallback: If volume control not supported, pause/resume instead
+      console.warn('Spotify volume control not available, using pause/resume');
+      if (targetVolume < 0.5) {
+        await spotifyCtrl.pause();
+      } else {
+        await spotifyCtrl.resume();
+      }
+    }
+  } catch (e) {
+    console.warn('Volume fade failed, using pause/resume fallback:', e);
+    // Fallback to pause/resume
+    if (targetVolume < 0.5) {
+      if (spotifyCtrl.pause) spotifyCtrl.pause();
+    } else {
+      if (spotifyCtrl.resume) spotifyCtrl.resume();
+    }
+  }
+}
+
+async function closeBreakPanel() {
   if (!isOn) return;
 
-  // Resume Spotify playback (continue from same position - no track skip!)
-  if (spotifyCtrl) {
-    spotifyCtrl.resume();
-  }
+  // Fade Spotify volume back up to 100% (smooth transition)
+  await fadeSpotifyVolume(1.0, 1500);
 
   restoreLastHeard();
   showPanel('normal');
@@ -387,12 +424,12 @@ function closeBreakPanel() {
 }
 
 // --- Quick Station ID (10-20 sec) ---
-function triggerQuickID() {
+async function triggerQuickID() {
   const stationIDs = DJ_BREAKS.stationids;
   const text = stationIDs[Math.floor(Math.random() * stationIDs.length)];
 
-  // Pause Spotify during DJ break
-  if (spotifyCtrl) spotifyCtrl.pause();
+  // Fade Spotify volume down to 20% (DJ talks over music)
+  await fadeSpotifyVolume(0.2, 1500);
 
   djBreakContent.textContent = text;
   showPanel('djbreak');
@@ -403,7 +440,7 @@ function triggerQuickID() {
 }
 
 // --- Full DJ Breaks (30-60 sec) ---
-function triggerDJBreak() {
+async function triggerDJBreak() {
   // Check special date first (70% chance when available)
   const now     = new Date();
   const dateKey = String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
@@ -417,8 +454,8 @@ function triggerDJBreak() {
     text = getRandomBreak(category);
   }
 
-  // Pause Spotify during DJ break
-  if (spotifyCtrl) spotifyCtrl.pause();
+  // Fade Spotify volume down to 20% (DJ talks over music)
+  await fadeSpotifyVolume(0.2, 1500);
 
   djBreakContent.textContent = text;
   showPanel('djbreak');

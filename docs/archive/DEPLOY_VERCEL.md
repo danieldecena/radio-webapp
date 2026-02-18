@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - GitHub account
-- Your ElevenLabs API key: `sk_956d5903ae1fbf758d3621c5fd719bc57d6e37d32d16e791`
+- Your ElevenLabs API key (get from [elevenlabs.io/app/settings/api-keys](https://elevenlabs.io/app/settings/api-keys))
 
 ## 📦 Step 1: Push to GitHub
 
@@ -60,7 +60,7 @@ npx vercel --prod
 2. Click **Settings** → **Environment Variables**
 3. Add variable:
    - **Name**: `ELEVENLABS_API_KEY`
-   - **Value**: `sk_956d5903ae1fbf758d3621c5fd719bc57d6e37d32d16e791`
+   - **Value**: (paste your ElevenLabs API key here)
    - **Environment**: All (Production, Preview, Development)
 4. Click **"Save"**
 5. **Redeploy**: Go to **Deployments** → Click the three dots → **Redeploy**

@@ -44,7 +44,7 @@ gh repo create 93.4-rom-radio --private --source=. --remote=origin --push
 1. Netlify dashboard → **Site settings** → **Environment variables**
 2. Add variable:
    - Name: `ELEVENLABS_API_KEY`
-   - Value: `sk_956d5903ae1fbf758d3621c5fd719bc57d6e37d32d16e791`
+   - Value: (paste your ElevenLabs API key here)
 3. **Trigger redeploy** (Deploys tab → Trigger deploy)
 
 ### 4️⃣ Done! 🎉

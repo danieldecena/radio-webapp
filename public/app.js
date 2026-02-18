@@ -375,20 +375,24 @@ function fallbackTextOnly() {
 
 function closeBreakPanel() {
   if (!isOn) return;
+
+  // Resume Spotify playback (continue from same position - no track skip!)
+  if (spotifyCtrl) {
+    spotifyCtrl.resume();
+  }
+
   restoreLastHeard();
   showPanel('normal');
   startEQ();
-  
-  // If we have local music, play the next track
-  if (musicPlayer.playlist.length > 0) {
-    musicPlayer.playNext();
-  }
 }
 
 // --- Quick Station ID (10-20 sec) ---
 function triggerQuickID() {
   const stationIDs = DJ_BREAKS.stationids;
   const text = stationIDs[Math.floor(Math.random() * stationIDs.length)];
+
+  // Pause Spotify during DJ break
+  if (spotifyCtrl) spotifyCtrl.pause();
 
   djBreakContent.textContent = text;
   showPanel('djbreak');
@@ -412,6 +416,9 @@ function triggerDJBreak() {
     const category = getWeightedCategory();
     text = getRandomBreak(category);
   }
+
+  // Pause Spotify during DJ break
+  if (spotifyCtrl) spotifyCtrl.pause();
 
   djBreakContent.textContent = text;
   showPanel('djbreak');

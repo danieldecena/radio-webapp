@@ -171,7 +171,9 @@ window.onSpotifyIframeApiReady = (IFrameAPI) => {
         songTitle.textContent  = lastSong.title;
         songArtist.textContent = lastSong.artist;
       }
-}
+    });
+  });
+};
 
 // --- Clock ---
 function updateClock() {

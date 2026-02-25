@@ -67,31 +67,51 @@ body {
 /* === RADIO BODY === */
 .radio {
   width: 100%;
-  max-width: 380px;
-  background: var(--body);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 20px 20px 16px;
+  max-width: 440px;
+  background: linear-gradient(180deg, #1f1f1f 0%, #111 100%);
+  border-radius: 6px;
+  border: 1px solid #000;
+  border-top-color: #333;
+  padding: 24px 24px 20px;
   box-shadow:
-    0 0 0 1px rgba(0, 0, 0, 0.8),
-    0 32px 64px rgba(0, 0, 0, 0.85),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    0 10px 40px rgba(0, 0, 0, 0.95),
+    inset 0 1px 2px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 10px rgba(0, 0, 0, 0.8);
   position: relative;
+  /* subtle plastic/metal texture */
+  background-image:
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.05) 1px,
+      rgba(0, 0, 0, 0.05) 2px
+    ),
+    linear-gradient(180deg, #242424 0%, #111 100%);
 }
 
 .radio::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 18px;
-  right: 18px;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.18),
-    transparent
-  );
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 8px;
+  z-index: -1;
+  background: linear-gradient(180deg, #444 0%, #080808 100%);
+}
+
+.radio::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.4);
+  pointer-events: none;
 }
 
 /* === TOP BAR === */
@@ -238,32 +258,36 @@ body {
 
 /* === CAR DISPLAY PANEL === */
 .car-display {
-  background: #090909;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 10px;
-  padding: 14px 16px;
-  margin-bottom: 18px;
-  min-height: 110px;
+  background: #020617; /* Deep VFD blue-black */
+  border: 2px solid #000;
+  border-radius: 4px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  min-height: 125px;
   box-shadow:
-    inset 0 2px 10px rgba(0, 0, 0, 0.7),
-    inset 0 0 0 1px rgba(0, 0, 0, 0.5);
+    inset 0 4px 15px rgba(0, 0, 0, 0.9),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+    0 1px 1px rgba(255, 255, 255, 0.15); /* Bezel glint */
   position: relative;
   overflow: hidden;
+  /* Add an LCD grid texture */
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 3px 3px;
 }
 
 .car-display::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.04) 2px,
-    rgba(0, 0, 0, 0.04) 4px
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.03) 0%,
+    transparent 40%
   );
   pointer-events: none;
-  z-index: 1;
+  z-index: 10;
 }
 
 .display-song-title {
@@ -436,8 +460,9 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
-  margin-bottom: 14px;
+  gap: 32px;
+  margin-bottom: 20px;
+  padding: 10px 0;
 }
 .ctrl-btn {
   background: none;
@@ -461,58 +486,104 @@ body {
 }
 
 .power-btn {
-  width: 76px;
-  height: 76px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: var(--surface);
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: linear-gradient(135deg, #333 0%, #111 100%);
+  border: none !important;
   box-shadow:
-    0 4px 16px rgba(0, 0, 0, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
-  color: rgba(255, 255, 255, 0.25);
-  transition: all 0.2s ease;
+    0 4px 12px rgba(0, 0, 0, 0.8),
+    inset 0 2px 0 rgba(255, 255, 255, 0.2),
+    /* Top rim shine */ inset 0 -2px 4px rgba(0, 0, 0, 0.5),
+    /* Bottom shadow */ 0 0 0 4px #1a1a1a; /* Plastic recessed ring */
+  color: rgba(255, 255, 255, 0.15);
+  transition: all 0.1s ease;
+  position: relative;
+}
+.power-btn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: radial-gradient(rgba(0, 0, 0, 0.2), transparent);
 }
 .power-btn svg {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 1px 1px #000);
 }
 .power-btn.on {
-  background: var(--accent);
-  color: #0a0a0a;
-  border-color: transparent !important;
+  color: var(--accent); /* Backlit symbol glow */
   box-shadow:
-    0 4px 24px rgba(137, 196, 225, 0.5),
-    0 0 40px rgba(137, 196, 225, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    0 2px 6px rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.7),
+    0 0 0 4px #1a1a1a;
+  text-shadow: 0 0 12px var(--accent);
+}
+.power-btn.on svg {
+  filter: drop-shadow(0 0 8px var(--accent));
 }
 .power-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.96) translateY(2px);
+  box-shadow:
+    0 0px 4px rgba(0, 0, 0, 0.9),
+    inset 0 4px 8px rgba(0, 0, 0, 0.8),
+    0 0 0 4px #1a1a1a;
 }
 
-.vol-btn {
+.vol-btn,
+.load-btn {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #2a2a2a 0%, #0d0d0d 100%);
+  border-radius: 6px; /* Tactile square buttons */
+  border: none !important;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+  transition: all 0.1s;
+}
+.vol-btn svg,
+.load-btn svg {
+  width: 16px;
+  height: 16px;
+  filter: drop-shadow(0 -1px 1px #000);
+}
+.vol-btn:active,
+.load-btn:active {
+  transform: translateY(2px);
+  box-shadow:
+    0 0 0 rgba(0, 0, 0, 0),
+    inset 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+.vol-btn.active {
+  color: var(--accent);
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+
+.load-btn {
   width: 44px;
   height: 44px;
   background: var(--surface);
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
-.vol-btn svg {
+.load-btn svg {
   width: 18px;
   height: 18px;
 }
-.vol-btn.active {
-  color: var(--accent);
+.load-btn:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.2) !important;
 }
-
-.load-btn {
-  width: 44px; height: 44px;
-  background: var(--surface);
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.06) !important;
-}
-.load-btn svg { width: 18px; height: 18px; }
-.load-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.2) !important; }
 
 /* === VOLUME === */
 .volume-container {

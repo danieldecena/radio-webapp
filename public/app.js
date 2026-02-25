@@ -403,6 +403,57 @@ function fallbackTextOnly() {
   setTimeout(() => closeBreakPanel(), 9000);
 }
 
+// --- Music Player Volume Ducking (for DJ breaks) ---
+async function fadeMusicPlayerVolume(targetVolume, duration = 1500) {
+  if (musicPlayer.playlist.length === 0 || musicPlayer.audio.paused) return;
+
+  // Use Web Audio API gain node for smooth fading
+  if (musicPlayer.gainNode && audioCtx) {
+    try {
+      const currentTime = audioCtx.currentTime;
+      const durationInSeconds = duration / 1000;
+
+      // Cancel any scheduled changes
+      musicPlayer.gainNode.gain.cancelScheduledValues(currentTime);
+
+      // Get current gain value
+      const currentGain = musicPlayer.gainNode.gain.value;
+
+      // Set current value and ramp to target
+      musicPlayer.gainNode.gain.setValueAtTime(currentGain, currentTime);
+
+      // Use exponential ramp for more natural sound (avoid going to exact 0)
+      const safeTarget = Math.max(0.01, targetVolume);
+      musicPlayer.gainNode.gain.exponentialRampToValueAtTime(
+        safeTarget,
+        currentTime + durationInSeconds
+      );
+
+      await sleep(duration);
+    } catch (e) {
+      console.warn('Gain node fade failed, using volume property:', e);
+      // Fallback to volume property
+      await fadeMusicPlayerVolumeProperty(targetVolume, duration);
+    }
+  } else {
+    // Fallback to volume property if gain node not available
+    await fadeMusicPlayerVolumeProperty(targetVolume, duration);
+  }
+}
+
+async function fadeMusicPlayerVolumeProperty(targetVolume, duration) {
+  const steps = 30;
+  const stepTime = duration / steps;
+  const startVolume = musicPlayer.audio.volume;
+  const volumeDelta = (targetVolume - startVolume) / steps;
+
+  for (let i = 0; i < steps; i++) {
+    musicPlayer.audio.volume = Math.max(0, Math.min(1, startVolume + (volumeDelta * (i + 1))));
+    await sleep(stepTime);
+  }
+  musicPlayer.audio.volume = targetVolume;
+}
+
 // --- Spotify Volume Ducking (Fade In/Out) ---
 async function fadeSpotifyVolume(targetVolume, duration = 1500) {
   if (!spotifyCtrl) return;
@@ -444,8 +495,11 @@ async function fadeSpotifyVolume(targetVolume, duration = 1500) {
 async function closeBreakPanel() {
   if (!isOn) return;
 
-  // Fade Spotify volume back up to 100% (smooth transition)
-  await fadeSpotifyVolume(1.0, 1500);
+  // Fade music back up to 100% (smooth transition)
+  await Promise.all([
+    fadeSpotifyVolume(1.0, 1500),
+    fadeMusicPlayerVolume(1.0, 1500)
+  ]);
 
   restoreLastHeard();
   showPanel('normal');
@@ -457,8 +511,11 @@ async function triggerQuickID() {
   const stationIDs = DJ_BREAKS.stationids;
   const text = stationIDs[Math.floor(Math.random() * stationIDs.length)];
 
-  // Fade Spotify volume down to 20% (DJ talks over music)
-  await fadeSpotifyVolume(0.2, 1500);
+  // Fade music volume down to 20% (DJ talks over music)
+  await Promise.all([
+    fadeSpotifyVolume(0.2, 1000),
+    fadeMusicPlayerVolume(0.2, 1000)
+  ]);
 
   djBreakContent.textContent = text;
   showPanel('djbreak');
@@ -483,8 +540,11 @@ async function triggerDJBreak() {
     text = getRandomBreak(category);
   }
 
-  // Fade Spotify volume down to 20% (DJ talks over music)
-  await fadeSpotifyVolume(0.2, 1500);
+  // Fade music volume down to 15% (DJ talks over intro/outro)
+  await Promise.all([
+    fadeSpotifyVolume(0.15, 1200),
+    fadeMusicPlayerVolume(0.15, 1200)
+  ]);
 
   djBreakContent.textContent = text;
   showPanel('djbreak');
@@ -1048,13 +1108,22 @@ class MusicPlayer {
     this.audio.crossOrigin = 'anonymous';
     this.fadeOutTimer = null;
     this.isFading = false;
-    
+
+    // For crossfading - we need two audio elements
+    this.nextAudio = new Audio();
+    this.nextAudio.crossOrigin = 'anonymous';
+
+    // Gain nodes for smooth crossfading
+    this.gainNode = null;
+    this.nextGainNode = null;
+
     // Connect to AudioContext for visualizer
     this.audioSource = null;
-    
+    this.nextAudioSource = null;
+
     this.audio.addEventListener('ended', () => this.handleSongEnd());
     this.audio.addEventListener('timeupdate', () => this.checkForCrossfade());
-    
+
     // Auto-advance if not fading
     this.audio.addEventListener('error', (e) => {
       console.warn('Audio error:', e);
@@ -1097,15 +1166,44 @@ class MusicPlayer {
     if (this.audioSource) return;
 
     try {
+      // Create gain node for smooth volume control
+      this.gainNode = audioCtx.createGain();
+      this.gainNode.gain.value = 1.0;
+
       this.audioSource = audioCtx.createMediaElementSource(this.audio);
-      // Connect to FM effects chain if available, otherwise destination
+
+      // Chain: audio -> gainNode -> FM effects -> destination
+      this.audioSource.connect(this.gainNode);
       if (fmFilter) {
-        this.audioSource.connect(fmFilter);
+        this.gainNode.connect(fmFilter);
       } else {
-        this.audioSource.connect(audioCtx.destination);
+        this.gainNode.connect(audioCtx.destination);
       }
     } catch (e) {
       console.warn('Visualizer connection failed:', e);
+    }
+  }
+
+  connectNextAudioToVisualizer() {
+    if (!audioCtx) return;
+    if (this.nextAudioSource) return;
+
+    try {
+      // Create gain node for next audio (starts at 0)
+      this.nextGainNode = audioCtx.createGain();
+      this.nextGainNode.gain.value = 0;
+
+      this.nextAudioSource = audioCtx.createMediaElementSource(this.nextAudio);
+
+      // Chain: nextAudio -> nextGainNode -> FM effects -> destination
+      this.nextAudioSource.connect(this.nextGainNode);
+      if (fmFilter) {
+        this.nextGainNode.connect(fmFilter);
+      } else {
+        this.nextGainNode.connect(audioCtx.destination);
+      }
+    } catch (e) {
+      console.warn('Next audio connection failed:', e);
     }
   }
 
@@ -1130,12 +1228,32 @@ class MusicPlayer {
     this.audio.src = track.url;
     this.audio.volume = 1.0;
 
+    // Add slight fade-in for smoother feel (especially for mid-song tuning)
+    if (midSong && this.gainNode && audioCtx) {
+      this.gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      this.gainNode.gain.exponentialRampToValueAtTime(1.0, audioCtx.currentTime + 1.5);
+    }
+
     this.audio.play().then(() => {
-      // Seek to random mid-song position (20%-80%) to simulate live radio tuning
+      // Enhanced mid-song tuning logic
       if (midSong && this.audio.duration && isFinite(this.audio.duration)) {
-        const pos = this.audio.duration * (0.2 + Math.random() * 0.6);
+        // More varied positioning:
+        // 40% chance: early in song (15-40%)
+        // 40% chance: middle of song (40-70%)
+        // 20% chance: late in song (70-85%)
+        const rand = Math.random();
+        let pos;
+        if (rand < 0.4) {
+          pos = this.audio.duration * (0.15 + Math.random() * 0.25);
+        } else if (rand < 0.8) {
+          pos = this.audio.duration * (0.40 + Math.random() * 0.30);
+        } else {
+          pos = this.audio.duration * (0.70 + Math.random() * 0.15);
+        }
+
         this.audio.currentTime = pos;
-        console.log(`📻 Tuned in mid-song at ${Math.floor(pos)}s / ${Math.floor(this.audio.duration)}s`);
+        const progress = Math.floor((pos / this.audio.duration) * 100);
+        console.log(`📻 Tuned in at ${Math.floor(pos)}s / ${Math.floor(this.audio.duration)}s (${progress}%)`);
       }
     }).catch(e => console.error('Play failed:', e));
 
@@ -1143,7 +1261,16 @@ class MusicPlayer {
     if (midSong) {
       this.audio.addEventListener('loadedmetadata', () => {
         if (this.audio.duration && isFinite(this.audio.duration)) {
-          const pos = this.audio.duration * (0.2 + Math.random() * 0.6);
+          // Same enhanced positioning logic
+          const rand = Math.random();
+          let pos;
+          if (rand < 0.4) {
+            pos = this.audio.duration * (0.15 + Math.random() * 0.25);
+          } else if (rand < 0.8) {
+            pos = this.audio.duration * (0.40 + Math.random() * 0.30);
+          } else {
+            pos = this.audio.duration * (0.70 + Math.random() * 0.15);
+          }
           this.audio.currentTime = pos;
         }
       }, { once: true });
@@ -1173,48 +1300,186 @@ class MusicPlayer {
 
   checkForCrossfade() {
     if (this.isFading || this.audio.paused) return;
-    
+
     const timeLeft = this.audio.duration - this.audio.currentTime;
-    // Start crossfade 8 seconds before end
-    if (timeLeft > 0 && timeLeft <= 8) {
+    // Start crossfade 6 seconds before end
+    if (timeLeft > 0 && timeLeft <= 6) {
       this.startCrossfade();
     }
   }
 
   startCrossfade() {
     this.isFading = true;
-    console.log('Starting crossfade/DJ break...');
-    
-    // Fade out over 4 seconds
-    const fadeDuration = 4000;
-    const step = 0.05;
-    const interval = fadeDuration * step;
-    
-    let vol = 1.0;
+    console.log('Starting smooth crossfade...');
+
+    // 60% chance of DJ break, 40% direct crossfade to next song
+    if (Math.random() < 0.6) {
+      // Fade out and trigger DJ break
+      this.fadeOutForBreak();
+    } else {
+      // Smooth crossfade to next song
+      this.crossfadeToNext();
+    }
+  }
+
+  fadeOutForBreak() {
+    if (!this.gainNode || !audioCtx) {
+      // Fallback to volume-based fade
+      this.fadeOutVolumeForBreak();
+      return;
+    }
+
+    // Smooth exponential fade out over 3 seconds
+    const fadeDuration = 3;
+    this.gainNode.gain.exponentialRampToValueAtTime(
+      0.01, // Can't go to 0 with exponential
+      audioCtx.currentTime + fadeDuration
+    );
+
+    // After fade completes, pause and trigger break
+    setTimeout(() => {
+      this.audio.pause();
+      this.audio.currentTime = 0;
+      if (this.gainNode) this.gainNode.gain.value = 1.0; // Reset for next song
+      this.triggerBreakOrNext();
+    }, fadeDuration * 1000);
+  }
+
+  fadeOutVolumeForBreak() {
+    // Fallback using volume property
+    const fadeDuration = 3000;
+    const steps = 60;
+    const stepTime = fadeDuration / steps;
+    let step = 0;
+
     const timer = setInterval(() => {
-      vol -= step;
-      if (vol <= 0) {
-        vol = 0;
+      step++;
+      const progress = step / steps;
+      this.audio.volume = Math.max(0, 1 - progress);
+
+      if (step >= steps) {
         clearInterval(timer);
         this.audio.pause();
+        this.audio.currentTime = 0;
+        this.audio.volume = 1.0;
         this.triggerBreakOrNext();
       }
-      this.audio.volume = vol;
-    }, interval);
+    }, stepTime);
+  }
+
+  crossfadeToNext() {
+    if (this.playlist.length === 0) {
+      this.fadeOutForBreak();
+      return;
+    }
+
+    // Prepare next track
+    const nextIndex = (this.currentIndex + 1) % this.playlist.length;
+    const nextTrack = this.playlist[nextIndex];
+
+    if (!nextTrack) {
+      this.fadeOutForBreak();
+      return;
+    }
+
+    // Set up next audio element
+    this.nextAudio.src = nextTrack.url;
+    this.nextAudio.volume = 1.0;
+
+    // Connect to audio context if not already
+    this.connectNextAudioToVisualizer();
+
+    // Start playing next track (will fade in)
+    this.nextAudio.play().then(() => {
+      console.log(`📻 Crossfading to: ${nextTrack.title}`);
+
+      // Update UI
+      lastSong.title = nextTrack.title;
+      lastSong.artist = nextTrack.artist.toUpperCase();
+      songTitle.textContent = lastSong.title;
+      songArtist.textContent = lastSong.artist;
+      stopTaglineRotation();
+
+      if (this.gainNode && this.nextGainNode && audioCtx) {
+        // Smooth crossfade using gain nodes
+        const crossfadeDuration = 4; // 4 seconds overlap
+
+        // Fade out current track
+        this.gainNode.gain.exponentialRampToValueAtTime(
+          0.01,
+          audioCtx.currentTime + crossfadeDuration
+        );
+
+        // Fade in next track
+        this.nextGainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
+        this.nextGainNode.gain.exponentialRampToValueAtTime(
+          1.0,
+          audioCtx.currentTime + crossfadeDuration
+        );
+
+        // After crossfade, swap audio elements
+        setTimeout(() => {
+          this.audio.pause();
+          this.audio.currentTime = 0;
+
+          // Swap audio elements and sources
+          [this.audio, this.nextAudio] = [this.nextAudio, this.audio];
+          [this.audioSource, this.nextAudioSource] = [this.nextAudioSource, this.audioSource];
+          [this.gainNode, this.nextGainNode] = [this.nextGainNode, this.gainNode];
+
+          // Reset gain for next crossfade
+          if (this.gainNode) this.gainNode.gain.value = 1.0;
+          if (this.nextGainNode) this.nextGainNode.gain.value = 0;
+
+          this.currentIndex = nextIndex;
+          this.isFading = false;
+        }, crossfadeDuration * 1000);
+      } else {
+        // Fallback without Web Audio API gain nodes
+        this.crossfadeWithVolume(nextIndex);
+      }
+    }).catch(e => {
+      console.error('Crossfade play failed:', e);
+      this.fadeOutForBreak();
+    });
+  }
+
+  crossfadeWithVolume(nextIndex) {
+    // Fallback crossfade using volume property
+    const crossfadeDuration = 4000;
+    const steps = 80;
+    const stepTime = crossfadeDuration / steps;
+    let step = 0;
+
+    const timer = setInterval(() => {
+      step++;
+      const progress = step / steps;
+
+      this.audio.volume = Math.max(0, 1 - progress);
+      this.nextAudio.volume = Math.min(1, progress);
+
+      if (step >= steps) {
+        clearInterval(timer);
+        this.audio.pause();
+        this.audio.currentTime = 0;
+
+        // Swap audio elements
+        [this.audio, this.nextAudio] = [this.nextAudio, this.audio];
+        this.audio.volume = 1.0;
+        this.nextAudio.volume = 0;
+
+        this.currentIndex = nextIndex;
+        this.isFading = false;
+      }
+    }, stepTime);
   }
 
   triggerBreakOrNext() {
-    // 60% chance of ANY break transition
-    if (Math.random() < 0.6) {
-        // DECISION: 90% Short Snippet (Cheap), 10% Full Break (Expensive)
-        if (Math.random() < 0.9) {
-            this.triggerShortSnippet();
-        } else {
-            triggerDJBreak();
-        }
+    // DECISION: 90% Short Snippet (Cheap), 10% Full Break (Expensive)
+    if (Math.random() < 0.9) {
+      this.triggerShortSnippet();
     } else {
-        // Just play next song (Gapless-ish)
-        this.playNext();
+      triggerDJBreak();
     }
   }
 
@@ -1239,15 +1504,27 @@ class MusicPlayer {
   stop() {
     this.audio.pause();
     this.audio.currentTime = 0;
+    this.nextAudio.pause();
+    this.nextAudio.currentTime = 0;
+
+    // Reset gain nodes
+    if (this.gainNode) this.gainNode.gain.value = 1.0;
+    if (this.nextGainNode) this.nextGainNode.gain.value = 0;
+
+    this.isFading = false;
+    if (this.fadeOutTimer) {
+      clearTimeout(this.fadeOutTimer);
+      this.fadeOutTimer = null;
+    }
   }
-  
+
   resume() {
     if (this.playlist.length > 0 && this.audio.paused) {
-        this.audio.play();
+      this.audio.play();
     } else if (this.playlist.length > 0) {
-        // already playing
+      // already playing
     } else {
-        // no music
+      // no music
     }
   }
 }

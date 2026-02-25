@@ -4,7 +4,9 @@
   "description": "Personal web radio station with Spotify integration and AI DJ breaks",
   "private": true,
   "scripts": {
-    "dev": "netlify dev",
+    "dev": "node dev-server.js",
+    "dev:netlify": "netlify dev",
+    "playlist": "node scripts/generate_playlist.js",
     "build": "echo 'Static site - no build needed'",
     "deploy": "netlify deploy --prod"
   },

@@ -874,7 +874,8 @@ async function powerOn() {
 
   // If we have local music loaded, prioritize that
   if (musicPlayer.playlist.length > 0) {
-    musicPlayer.playNext();
+    // Start at a random track to simulate live radio
+    musicPlayer.playRandomTrack();
     scheduleDJBreaks(); // Still schedule random breaks
     return;
   }

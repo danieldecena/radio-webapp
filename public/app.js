@@ -322,23 +322,54 @@ async function speakDJBreak(text) {
   // Tier 2: Web Speech API (free, unlimited, built-in)
   if ('speechSynthesis' in window) {
     try {
+      console.log('🎙️ Using Web Speech API for:', text);
       window.speechSynthesis.cancel();
+
       const utter  = new SpeechSynthesisUtterance(text);
       utter.rate   = 0.95;
       utter.pitch  = 1.0;
       utter.volume = 1.0;
 
-      const voices    = window.speechSynthesis.getVoices();
+      // Get voices (might need to wait for them to load)
+      let voices = window.speechSynthesis.getVoices();
+
+      // If no voices yet, wait for them
+      if (voices.length === 0) {
+        console.log('⏳ Waiting for voices to load...');
+        await new Promise(resolve => {
+          window.speechSynthesis.onvoiceschanged = () => {
+            voices = window.speechSynthesis.getVoices();
+            resolve();
+          };
+          // Timeout after 1 second
+          setTimeout(resolve, 1000);
+        });
+      }
+
       const preferred = voices.find(v =>
         v.name.includes('Samantha') ||
         v.name.includes('Google US English') ||
         v.lang === 'en-US'
       );
-      if (preferred) utter.voice = preferred;
+      if (preferred) {
+        utter.voice = preferred;
+        console.log('✅ Using voice:', preferred.name);
+      } else {
+        console.log('⚠️ Using default voice');
+      }
 
-      utter.onend   = () => closeBreakPanel();
-      utter.onerror = () => fallbackTextOnly();
+      utter.onstart = () => console.log('🎙️ Speech started');
+      utter.onend   = () => {
+        console.log('✅ Speech finished');
+        closeBreakPanel();
+      };
+      utter.onerror = (e) => {
+        console.error('❌ Speech error:', e.error);
+        fallbackTextOnly();
+      };
+
       window.speechSynthesis.speak(utter);
+      console.log('📻 Speech queued');
       return;
     } catch (err) {
       console.warn('Web Speech failed:', err);

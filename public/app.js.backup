@@ -707,14 +707,29 @@ async function powerOn() {
     updateClock();
     clockInterval = setInterval(updateClock, 10000);
 
+    // Check if we should continue from last position (station kept broadcasting)
+    if (lastPowerOffTime && (Date.now() - lastPowerOffTime) < 300000) {
+      // Power was off for less than 5 minutes - continue where station would be
+      const continued = await continueFromLastPosition();
+      if (continued) {
+        scheduleDJBreaks();
+        return;
+      }
+      // If continue failed, fall through to random tune-in
+    }
+
     // Fresh tune-in: 50% chance to start mid-DJ break, 50% mid-song
     if (Math.random() < 0.5) {
       // Start mid-DJ break
       const randomBreak = breaks[Math.floor(Math.random() * breaks.length)];
       speakDJBreak(randomBreak);
     } else {
-      // Start mid-song
-      musicPlayer.playRandomTrack();
+      // Start mid-song (Spotify or local music)
+      if (musicPlayer.playlist.length > 0) {
+        musicPlayer.playRandomTrack();
+      } else {
+        startSpotifyLive();
+      }
     }
 
     scheduleDJBreaks();
@@ -765,8 +780,55 @@ async function powerOn() {
 
   // === LIVE BROADCAST SIMULATION ===
 
-  // Start at a random track to simulate live radio
-  musicPlayer.playRandomTrack();
+  // If we have local music loaded, prioritize that
+  if (musicPlayer.playlist.length > 0) {
+    // Start at a random track to simulate live radio
+    musicPlayer.playRandomTrack();
+    scheduleDJBreaks(); // Still schedule random breaks
+    return;
+  }
+
+  // Check if we should continue from last position (station kept broadcasting)
+  if (lastPowerOffTime && (Date.now() - lastPowerOffTime) < 300000) {
+    // Power was off for less than 5 minutes - continue where station would be
+    const continued = await continueFromLastPosition();
+    if (continued) {
+      scheduleDJBreaks();
+      return;
+    }
+    // If continue failed, fall through to normal tune-in
+  }
+
+  // Check if we're "tuning in" during a DJ break window
+  const liveBreakCheck = checkLiveDJBreak();
+
+  if (liveBreakCheck) {
+    // We caught the station during a DJ break or quick ID!
+    if (liveBreakCheck.type === 'full') {
+      console.log(`📻 LIVE: Caught full DJ break in progress (${liveBreakCheck.secsInto}s in)`);
+      await sleep(800);
+      if (isOn) triggerDJBreak();
+    } else if (liveBreakCheck.type === 'quick') {
+      console.log(`📻 LIVE: Caught quick station ID in progress (${liveBreakCheck.secsInto}s in)`);
+      await sleep(800);
+      if (isOn) triggerQuickID();
+    }
+  } else {
+    // We're between breaks - start music at random position (mid-song)
+    const now = new Date();
+    const secsIntoHour = now.getMinutes() * 60 + now.getSeconds();
+    const fullCycle = 7 * 60;
+    const quickCycle = 2.5 * 60;
+    const secsUntilFull = fullCycle - (secsIntoHour % fullCycle);
+    const minsUntilFull = Math.floor(secsUntilFull / 60);
+    const secsUntilQuick = quickCycle - (secsIntoHour % quickCycle);
+    const minsUntilQuick = Math.floor(secsUntilQuick / 60);
+
+    console.log(`📻 LIVE: Tuned in mid-song (Next ID in ~${minsUntilQuick}m, Full break in ~${minsUntilFull}m)`);
+    startSpotifyLive();
+  }
+
+  // Schedule future DJ breaks and quick IDs
   scheduleDJBreaks();
 }
 

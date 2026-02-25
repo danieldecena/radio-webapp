@@ -259,6 +259,28 @@ async function loadSnippetManifest() {
 }
 loadSnippetManifest();
 
+// --- Auto-load local music playlist ---
+async function loadLocalPlaylist() {
+  try {
+    const res = await fetch('music/playlist.json');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.tracks || data.tracks.length === 0) return;
+
+    // Build URL-based playlist entries
+    const tracks = data.tracks.map(t => ({
+      url: t.file.startsWith('http') ? t.file : ('music/' + encodeURIComponent(t.file)),
+      title: t.title,
+      artist: t.artist,
+    }));
+
+    musicPlayer.loadURLTracks(tracks);
+    console.log(`📻 Auto-loaded ${tracks.length} local tracks from playlist.json`);
+  } catch (e) {
+    console.warn('Could not load local playlist:', e);
+  }
+}
+
 // --- ElevenLabs TTS with fallbacks ---
 async function speakDJBreak(text) {
   
@@ -855,6 +877,11 @@ async function powerOff() {
   // Record current state so station can "continue broadcasting" when powered back on
   lastPowerOffTime = Date.now();
 
+  // Stop local music player if active
+  if (musicPlayer.playlist.length > 0) {
+    musicPlayer.stop();
+  }
+
   if (spotifyCtrl) {
     try {
       // Try to get current playback position
@@ -1036,14 +1063,31 @@ class MusicPlayer {
   }
 
   loadFiles(files) {
-    this.playlist = Array.from(files)
+    const fileTracks = Array.from(files)
       .filter(f => f.type.startsWith('audio/'))
+      .map(f => ({
+        url: URL.createObjectURL(f),
+        title: this.parseFilename(f.name).title,
+        artist: this.parseFilename(f.name).artist,
+      }))
       .sort(() => Math.random() - 0.5); // Shuffle
-      
+
+    this.loadURLTracks(fileTracks);
+  }
+
+  loadURLTracks(tracks) {
+    // Fisher-Yates shuffle
+    const shuffled = [...tracks];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    this.playlist = shuffled;
+    this.currentIndex = -1;
+
     if (this.playlist.length > 0) {
-      console.log(`Loaded ${this.playlist.length} songs.`);
-      this.currentIndex = -1;
-      // If radio is on, start playing
+      console.log(`📻 Playlist ready: ${this.playlist.length} tracks`);
+      // If radio is already on, start playing immediately
       if (isOn) this.playNext();
     }
   }
@@ -1067,24 +1111,51 @@ class MusicPlayer {
 
   playNext() {
     if (this.playlist.length === 0) return;
-    
+
     this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
-    const file = this.playlist[this.currentIndex];
-    
-    const url = URL.createObjectURL(file);
-    this.audio.src = url;
+    this._playTrackAtIndex(this.currentIndex);
+  }
+
+  playRandomTrack() {
+    if (this.playlist.length === 0) return;
+
+    this.currentIndex = Math.floor(Math.random() * this.playlist.length);
+    this._playTrackAtIndex(this.currentIndex, true); // true = seek mid-song
+  }
+
+  _playTrackAtIndex(index, midSong = false) {
+    const track = this.playlist[index];
+    if (!track) return;
+
+    this.audio.src = track.url;
     this.audio.volume = 1.0;
-    this.audio.play().catch(e => console.error('Play failed:', e));
-    
+
+    this.audio.play().then(() => {
+      // Seek to random mid-song position (20%-80%) to simulate live radio tuning
+      if (midSong && this.audio.duration && isFinite(this.audio.duration)) {
+        const pos = this.audio.duration * (0.2 + Math.random() * 0.6);
+        this.audio.currentTime = pos;
+        console.log(`📻 Tuned in mid-song at ${Math.floor(pos)}s / ${Math.floor(this.audio.duration)}s`);
+      }
+    }).catch(e => console.error('Play failed:', e));
+
+    // Attempt mid-song seek after metadata loads (duration may not be ready immediately)
+    if (midSong) {
+      this.audio.addEventListener('loadedmetadata', () => {
+        if (this.audio.duration && isFinite(this.audio.duration)) {
+          const pos = this.audio.duration * (0.2 + Math.random() * 0.6);
+          this.audio.currentTime = pos;
+        }
+      }, { once: true });
+    }
+
     // Update UI
-    const metadata = this.parseFilename(file.name);
-    lastSong.title = metadata.title;
-    lastSong.artist = metadata.artist;
-    
+    lastSong.title = track.title;
+    lastSong.artist = track.artist.toUpperCase();
     songTitle.textContent = lastSong.title;
     songArtist.textContent = lastSong.artist;
     stopTaglineRotation();
-    
+
     // Ensure visualizer is connected
     this.connectToVisualizer();
     this.isFading = false;
@@ -1183,7 +1254,10 @@ class MusicPlayer {
 
 const musicPlayer = new MusicPlayer();
 
-// Hook up events
+// Auto-load local playlist on startup (no file picker needed)
+loadLocalPlaylist();
+
+// Hook up events — manual override still available via Load button
 document.getElementById('musicFolder').addEventListener('change', (e) => {
   musicPlayer.loadFiles(e.target.files);
 });

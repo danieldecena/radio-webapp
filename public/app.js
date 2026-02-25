@@ -495,15 +495,21 @@ async function fadeSpotifyVolume(targetVolume, duration = 1500) {
 async function closeBreakPanel() {
   if (!isOn) return;
 
-  // Fade music back up to 100% (smooth transition)
-  await Promise.all([
-    fadeSpotifyVolume(1.0, 1500),
-    fadeMusicPlayerVolume(1.0, 1500)
-  ]);
+  // After DJ break, start next song (like real radio - DJ introduces next track)
+  if (musicPlayer.playlist.length > 0) {
+    // Start next song at low volume (DJ still talking over intro)
+    musicPlayer.playNextWithDJIntro();
+  } else {
+    // Fade Spotify back up if using Spotify
+    await Promise.all([
+      fadeSpotifyVolume(1.0, 1500),
+      fadeMusicPlayerVolume(1.0, 1500)
+    ]);
 
-  restoreLastHeard();
-  showPanel('normal');
-  startEQ();
+    restoreLastHeard();
+    showPanel('normal');
+    startEQ();
+  }
 }
 
 // --- Quick Station ID (10-20 sec) ---
@@ -1215,6 +1221,65 @@ class MusicPlayer {
     this._playTrackAtIndex(this.currentIndex);
   }
 
+  playNextWithDJIntro() {
+    // Start next song with DJ still talking (music at 20%, then fades up)
+    if (this.playlist.length === 0) return;
+
+    this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
+    const track = this.playlist[this.currentIndex];
+    if (!track) return;
+
+    this.audio.src = track.url;
+    this.audio.volume = 1.0;
+
+    // Start at low gain (DJ talking over intro)
+    if (this.gainNode && audioCtx) {
+      this.gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    } else {
+      this.audio.volume = 0.2;
+    }
+
+    this.audio.play().then(() => {
+      console.log(`📻 Playing with DJ intro: ${track.title}`);
+
+      // After 4 seconds, fade music up as DJ finishes (REAL RADIO INTRO)
+      setTimeout(() => {
+        if (this.gainNode && audioCtx) {
+          this.gainNode.gain.exponentialRampToValueAtTime(
+            1.0,
+            audioCtx.currentTime + 3
+          );
+        } else {
+          // Fade up using volume
+          const fadeSteps = 60;
+          const fadeTime = 3000 / fadeSteps;
+          let step = 0;
+          const fadeInterval = setInterval(() => {
+            step++;
+            this.audio.volume = Math.min(1.0, 0.2 + (step / fadeSteps) * 0.8);
+            if (step >= fadeSteps) clearInterval(fadeInterval);
+          }, fadeTime);
+        }
+
+        // Restore UI when music comes up
+        restoreLastHeard();
+        showPanel('normal');
+        startEQ();
+      }, 4000);
+    }).catch(e => console.error('Play with DJ intro failed:', e));
+
+    // Update UI
+    lastSong.title = track.title;
+    lastSong.artist = track.artist.toUpperCase();
+    songTitle.textContent = lastSong.title;
+    songArtist.textContent = lastSong.artist;
+    stopTaglineRotation();
+
+    // Ensure visualizer is connected
+    this.connectToVisualizer();
+    this.isFading = false;
+  }
+
   playRandomTrack() {
     if (this.playlist.length === 0) return;
 
@@ -1315,12 +1380,58 @@ class MusicPlayer {
 
     // 60% chance of DJ break, 40% direct crossfade to next song
     if (Math.random() < 0.6) {
-      // Fade out and trigger DJ break
-      this.fadeOutForBreak();
+      // DJ talks over the outro (REAL RADIO STYLE)
+      this.djTalkOverOutro();
     } else {
       // Smooth crossfade to next song
       this.crossfadeToNext();
     }
+  }
+
+  djTalkOverOutro() {
+    // REAL RADIO: DJ talks over the song outro while music plays underneath
+    console.log('📻 DJ talking over outro...');
+
+    // Duck music down to 20% over 1.5 seconds (DJ starts talking)
+    if (this.gainNode && audioCtx) {
+      this.gainNode.gain.exponentialRampToValueAtTime(
+        0.2,
+        audioCtx.currentTime + 1.5
+      );
+    } else {
+      // Fallback
+      const fadeSteps = 30;
+      const fadeTime = 1500 / fadeSteps;
+      let step = 0;
+      const fadeInterval = setInterval(() => {
+        step++;
+        this.audio.volume = Math.max(0.2, 1 - (step / fadeSteps) * 0.8);
+        if (step >= fadeSteps) clearInterval(fadeInterval);
+      }, fadeTime);
+    }
+
+    // Trigger DJ break after 1.5 seconds (when music is ducked)
+    setTimeout(() => {
+      this.triggerBreakOrNext();
+
+      // After 3 more seconds, fade current song out completely and start next
+      setTimeout(() => {
+        if (this.gainNode && audioCtx) {
+          this.gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            audioCtx.currentTime + 2
+          );
+        }
+
+        // After fade, song ends naturally and next one starts via closeBreakPanel()
+        setTimeout(() => {
+          this.audio.pause();
+          this.audio.currentTime = 0;
+          if (this.gainNode) this.gainNode.gain.value = 1.0;
+          this.isFading = false;
+        }, 2000);
+      }, 3000);
+    }, 1500);
   }
 
   fadeOutForBreak() {

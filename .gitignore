@@ -13,6 +13,7 @@ dist/
 # IDE
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -23,6 +24,8 @@ Thumbs.db
 
 # Local music files (large MP3s — tracked via playlist.json)
 public/music/*.mp3
+public/music_locked/
+public/music_locked_*/
 
 # Logs
 *.log

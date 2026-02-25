@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff3366;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cc0044;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="96" cy="96" r="96" fill="#080808"/>
+
+  <!-- Heart shape -->
+  <path d="
+    M 96 72.96
+    C 96 42.239999999999995,
+      57.599999999999994 26.87999999999998,
+      57.599999999999994 57.599999999999994
+    C 57.599999999999994 80.64,
+      96 103.68,
+      96 142.08
+    C 96 103.68,
+      134.4 80.64,
+      134.4 57.599999999999994
+    C 134.4 26.87999999999998,
+      96 42.239999999999995,
+      96 72.96
+    Z
+  " fill="url(#heartGradient)" stroke="#ff0044" stroke-width="1.92"/>
+
+  <!-- "Radio" text -->
+  <text
+    x="96"
+    y="105.216"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="30.72"
+    font-weight="bold"
+    fill="#ffffff"
+    text-anchor="middle"
+    dominant-baseline="middle"
+    style="text-transform: uppercase; letter-spacing: 1.536px;">
+    RADIO
+  </text>
+</svg>

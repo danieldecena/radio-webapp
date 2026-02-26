@@ -58,60 +58,32 @@ body {
   height: 300px;
   background: radial-gradient(
     ellipse,
-    rgba(137, 196, 225, 0.05) 0%,
+    rgba(137, 196, 225, 0.08) 0%,
     transparent 70%
   );
   pointer-events: none;
+  animation: room-breathe 8s ease-in-out infinite alternate;
+}
+
+@keyframes room-breathe {
+  0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; }
 }
 
 /* === RADIO BODY === */
 .radio {
   width: 100%;
-  max-width: 440px;
-  background: linear-gradient(180deg, #1f1f1f 0%, #111 100%);
-  border-radius: 6px;
-  border: 1px solid #000;
-  border-top-color: #333;
-  padding: 24px 24px 20px;
+  max-width: 380px;
+  background: var(--body);
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08); /* Single flat border */
+  padding: 20px 20px 16px;
   box-shadow:
-    0 10px 40px rgba(0, 0, 0, 0.95),
-    inset 0 1px 2px rgba(255, 255, 255, 0.15),
-    inset 0 -2px 10px rgba(0, 0, 0, 0.8);
+    0 0 0 1px rgba(0, 0, 0, 0.8),
+    0 32px 64px rgba(0, 0, 0, 0.85);
   position: relative;
-  /* subtle plastic/metal texture */
-  background-image:
-    repeating-linear-gradient(
-      45deg,
-      transparent,
-      transparent 1px,
-      rgba(0, 0, 0, 0.05) 1px,
-      rgba(0, 0, 0, 0.05) 2px
-    ),
-    linear-gradient(180deg, #242424 0%, #111 100%);
-}
-
-.radio::before {
-  content: "";
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 8px;
-  z-index: -1;
-  background: linear-gradient(180deg, #444 0%, #080808 100%);
-}
-
-.radio::after {
-  content: "";
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  right: 10px;
-  bottom: 10px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.4);
-  pointer-events: none;
+  /* Matte finish noise texture */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
 }
 
 /* === TOP BAR === */
@@ -244,9 +216,13 @@ body {
   font-size: 28px;
   font-weight: 800;
   letter-spacing: 4px;
-  color: var(--text);
   margin-bottom: 3px;
   text-transform: uppercase;
+  color: transparent;
+  background: linear-gradient(180deg, #ffffff 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5); /* Inner stamp depth */
 }
 .station-tagline {
   font-size: 10px;
@@ -410,7 +386,10 @@ body {
   width: 2px;
   height: 100%;
   background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
+  box-shadow: 
+    0 0 8px var(--accent),
+    -4px 0 12px rgba(137, 196, 225, 0.4),
+    -8px 0 24px rgba(137, 196, 225, 0.2);
 }
 .tuner-marks {
   position: absolute;

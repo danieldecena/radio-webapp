@@ -9,100 +9,112 @@ import {
   SPECIAL_DATES,
   getRandomBreak,
   getWeightedCategory,
-} from './breaks.js';
+} from "./breaks.js";
 
 // --- Serverless TTS Config ---
 // API key is now secure on the server side
 // Works with both Netlify and Vercel
-const TTS_ENDPOINT = window.location.hostname.includes('netlify')
-  ? '/.netlify/functions/speak'
-  : '/api/speak';
+const TTS_ENDPOINT = window.location.hostname.includes("netlify")
+  ? "/.netlify/functions/speak"
+  : "/api/speak";
 
 // --- Elements ---
-const powerBtn        = document.getElementById('powerBtn');
-const volBtn          = document.getElementById('volBtn');
-const volumeSlider    = document.getElementById('volumeSlider');
-const volumeContainer = document.getElementById('volumeContainer');
-const volValue        = document.getElementById('volValue');
-const onAirDot        = document.getElementById('onAirDot');
-const onAirEl         = document.getElementById('onAirEl');
-const freqDisplay     = document.getElementById('freqDisplay');
-const signalBars      = document.getElementById('signalBars');
-const songTitle       = document.getElementById('songTitle');
-const songArtist      = document.getElementById('songArtist');
-const liveDot         = document.getElementById('liveDot');
-const liveText        = document.getElementById('liveText');
-const displayClock    = document.getElementById('displayClock');
-const eqBars          = document.querySelectorAll('.eq-bar');
-const displayNormal   = document.getElementById('displayNormal');
-const displayScanning = document.getElementById('displayScanning');
-const displayDJBreak  = document.getElementById('displayDJBreak');
-const tunerNeedle     = document.getElementById('tunerNeedle');
-const scanningText    = document.getElementById('scanningText');
-const djBreakContent  = document.getElementById('djBreakContent');
+const powerBtn = document.getElementById("powerBtn");
+const volBtn = document.getElementById("volBtn");
+const volumeSlider = document.getElementById("volumeSlider");
+const volumeContainer = document.getElementById("volumeContainer");
+const volValue = document.getElementById("volValue");
+const onAirDot = document.getElementById("onAirDot");
+const onAirEl = document.getElementById("onAirEl");
+const freqDisplay = document.getElementById("freqDisplay");
+const signalBars = document.getElementById("signalBars");
+const songTitle = document.getElementById("songTitle");
+const songArtist = document.getElementById("songArtist");
+const liveDot = document.getElementById("liveDot");
+const liveText = document.getElementById("liveText");
+const displayClock = document.getElementById("displayClock");
+const eqBars = document.querySelectorAll(".eq-bar");
+const displayNormal = document.getElementById("displayNormal");
+const displayScanning = document.getElementById("displayScanning");
+const displayDJBreak = document.getElementById("displayDJBreak");
+const tunerNeedle = document.getElementById("tunerNeedle");
+const scanningText = document.getElementById("scanningText");
+const djBreakContent = document.getElementById("djBreakContent");
 
 // --- State ---
-let isOn          = false;
-let isScanning    = false;
-let volVisible    = false;
-let eqInterval    = null;
+let isOn = false;
+let isScanning = false;
+let volVisible = false;
+let eqInterval = null;
 let clockInterval = null;
 let breakInterval = null;
-let breakTimeout  = null;
-let audioCtx      = null;
+let breakTimeout = null;
+let audioCtx = null;
 let currentSource = null;
-let taglineTimer  = null;
-let taglineIdx    = 0;
-let lastSong      = { title: '', artist: '' };
+let taglineTimer = null;
+let taglineIdx = 0;
+let lastSong = { title: "", artist: "" };
 
-// Station continuity
+// Station continuity - simulate station keeps broadcasting when powered off
 let lastPowerOffTime = null;
+let lastSongIndex = -1;
+let lastSongPosition = 0;
 
 // --- FM Radio Effects Chain ---
-let fmFilter      = null;
-let fmCompressor  = null;
-let fmWaveshaper  = null;
-let fmOutputGain  = null;
+let fmFilter = null;
+let fmCompressor = null;
+let fmWaveshaper = null;
+let fmOutputGain = null;
+let fmAnalyser = null;
+let eqDataArray = null;
 
 // --- Initialize FM Radio Effects ---
 function initFMEffects() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (!audioCtx)
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
 
   // 1. Bandpass Filter (80Hz - 12kHz) - Classic FM radio frequency response
   const lowpass = audioCtx.createBiquadFilter();
-  lowpass.type = 'lowpass';
+  lowpass.type = "lowpass";
   lowpass.frequency.value = 12000; // Cut harsh highs
   lowpass.Q.value = 0.7;
 
   const highpass = audioCtx.createBiquadFilter();
-  highpass.type = 'highpass';
+  highpass.type = "highpass";
   highpass.frequency.value = 80; // Cut muddy bass
   highpass.Q.value = 0.7;
 
   // 2. Compressor - Radio "loudness"
   fmCompressor = audioCtx.createDynamicsCompressor();
-  fmCompressor.threshold.value = -24;  // Start compressing at -24dB
-  fmCompressor.knee.value = 10;        // Smooth compression curve
-  fmCompressor.ratio.value = 4;        // 4:1 compression ratio
-  fmCompressor.attack.value = 0.003;   // Fast attack (3ms)
-  fmCompressor.release.value = 0.25;   // Quick release (250ms)
+  fmCompressor.threshold.value = -24; // Start compressing at -24dB
+  fmCompressor.knee.value = 10; // Smooth compression curve
+  fmCompressor.ratio.value = 4; // 4:1 compression ratio
+  fmCompressor.attack.value = 0.003; // Fast attack (3ms)
+  fmCompressor.release.value = 0.25; // Quick release (250ms)
 
   // 3. Waveshaper - Subtle warmth/saturation
   fmWaveshaper = audioCtx.createWaveShaper();
   fmWaveshaper.curve = makeWarmthCurve(200); // Subtle tape-like saturation
-  fmWaveshaper.oversample = '2x';
+  fmWaveshaper.oversample = "2x";
 
   // 4. Output gain for overall volume control
   fmOutputGain = audioCtx.createGain();
   fmOutputGain.gain.value = 1.0;
 
-  // Connect the chain: highpass → lowpass → compressor → waveshaper → output gain
+  // 5. Analyser for dynamic EQ visualizer
+  fmAnalyser = audioCtx.createAnalyser();
+  fmAnalyser.fftSize = 64; // Yields 32 frequency bins
+  fmAnalyser.smoothingTimeConstant = 0.8; // Smooth bar falls
+  eqDataArray = new Uint8Array(fmAnalyser.frequencyBinCount);
+
+  // Connect the chain: highpass → lowpass → compressor → waveshaper → output gain → analyser → destination
   highpass.connect(lowpass);
   lowpass.connect(fmCompressor);
   fmCompressor.connect(fmWaveshaper);
   fmWaveshaper.connect(fmOutputGain);
-  fmOutputGain.connect(audioCtx.destination);
+  fmOutputGain.connect(fmAnalyser);
+  fmAnalyser.connect(audioCtx.destination);
 
   // Store the filter for later use
   fmFilter = highpass;
@@ -123,55 +135,74 @@ function makeWarmthCurve(amount) {
   return curve;
 }
 
-// Spotify embed removed - using local music player only
-
 // --- Clock ---
 function updateClock() {
-  const now  = new Date();
-  const h    = now.getHours() % 12 || 12;
-  const m    = String(now.getMinutes()).padStart(2, '0');
-  const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
+  const now = new Date();
+  const h = now.getHours() % 12 || 12;
+  const m = String(now.getMinutes()).padStart(2, "0");
+  const ampm = now.getHours() >= 12 ? "PM" : "AM";
   displayClock.textContent = `${h}:${m} ${ampm}`;
 }
 
 // --- EQ Visualizer ---
-const EQ_HEIGHTS = [15,30,20,40,25,50,20,35,15,45,30,20,55,25,15,40,20,30,15,35];
+let eqAnimFrame = null;
 
-function animateEQ() {
-  eqBars.forEach((bar, i) => {
-    const base = EQ_HEIGHTS[i];
-    const h    = base + Math.random() * (100 - base) * 0.6;
-    bar.style.height  = h + '%';
-    bar.style.opacity = '0.75';
-  });
+function animateEQFrame() {
+  if (fmAnalyser && eqDataArray) {
+    fmAnalyser.getByteFrequencyData(eqDataArray);
+
+    eqBars.forEach((bar, i) => {
+      // Map the 20 UI bars to the 32 frequency bins available
+      const binIndex = Math.floor(i * 1.5);
+      const value = eqDataArray[binIndex] || 0;
+
+      // Map 0-255 scale to percentage (min 5%, max 100%)
+      const heightPercent = Math.max(5, (value / 255) * 100);
+
+      bar.style.height = heightPercent + "%";
+      bar.style.opacity = value > 40 ? "0.9" : "0.4";
+    });
+  } else {
+    // Fallback if audio context isn't fully ready
+    eqBars.forEach((bar) => {
+      bar.style.height = "5%";
+      bar.style.opacity = "0.3";
+    });
+  }
+  eqAnimFrame = requestAnimationFrame(animateEQFrame);
 }
 
 function startEQ() {
   stopEQ();
-  animateEQ();
-  eqInterval = setInterval(animateEQ, 120);
+  animateEQFrame();
 }
 
 function stopEQ() {
-  clearInterval(eqInterval);
-  eqBars.forEach(bar => { bar.style.height = '4px'; bar.style.opacity = '0.2'; });
+  if (eqAnimFrame) cancelAnimationFrame(eqAnimFrame);
+  eqBars.forEach((bar) => {
+    bar.style.height = "4px";
+    bar.style.opacity = "0.2";
+  });
 }
 
 // --- Display Panels ---
 function showPanel(panel) {
-  displayNormal.style.display   = panel === 'normal'   ? 'block' : 'none';
-  displayScanning.style.display = panel === 'scanning' ? 'block' : 'none';
-  displayDJBreak.style.display  = panel === 'djbreak'  ? 'block' : 'none';
+  displayNormal.style.display = panel === "normal" ? "block" : "none";
+  displayScanning.style.display = panel === "scanning" ? "block" : "none";
+  displayDJBreak.style.display = panel === "djbreak" ? "block" : "none";
 }
 
 // --- Rotating Taglines ---
 function startTaglineRotation() {
   stopTaglineRotation();
   taglineIdx = 0;
-  songTitle.textContent  = '93.4 ROM';
+  songTitle.textContent = "93.4 ROM";
   songArtist.textContent = STATION_TAGLINES[0];
   taglineTimer = setInterval(() => {
-    if (lastSong.title) { stopTaglineRotation(); return; }
+    if (lastSong.title) {
+      stopTaglineRotation();
+      return;
+    }
     taglineIdx = (taglineIdx + 1) % STATION_TAGLINES.length;
     songArtist.textContent = STATION_TAGLINES[taglineIdx];
   }, 4000);
@@ -185,7 +216,7 @@ function stopTaglineRotation() {
 // --- Last Heard restore ---
 function restoreLastHeard() {
   if (lastSong.title) {
-    songTitle.textContent  = lastSong.title;
+    songTitle.textContent = lastSong.title;
     songArtist.textContent = lastSong.artist;
   } else {
     startTaglineRotation();
@@ -198,51 +229,89 @@ let snippetManifest = {};
 
 async function loadSnippetManifest() {
   try {
-    const res = await fetch('audio/snippets/manifest.json');
+    const res = await fetch("audio/snippets/manifest.json");
     if (res.ok) {
       snippetManifest = await res.json();
-      console.log('Loaded snippet manifest:', Object.keys(snippetManifest).length, 'items');
+      console.log(
+        "Loaded snippet manifest:",
+        Object.keys(snippetManifest).length,
+        "items",
+      );
     }
   } catch (e) {
-    console.warn('Could not load snippet manifest (using API only)');
+    console.warn("Could not load snippet manifest (using API only)");
   }
 }
 loadSnippetManifest();
 
 // --- Auto-load local music playlist ---
 async function loadLocalPlaylist() {
+  // Disable power button while loading
+  powerBtn.disabled = true;
+  powerBtn.style.opacity = "0.5";
+  powerBtn.style.cursor = "not-allowed";
+
+  // Show loading state
+  songTitle.textContent = "LOADING PLAYLIST...";
+  songArtist.textContent = "PLEASE WAIT";
+
   try {
-    const res = await fetch('music/playlist.json');
-    if (!res.ok) return;
+    const res = await fetch("music/playlist.json");
+
+    if (!res.ok) {
+      throw new Error(`Playlist not found (HTTP ${res.status})`);
+    }
+
     const data = await res.json();
-    if (!data.tracks || data.tracks.length === 0) return;
+
+    if (!data.tracks || data.tracks.length === 0) {
+      throw new Error("Playlist is empty");
+    }
 
     // Build URL-based playlist entries
-    const tracks = data.tracks.map(t => ({
-      url: t.file.startsWith('http') ? t.file : ('music/' + encodeURIComponent(t.file)),
+    const tracks = data.tracks.map((t) => ({
+      url: t.file.startsWith("http")
+        ? t.file
+        : "music/" + encodeURIComponent(t.file),
       title: t.title,
       artist: t.artist,
     }));
 
     musicPlayer.loadURLTracks(tracks);
-    console.log(`📻 Auto-loaded ${tracks.length} local tracks from playlist.json`);
+    console.log(
+      `📻 Auto-loaded ${tracks.length} local tracks from playlist.json`,
+    );
+
+    // Enable power button and show ready state
+    powerBtn.disabled = false;
+    powerBtn.style.opacity = "";
+    powerBtn.style.cursor = "";
+    songTitle.textContent = "93.4 ROM";
+    songArtist.textContent = "PLAYING THE HITS, DEDICATED TO YOU";
   } catch (e) {
-    console.warn('Could not load local playlist:', e);
+    console.error("Failed to load playlist:", e);
+
+    // Show error state
+    songTitle.textContent = "PLAYLIST ERROR";
+    songArtist.textContent = "USE LOAD MUSIC BUTTON BELOW";
+
+    // Keep power button disabled but allow manual music loading
+    powerBtn.disabled = true;
+    powerBtn.style.opacity = "0.3";
   }
 }
 
 // --- ElevenLabs TTS with fallbacks ---
 async function speakDJBreak(text) {
-  
   // Tier 0: Pre-generated Local Audio (Zero Cost)
   if (snippetManifest[text]) {
     try {
-      console.log('Playing local snippet:', text);
+      console.log("Playing local snippet:", text);
       const audio = new Audio(snippetManifest[text]);
-      
+
       const source = audioCtx.createMediaElementSource(audio);
       const gain = audioCtx.createGain();
-      
+
       // Connect to FM chain
       source.connect(gain);
       if (fmFilter) {
@@ -250,21 +319,23 @@ async function speakDJBreak(text) {
       } else {
         gain.connect(audioCtx.destination);
       }
-      
-      audio.onended = () => { closeBreakPanel(); };
+
+      audio.onended = () => {
+        closeBreakPanel();
+      };
       audio.play();
       return;
     } catch (e) {
-      console.warn('Local snippet failed, falling back to API', e);
+      console.warn("Local snippet failed, falling back to API", e);
     }
   }
 
   // Tier 1: ElevenLabs via secure serverless function
   try {
     const response = await fetch(TTS_ENDPOINT, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ text }),
     });
@@ -280,54 +351,75 @@ async function speakDJBreak(text) {
       }
       const arrayBuffer = bytes.buffer;
 
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') await audioCtx.resume();
+      if (!audioCtx)
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") await audioCtx.resume();
 
       // FM effects are already initialized in powerOn(), but safety check:
       if (!fmFilter) initFMEffects();
 
       const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-      const duration    = audioBuffer.duration;
+      const duration = audioBuffer.duration;
 
-      if (currentSource) { try { currentSource.stop(); } catch(e) {} currentSource = null; }
-
-      const source  = audioCtx.createBufferSource();
-      source.buffer = audioBuffer;
-      const gain    = audioCtx.createGain();
-      const fadeIn  = 0.6;
-      const fadeOut = Math.min(1.4, duration * 0.15);
-
-      gain.gain.setValueAtTime(0, audioCtx.currentTime);
-      gain.gain.linearRampToValueAtTime(1.0, audioCtx.currentTime + fadeIn);
-      if (duration > fadeIn + fadeOut + 1) {
-        gain.gain.setValueAtTime(1.0, audioCtx.currentTime + duration - fadeOut);
-        gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + duration);
+      if (currentSource) {
+        try {
+          currentSource.stop();
+        } catch (e) {}
+        currentSource = null;
       }
 
+      const source = audioCtx.createBufferSource();
+      source.buffer = audioBuffer;
+      // Create DJ voice gain node
+      const gain = audioCtx.createGain();
+
+      // DJ Voice Envelope
+      // Use very fast fade-in/out to prevent clipping the actual spoken words
+      const fadeInDuration = 0.1;
+      const fadeOutDuration = 0.4;
+
+      gain.gain.setValueAtTime(0, audioCtx.currentTime);
+      gain.gain.linearRampToValueAtTime(
+        1.0,
+        audioCtx.currentTime + fadeInDuration,
+      );
+
+      if (duration > fadeInDuration + fadeOutDuration) {
+        gain.gain.setValueAtTime(
+          1.0,
+          audioCtx.currentTime + duration - fadeOutDuration,
+        );
+        gain.gain.linearRampToValueAtTime(
+          0.01,
+          audioCtx.currentTime + duration,
+        );
+      }
       // Route through FM radio effects chain for authentic sound
       source.connect(gain);
       gain.connect(fmFilter); // Connect to FM effects instead of direct output
       source.start(0);
       currentSource = source;
-      source.onended = () => { currentSource = null; closeBreakPanel(); };
+      source.onended = () => {
+        currentSource = null;
+        closeBreakPanel();
+      };
       return;
     }
 
-    console.warn('ElevenLabs unavailable:', response.status);
-
+    console.warn("ElevenLabs unavailable:", response.status);
   } catch (err) {
-    console.warn('ElevenLabs failed:', err);
+    console.warn("ElevenLabs failed:", err);
   }
 
   // Tier 2: Web Speech API (free, unlimited, built-in)
-  if ('speechSynthesis' in window) {
+  if ("speechSynthesis" in window) {
     try {
-      console.log('🎙️ Using Web Speech API for:', text);
+      console.log("🎙️ Using Web Speech API for:", text);
       window.speechSynthesis.cancel();
 
-      const utter  = new SpeechSynthesisUtterance(text);
-      utter.rate   = 0.95;
-      utter.pitch  = 1.0;
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.rate = 0.95;
+      utter.pitch = 1.0;
       utter.volume = 1.0;
 
       // Get voices (might need to wait for them to load)
@@ -335,8 +427,8 @@ async function speakDJBreak(text) {
 
       // If no voices yet, wait for them
       if (voices.length === 0) {
-        console.log('⏳ Waiting for voices to load...');
-        await new Promise(resolve => {
+        console.log("⏳ Waiting for voices to load...");
+        await new Promise((resolve) => {
           window.speechSynthesis.onvoiceschanged = () => {
             voices = window.speechSynthesis.getVoices();
             resolve();
@@ -346,33 +438,34 @@ async function speakDJBreak(text) {
         });
       }
 
-      const preferred = voices.find(v =>
-        v.name.includes('Samantha') ||
-        v.name.includes('Google US English') ||
-        v.lang === 'en-US'
+      const preferred = voices.find(
+        (v) =>
+          v.name.includes("Samantha") ||
+          v.name.includes("Google US English") ||
+          v.lang === "en-US",
       );
       if (preferred) {
         utter.voice = preferred;
-        console.log('✅ Using voice:', preferred.name);
+        console.log("✅ Using voice:", preferred.name);
       } else {
-        console.log('⚠️ Using default voice');
+        console.log("⚠️ Using default voice");
       }
 
-      utter.onstart = () => console.log('🎙️ Speech started');
-      utter.onend   = () => {
-        console.log('✅ Speech finished');
+      utter.onstart = () => console.log("🎙️ Speech started");
+      utter.onend = () => {
+        console.log("✅ Speech finished");
         closeBreakPanel();
       };
       utter.onerror = (e) => {
-        console.error('❌ Speech error:', e.error);
+        console.error("❌ Speech error:", e.error);
         fallbackTextOnly();
       };
 
       window.speechSynthesis.speak(utter);
-      console.log('📻 Speech queued');
+      console.log("📻 Speech queued");
       return;
     } catch (err) {
-      console.warn('Web Speech failed:', err);
+      console.warn("Web Speech failed:", err);
     }
   }
 
@@ -385,70 +478,74 @@ function fallbackTextOnly() {
 }
 
 // --- Music Player Volume Ducking (for DJ breaks) ---
-async function fadeMusicPlayerVolume(targetVolume, duration = 1500) {
+async function fadeMusicPlayerVolume(targetVolume, duration = 2500) {
   if (musicPlayer.playlist.length === 0 || musicPlayer.audio.paused) return;
 
-  // Use Web Audio API gain node for smooth fading
+  // Apple Music Style: Ultra-smooth, long exponential ducking (side-chaining effect)
   if (musicPlayer.gainNode && audioCtx) {
     try {
       const currentTime = audioCtx.currentTime;
-      const durationInSeconds = duration / 1000;
+      const durationSec = duration / 1000;
 
-      // Cancel any scheduled changes
       musicPlayer.gainNode.gain.cancelScheduledValues(currentTime);
-
-      // Get current gain value
       const currentGain = musicPlayer.gainNode.gain.value;
 
-      // Set current value and ramp to target
       musicPlayer.gainNode.gain.setValueAtTime(currentGain, currentTime);
 
-      // Use exponential ramp for more natural sound (avoid going to exact 0)
-      const safeTarget = Math.max(0.01, targetVolume);
+      const safeTarget = Math.max(0.02, targetVolume); // Don't go completely silent
+
+      // Slower, more musical fade (Cosine/SCurve approximation via exponential)
       musicPlayer.gainNode.gain.exponentialRampToValueAtTime(
         safeTarget,
-        currentTime + durationInSeconds
+        currentTime + durationSec,
       );
 
       await sleep(duration);
     } catch (e) {
-      console.warn('Gain node fade failed, using volume property:', e);
-      // Fallback to volume property
-      await fadeMusicPlayerVolumeProperty(targetVolume, duration);
+      console.warn("Gain node fade failed:", e);
     }
-  } else {
-    // Fallback to volume property if gain node not available
-    await fadeMusicPlayerVolumeProperty(targetVolume, duration);
   }
 }
 
-async function fadeMusicPlayerVolumeProperty(targetVolume, duration) {
-  const steps = 30;
-  const stepTime = duration / steps;
-  const startVolume = musicPlayer.audio.volume;
-  const volumeDelta = (targetVolume - startVolume) / steps;
+async function restoreMusicPlayerVolume(duration = 3000) {
+  if (musicPlayer.playlist.length === 0 || musicPlayer.audio.paused) return;
 
-  for (let i = 0; i < steps; i++) {
-    musicPlayer.audio.volume = Math.max(0, Math.min(1, startVolume + (volumeDelta * (i + 1))));
-    await sleep(stepTime);
+  if (musicPlayer.gainNode && audioCtx) {
+    try {
+      const currentTime = audioCtx.currentTime;
+      const durationSec = duration / 1000;
+
+      musicPlayer.gainNode.gain.cancelScheduledValues(currentTime);
+      const currentGain = musicPlayer.gainNode.gain.value;
+
+      musicPlayer.gainNode.gain.setValueAtTime(currentGain, currentTime);
+
+      // Long, graceful fade back up to full volume
+      musicPlayer.gainNode.gain.exponentialRampToValueAtTime(
+        1.0,
+        currentTime + durationSec,
+      );
+    } catch (e) {
+      console.warn("Restore fade failed:", e);
+    }
   }
-  musicPlayer.audio.volume = targetVolume;
 }
-
-// Spotify volume ducking removed - using local music player only
 
 async function closeBreakPanel() {
   if (!isOn) return;
 
-  // After DJ break, start next song (like real radio - DJ introduces next track)
-  if (musicPlayer.playlist.length > 0) {
+  // If a song is currently ducked (e.g., Quick ID or Startup), bring its volume back up gracefully
+  // 6 seconds for an incredibly epic Apple Music volume swell
+  if (musicPlayer.gainNode && musicPlayer.gainNode.gain.value < 0.9) {
+    restoreMusicPlayerVolume(6000);
+  } else if (musicPlayer.playlist.length > 0 && musicPlayer.audio.paused) {
+    // If stopped for a full break, start the next song with the Apple DJ Intro style
     musicPlayer.playNextWithDJIntro();
-  } else {
-    // No playlist loaded
-    restoreLastHeard();
-    showPanel('normal');
-    startEQ();
   }
+
+  restoreLastHeard();
+  showPanel("normal");
+  startEQ();
 }
 
 // --- Quick Station ID (10-20 sec) ---
@@ -456,40 +553,59 @@ async function triggerQuickID() {
   const stationIDs = DJ_BREAKS.stationids;
   const text = stationIDs[Math.floor(Math.random() * stationIDs.length)];
 
-  // Fade music volume down to 20% (DJ talks over music)
-  await fadeMusicPlayerVolume(0.2, 1000);
+  // Apple Style: Incredibly slow, subtle duck to ~35% volume.
+  // We don't want to completely squash the song during a quick ID.
+  await fadeMusicPlayerVolume(0.35, 2500);
 
   djBreakContent.textContent = text;
-  showPanel('djbreak');
-  onAirDot.classList.add('active');
-  onAirEl.classList.add('active');
-  stopEQ();
+  showPanel("djbreak");
+  onAirDot.classList.add("active");
+  onAirEl.classList.add("active");
+  stopEQ(); // Stop visually, but keep audio playing
   speakDJBreak(text);
 }
 
 // --- Full DJ Breaks (30-60 sec) ---
 async function triggerDJBreak() {
   // Check special date first (70% chance when available)
-  const now     = new Date();
-  const dateKey = String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+  const now = new Date();
+  const dateKey =
+    String(now.getMonth() + 1).padStart(2, "0") +
+    "-" +
+    String(now.getDate()).padStart(2, "0");
   let text;
 
-  if (SPECIAL_DATES[dateKey] && Math.random() < 0.70) {
-    const pool = SPECIAL_DATES[dateKey];
-    text = pool[Math.floor(Math.random() * pool.length)];
-  } else {
-    const category = getWeightedCategory();
-    text = getRandomBreak(category);
+  // Optional Context injection (The "Apple DJ" Up Next)
+  let upcomingTrackContext = "";
+  if (musicPlayer.playlist.length > 0) {
+    const nextIdx =
+      (musicPlayer.currentIndex + 1) % musicPlayer.playlist.length;
+    const nextTrack = musicPlayer.playlist[nextIdx];
+    upcomingTrackContext = ` Coming up next, we have ${nextTrack.title} by ${nextTrack.artist}.`;
   }
 
-  // Fade music volume down to 15% (DJ talks over intro/outro)
-  await fadeMusicPlayerVolume(0.15, 1200);
+  if (SPECIAL_DATES[dateKey] && Math.random() < 0.7) {
+    const pool = SPECIAL_DATES[dateKey];
+    text = pool[Math.floor(Math.random() * pool.length)] + upcomingTrackContext;
+  } else {
+    // This preserves all the 200+ Pauline shoutouts/news/commercials
+    const category = getWeightedCategory();
+    text = getRandomBreak(category) + upcomingTrackContext;
+  }
+
+  // Apple Music Style Outro Fade:
+  // Fade out music VERY slowly over 4 seconds before speaking
+  await fadeMusicPlayerVolume(0.02, 4000);
 
   djBreakContent.textContent = text;
-  showPanel('djbreak');
-  onAirDot.classList.add('active');
-  onAirEl.classList.add('active');
+  showPanel("djbreak");
+  onAirDot.classList.add("active");
+  onAirEl.classList.add("active");
   stopEQ();
+
+  // Actually pause the song once faded out
+  if (!musicPlayer.audio.paused) musicPlayer.audio.pause();
+
   speakDJBreak(text);
 }
 
@@ -512,14 +628,16 @@ function scheduleDJBreaks() {
 
   breakTimeout = setTimeout(() => {
     if (isOn) triggerDJBreak();
-    breakInterval = setInterval(() => { if (isOn) triggerDJBreak(); }, fullBreakCycle * 1000);
+    breakInterval = setInterval(() => {
+      if (isOn) triggerDJBreak();
+    }, fullBreakCycle * 1000);
   }, secsUntilFullBreak * 1000);
 
   // Quick station IDs every 2.5 minutes (150 seconds)
   // Offset by 90 seconds so they don't overlap with full breaks
   const quickIDCycle = 2.5 * 60;
   const offset = 90; // Start 90 seconds after full break
-  let secsUntilQuickID = (quickIDCycle - (secsIntoHour % quickIDCycle)) + offset;
+  let secsUntilQuickID = quickIDCycle - (secsIntoHour % quickIDCycle) + offset;
 
   // Make sure first quick ID doesn't conflict with upcoming full break
   if (secsUntilQuickID > secsUntilFullBreak - 30) {
@@ -528,7 +646,9 @@ function scheduleDJBreaks() {
 
   quickIDTimeout = setTimeout(() => {
     if (isOn) triggerQuickID();
-    quickIDInterval = setInterval(() => { if (isOn) triggerQuickID(); }, quickIDCycle * 1000);
+    quickIDInterval = setInterval(() => {
+      if (isOn) triggerQuickID();
+    }, quickIDCycle * 1000);
   }, secsUntilQuickID * 1000);
 }
 
@@ -548,146 +668,58 @@ function checkLiveDJBreak() {
 
   // If within first 45 seconds of full break cycle
   if (secsIntoFullCycle < 45) {
-    return { type: 'full', secsInto: secsIntoFullCycle };
+    return { type: "full", secsInto: secsIntoFullCycle };
   }
 
   // If within first 20 seconds of quick ID cycle (shorter duration)
   if (secsIntoQuickCycle >= 0 && secsIntoQuickCycle < 20) {
-    return { type: 'quick', secsInto: secsIntoQuickCycle };
+    return { type: "quick", secsInto: secsIntoQuickCycle };
   }
 
   return false;
 }
 
-// --- Continue from last position (station kept broadcasting) ---
-async function continueFromLastPosition() {
-  if (!spotifyCtrl) return false;
+// Helper function to resume broadcast from saved state or start fresh
+function resumeBroadcast() {
+  // Check if we have saved state from previous power-off
+  if (
+    lastPowerOffTime &&
+    lastSongIndex >= 0 &&
+    musicPlayer.playlist.length > 0
+  ) {
+    // Calculate elapsed time (how long the station kept broadcasting while "off")
+    const elapsedMs = Date.now() - lastPowerOffTime;
+    const elapsedSec = elapsedMs / 1000;
 
-  const timeElapsed = (Date.now() - lastPowerOffTime) / 1000; // seconds
-  const MAX_CONTINUITY_TIME = 300; // 5 minutes
+    // Advance playback position as if station kept broadcasting
+    let newPosition = lastSongPosition + elapsedSec;
+    let songIndex = lastSongIndex;
 
-  console.log(`📻 Station was off for ${Math.floor(timeElapsed)}s`);
+    // Skip through songs if elapsed time exceeds current song duration
+    // (Assume average song length of 4 minutes for calculations)
+    const avgSongLength = 240; // 4 minutes in seconds
 
-  if (timeElapsed > MAX_CONTINUITY_TIME) {
-    console.log('📻 Too long - fresh tune-in');
-    return false; // Too long, do fresh tune-in
-  }
-
-  try {
-    // Calculate where the song would be now
-    const projectedPosition = lastSongPosition + (timeElapsed * 1000);
-
-    // Check if we would have hit a DJ break during downtime
-    const djBreakDuringDowntime = checkIfDJBreakOccurred(lastPowerOffTime, Date.now());
-
-    if (djBreakDuringDowntime) {
-      console.log('📻 DJ break happened while off - playing it now');
-      await spotifyCtrl.play();
-      await sleep(500);
-      // Trigger the DJ break that would have happened
-      if (djBreakDuringDowntime === 'full') {
-        await triggerDJBreak();
-      } else {
-        await triggerQuickID();
-      }
-      return true;
+    while (newPosition > avgSongLength && musicPlayer.playlist.length > 0) {
+      newPosition -= avgSongLength;
+      songIndex = (songIndex + 1) % musicPlayer.playlist.length;
     }
 
-    // Try to resume from projected position
-    await spotifyCtrl.play();
-    await sleep(500);
+    console.log(
+      `📻 Station kept broadcasting: ${Math.floor(elapsedSec)}s elapsed, resuming at song ${songIndex + 1}`,
+    );
 
-    // Get current track info
-    const state = await spotifyCtrl.getPlaybackState();
+    // Resume playback from calculated position
+    musicPlayer.continueFromPosition(songIndex, newPosition);
 
-    if (state && state.duration) {
-      // If projected position is beyond song duration, let Spotify handle it (auto-skip)
-      if (projectedPosition < state.duration) {
-        await spotifyCtrl.seek(projectedPosition);
-        console.log(`📻 Continued from ${Math.floor(projectedPosition/1000)}s (${Math.floor(timeElapsed)}s later)`);
-      } else {
-        console.log('📻 Song ended while off - Spotify auto-skipped to next');
-      }
-    }
-
-    return true;
-  } catch (e) {
-    console.warn('Failed to continue from last position:', e);
-    return false;
+    // Reset saved state
+    lastPowerOffTime = null;
+    lastSongIndex = -1;
+    lastSongPosition = 0;
+  } else {
+    // No saved state - fresh tune-in
+    // Launch an epic, contextual Apple Music style radio intro
+    musicPlayer.playNextWithStartupIntro();
   }
-}
-
-// --- Check if DJ break occurred during downtime ---
-function checkIfDJBreakOccurred(startTime, endTime) {
-  const startSecs = Math.floor((new Date(startTime).getMinutes() * 60 + new Date(startTime).getSeconds()));
-  const endSecs = Math.floor((new Date(endTime).getMinutes() * 60 + new Date(endTime).getSeconds()));
-  const elapsedSecs = Math.floor((endTime - startTime) / 1000);
-
-  // Check for full DJ breaks (every 7 minutes)
-  const fullBreakCycle = 7 * 60;
-  const startCyclePos = startSecs % fullBreakCycle;
-  const endCyclePos = endSecs % fullBreakCycle;
-
-  // If we crossed a cycle boundary, a break occurred
-  if (endCyclePos < startCyclePos || elapsedSecs >= fullBreakCycle) {
-    return 'full';
-  }
-
-  // Check for quick IDs (every 2.5 minutes, offset by 90s)
-  const quickIDCycle = 2.5 * 60;
-  const quickIDOffset = 90;
-  const startQuickPos = (startSecs - quickIDOffset) % quickIDCycle;
-  const endQuickPos = (endSecs - quickIDOffset) % quickIDCycle;
-
-  if (endQuickPos < startQuickPos || elapsedSecs >= quickIDCycle) {
-    return 'quick';
-  }
-
-  return false;
-}
-
-// --- Start Spotify at random position (simulate catching mid-song) ---
-async function startSpotifyLive() {
-  if (!spotifyCtrl) return;
-
-  const attemptPlay = async () => {
-    try {
-      // Skip to a random track first (simulate tuning into random song)
-      const randomSkips = Math.floor(Math.random() * 10);
-      for (let i = 0; i < randomSkips; i++) {
-        await spotifyCtrl.skipToNext();
-        await sleep(50);
-      }
-      
-      await spotifyCtrl.play();
-      console.log('Spotify playing!');
-
-      // Wait a moment for playback to start, then seek to random position
-      setTimeout(async () => {
-        try {
-          // Check if getPlaybackState exists (API compatibility)
-          if (typeof spotifyCtrl.getPlaybackState === 'function') {
-            const state = await spotifyCtrl.getPlaybackState();
-            if (state && state.duration) {
-              // Seek to random position between 20% and 80% of song (more mid-song feel)
-              const randomPosition = Math.floor(state.duration * (0.2 + Math.random() * 0.6));
-              await spotifyCtrl.seek(randomPosition);
-              console.log(`Tuned in mid-song at ${Math.floor(randomPosition/1000)}s`);
-            }
-          } else {
-            console.warn('getPlaybackState not available in this Spotify API version');
-          }
-        } catch (e) {
-          console.warn('Could not seek to random position:', e);
-        }
-      }, 1500);
-
-    } catch(e) {
-      console.warn('Spotify play attempt failed:', e);
-      setTimeout(attemptPlay, 1000);
-    }
-  };
-  attemptPlay();
 }
 
 // --- Power On ---
@@ -698,7 +730,7 @@ async function powerOn() {
   if (!audioCtx) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
-  if (audioCtx.state === 'suspended') {
+  if (audioCtx.state === "suspended") {
     await audioCtx.resume();
   }
   // Initialize effects chain immediately if not ready
@@ -708,7 +740,7 @@ async function powerOn() {
   if (!noiseBuffer) createNoiseBuffer();
 
   isScanning = true;
-  powerBtn.classList.add('on');
+  powerBtn.classList.add("on");
 
   // Start background hiss
   noiseGen.startHiss();
@@ -718,17 +750,19 @@ async function powerOn() {
 
   if (instantOn) {
     // INSTANT-ON MODE: Skip scanning, go straight to broadcast
-    showPanel('normal');
-    signalBars.classList.add('active');
-    onAirDot.classList.add('active');
-    onAirEl.classList.add('active');
-    liveDot.classList.add('active');
-    liveText.textContent = 'LIVE';
-    
+    showPanel("normal");
+    signalBars.classList.add("active");
+    onAirDot.classList.add("active");
+    onAirEl.classList.add("active");
+    liveDot.classList.add("active");
+    liveText.textContent = "LIVE";
+
     // Set needle to 93.4 instantly
-    function freqToPercent(f) { return ((f - 87.5) / (108 - 87.5)) * 100; }
-    tunerNeedle.style.left = freqToPercent(93.4) + '%';
-    freqDisplay.textContent = '93.4 FM';
+    function freqToPercent(f) {
+      return ((f - 87.5) / (108 - 87.5)) * 100;
+    }
+    tunerNeedle.style.left = freqToPercent(93.4) + "%";
+    freqDisplay.textContent = "93.4 FM";
 
     isOn = true;
     isScanning = false;
@@ -738,55 +772,68 @@ async function powerOn() {
     updateClock();
     clockInterval = setInterval(updateClock, 10000);
 
-    // Fresh tune-in: 50% chance to start mid-DJ break, 50% mid-song
-    if (Math.random() < 0.5) {
-      // Start mid-DJ break
-      const randomBreak = breaks[Math.floor(Math.random() * breaks.length)];
-      speakDJBreak(randomBreak);
-    } else {
-      // Start mid-song
-      musicPlayer.playRandomTrack();
-    }
+    // Resume broadcast (continues from last position or starts fresh)
+    resumeBroadcast();
 
     scheduleDJBreaks();
     return;
   }
 
   // NORMAL MODE: Full scanning animation
-  showPanel('scanning');
-  scanningText.textContent = 'Searching...';
+  showPanel("scanning");
+  scanningText.textContent = "Searching...";
 
-  function freqToPercent(f) { return ((f - 87.5) / (108 - 87.5)) * 100; }
+  // Increase static hiss during station scanning
+  if (noiseGen.hissGain && audioCtx) {
+    noiseGen.hissGain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+  }
+
+  function freqToPercent(f) {
+    return ((f - 87.5) / (108 - 87.5)) * 100;
+  }
 
   const stations = [88.1, 91.3, 93.4];
   for (let i = 0; i < stations.length; i++) {
     // Play static burst with each needle move
     noiseGen.playBurst(0.4);
-    await animateNeedle(tunerNeedle, freqToPercent(stations[i]), i === stations.length - 1 ? 700 : 350);
-    freqDisplay.textContent = stations[i].toFixed(1) + ' FM';
+    await animateNeedle(
+      tunerNeedle,
+      freqToPercent(stations[i]),
+      i === stations.length - 1 ? 700 : 350,
+    );
+    freqDisplay.textContent = stations[i].toFixed(1) + " FM";
     if (i < stations.length - 1) await sleep(150);
   }
 
-  scanningText.textContent = 'FOUND -- 93.4 ROM';
+  scanningText.textContent = "FOUND -- 93.4 ROM";
+
+  // Fade static down to a subtle analog noise floor as station tunes in
+  if (noiseGen.hissGain && audioCtx) {
+    noiseGen.hissGain.gain.exponentialRampToValueAtTime(
+      0.001,
+      audioCtx.currentTime + 1.0,
+    );
+  }
+
   await sleep(500);
 
   for (let f = 0; f < 4; f++) {
-    freqDisplay.style.opacity = '0.2';
+    freqDisplay.style.opacity = "0.2";
     await sleep(70);
-    freqDisplay.style.opacity = '1';
+    freqDisplay.style.opacity = "1";
     await sleep(70);
   }
 
   await sleep(300);
 
-  showPanel('normal');
-  signalBars.classList.add('active');
-  onAirDot.classList.add('active');
-  onAirEl.classList.add('active');
-  liveDot.classList.add('active');
-  liveText.textContent = 'LIVE';
+  showPanel("normal");
+  signalBars.classList.add("active");
+  onAirDot.classList.add("active");
+  onAirEl.classList.add("active");
+  liveDot.classList.add("active");
+  liveText.textContent = "LIVE";
 
-  isOn       = true;
+  isOn = true;
   isScanning = false;
 
   startTaglineRotation();
@@ -796,15 +843,15 @@ async function powerOn() {
 
   // === LIVE BROADCAST SIMULATION ===
 
-  // Start at a random track to simulate live radio
-  musicPlayer.playRandomTrack();
+  // Resume broadcast (continues from last position or starts fresh)
+  resumeBroadcast();
   scheduleDJBreaks();
 }
 
 // --- Power Off ---
 async function powerOff() {
   isOn = false;
-  clearInterval(eqInterval);
+  stopEQ(); // Uses cancelAnimationFrame now
   clearInterval(clockInterval);
   clearInterval(breakInterval);
   clearTimeout(breakTimeout);
@@ -815,46 +862,55 @@ async function powerOff() {
   // Record current state so station can "continue broadcasting" when powered back on
   lastPowerOffTime = Date.now();
 
-  // Stop local music player if active
+  // Save current playback state from local music player
   if (musicPlayer.playlist.length > 0) {
+    lastSongIndex = musicPlayer.currentIndex;
+    lastSongPosition = musicPlayer.audio.currentTime || 0;
+    const track = musicPlayer.playlist[lastSongIndex];
+    console.log(
+      `📻 Power OFF - Station at ${Math.floor(lastSongPosition)}s in "${track?.title || "Unknown"}"`,
+    );
     musicPlayer.stop();
   }
 
-  if (spotifyCtrl) {
-    try {
-      // Try to get current playback position
-      const state = await spotifyCtrl.getPlaybackState();
-      if (state) {
-        lastSongPosition = state.position || 0;
-        lastTrackUri = state.track?.uri || null;
-        console.log(`📻 Power OFF - Station at ${Math.floor(lastSongPosition/1000)}s`);
-      }
-    } catch (e) {
-      console.warn('Could not save playback state:', e);
-      lastSongPosition = 0;
-      lastTrackUri = null;
-    }
-    spotifyCtrl.pause();
+  // Persist station state to localStorage
+  try {
+    localStorage.setItem(
+      "romRadioState",
+      JSON.stringify({
+        timestamp: lastPowerOffTime,
+        songIndex: lastSongIndex,
+        position: lastSongPosition,
+        volume: volumeSlider.value,
+      }),
+    );
+  } catch (e) {
+    console.warn("Could not save radio state:", e);
   }
 
-  if (currentSource) { try { currentSource.stop(); } catch(e) {} currentSource = null; }
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  if (currentSource) {
+    try {
+      currentSource.stop();
+    } catch (e) {}
+    currentSource = null;
+  }
+  if ("speechSynthesis" in window) window.speechSynthesis.cancel();
 
   // Stop Radio Static
   noiseGen.stopHiss();
 
-  powerBtn.classList.remove('on');
-  signalBars.classList.remove('active');
-  onAirDot.classList.remove('active');
-  onAirEl.classList.remove('active');
-  liveDot.classList.remove('active');
-  liveText.textContent     = 'OFF AIR';
-  freqDisplay.textContent  = '93.4 FM';
-  displayClock.textContent = '--:--';
-  songTitle.textContent    = '93.4 ROM';
-  songArtist.textContent   = 'PLAYING THE HITS, DEDICATED TO YOU';
+  powerBtn.classList.remove("on");
+  signalBars.classList.remove("active");
+  onAirDot.classList.remove("active");
+  onAirEl.classList.remove("active");
+  liveDot.classList.remove("active");
+  liveText.textContent = "OFF AIR";
+  freqDisplay.textContent = "93.4 FM";
+  displayClock.textContent = "--:--";
+  songTitle.textContent = "93.4 ROM";
+  songArtist.textContent = "PLAYING THE HITS, DEDICATED TO YOU";
 
-  showPanel('normal');
+  showPanel("normal");
   stopEQ();
   if (volVisible) toggleVolume();
 }
@@ -862,22 +918,24 @@ async function powerOff() {
 // --- Volume ---
 function toggleVolume() {
   volVisible = !volVisible;
-  volumeContainer.style.display = volVisible ? 'block' : 'none';
-  volBtn.classList.toggle('active', volVisible);
+  volumeContainer.style.display = volVisible ? "block" : "none";
+  volBtn.classList.toggle("active", volVisible);
 }
 
 // --- Helpers ---
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
 function animateNeedle(needle, targetPercent, duration) {
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const start = parseFloat(needle.style.left) || 0;
-    const dist  = targetPercent - start;
-    const t0    = performance.now();
+    const dist = targetPercent - start;
+    const t0 = performance.now();
     function step(now) {
       const p = Math.min((now - t0) / duration, 1);
-      const e = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
-      needle.style.left = (start + dist * e) + '%';
+      const e = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+      needle.style.left = start + dist * e + "%";
       if (p < 1) requestAnimationFrame(step);
       else resolve();
     }
@@ -886,15 +944,24 @@ function animateNeedle(needle, targetPercent, duration) {
 }
 
 // --- Events ---
-powerBtn.addEventListener('click', () => {
+powerBtn.addEventListener("click", () => {
   if (!isOn && !isScanning) powerOn();
   else if (isOn) powerOff();
 });
 
-volBtn.addEventListener('click', toggleVolume);
+volBtn.addEventListener("click", toggleVolume);
 
-volumeSlider.addEventListener('input', (e) => {
-  if (volValue) volValue.textContent = e.target.value;
+volumeSlider.addEventListener("input", (e) => {
+  const volumePercent = e.target.value;
+  const volumeGain = volumePercent / 100;
+
+  // Update display
+  if (volValue) volValue.textContent = volumePercent;
+
+  // Control actual audio output via FM effects chain
+  if (fmOutputGain && audioCtx) {
+    fmOutputGain.gain.setValueAtTime(volumeGain, audioCtx.currentTime);
+  }
 });
 
 // --- Noise Generator (Static & Hiss) ---
@@ -946,7 +1013,9 @@ class NoiseGenerator {
 
   stopHiss() {
     if (this.hissSource) {
-      try { this.hissSource.stop(); } catch(e) {}
+      try {
+        this.hissSource.stop();
+      } catch (e) {}
       this.hissSource = null;
     }
   }
@@ -956,11 +1025,11 @@ class NoiseGenerator {
 
     const source = audioCtx.createBufferSource();
     source.buffer = noiseBuffer;
-    
+
     const gain = audioCtx.createGain();
     // Louder burst for tuning (-12dB)
     gain.gain.value = 0.05; // Reduced from 0.15 - quieter scanning bursts
-    
+
     // Envelope for burst (fade in/out fast)
     const now = audioCtx.currentTime;
     gain.gain.setValueAtTime(0, now);
@@ -969,7 +1038,7 @@ class NoiseGenerator {
 
     source.connect(gain);
     gain.connect(audioCtx.destination);
-    
+
     source.start();
     source.stop(now + duration + 0.1);
   }
@@ -983,13 +1052,13 @@ class MusicPlayer {
     this.playlist = [];
     this.currentIndex = -1;
     this.audio = new Audio();
-    this.audio.crossOrigin = 'anonymous';
+    this.audio.crossOrigin = "anonymous";
     this.fadeOutTimer = null;
     this.isFading = false;
 
     // For crossfading - we need two audio elements
     this.nextAudio = new Audio();
-    this.nextAudio.crossOrigin = 'anonymous';
+    this.nextAudio.crossOrigin = "anonymous";
 
     // Gain nodes for smooth crossfading
     this.gainNode = null;
@@ -999,20 +1068,20 @@ class MusicPlayer {
     this.audioSource = null;
     this.nextAudioSource = null;
 
-    this.audio.addEventListener('ended', () => this.handleSongEnd());
-    this.audio.addEventListener('timeupdate', () => this.checkForCrossfade());
+    this.audio.addEventListener("ended", () => this.handleSongEnd());
+    this.audio.addEventListener("timeupdate", () => this.checkForCrossfade());
 
     // Auto-advance if not fading
-    this.audio.addEventListener('error', (e) => {
-      console.warn('Audio error:', e);
+    this.audio.addEventListener("error", (e) => {
+      console.warn("Audio error:", e);
       this.playNext();
     });
   }
 
   loadFiles(files) {
     const fileTracks = Array.from(files)
-      .filter(f => f.type.startsWith('audio/'))
-      .map(f => ({
+      .filter((f) => f.type.startsWith("audio/"))
+      .map((f) => ({
         url: URL.createObjectURL(f),
         title: this.parseFilename(f.name).title,
         artist: this.parseFilename(f.name).artist,
@@ -1034,6 +1103,18 @@ class MusicPlayer {
 
     if (this.playlist.length > 0) {
       console.log(`📻 Playlist ready: ${this.playlist.length} tracks`);
+
+      // Enable power button now that music is loaded
+      powerBtn.disabled = false;
+      powerBtn.style.opacity = "";
+      powerBtn.style.cursor = "";
+
+      // Update UI to show ready state
+      if (!isOn) {
+        songTitle.textContent = "93.4 ROM";
+        songArtist.textContent = "PLAYING THE HITS, DEDICATED TO YOU";
+      }
+
       // If radio is already on, start playing immediately
       if (isOn) this.playNext();
     }
@@ -1058,7 +1139,7 @@ class MusicPlayer {
         this.gainNode.connect(audioCtx.destination);
       }
     } catch (e) {
-      console.warn('Visualizer connection failed:', e);
+      console.warn("Visualizer connection failed:", e);
     }
   }
 
@@ -1081,7 +1162,7 @@ class MusicPlayer {
         this.nextGainNode.connect(audioCtx.destination);
       }
     } catch (e) {
-      console.warn('Next audio connection failed:', e);
+      console.warn("Next audio connection failed:", e);
     }
   }
 
@@ -1092,8 +1173,64 @@ class MusicPlayer {
     this._playTrackAtIndex(this.currentIndex);
   }
 
+  playNextWithStartupIntro() {
+    if (this.playlist.length === 0) return;
+
+    this.currentIndex = Math.floor(Math.random() * this.playlist.length);
+    const track = this.playlist[this.currentIndex];
+    if (!track) return;
+
+    this.audio.src = track.url;
+    this.audio.volume = 1.0;
+
+    // Start music very low (5%)
+    if (this.gainNode && audioCtx) {
+      this.gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    }
+
+    this.audio
+      .play()
+      .then(() => {
+        console.log(`📻 Startup Epic Intro: ${track.title}`);
+
+        // Craft a long, dynamic, contextual greeting
+        const now = new Date();
+        const hour = now.getHours();
+        let greeting = "Good morning";
+        if (hour >= 12 && hour < 18) greeting = "Good afternoon";
+        if (hour >= 18) greeting = "Good evening";
+
+        const stationIDs = DJ_BREAKS.stationids;
+        const idText =
+          stationIDs[Math.floor(Math.random() * stationIDs.length)];
+
+        const text = `${greeting}, Victoria. ${idText} We are kicking off the broadcast right now with a massive track. This is ${track.title} by ${track.artist} on 93.4 ROM!`;
+
+        // Update UI for DJ break
+        djBreakContent.textContent = text;
+        showPanel("djbreak");
+        onAirDot.classList.add("active");
+        onAirEl.classList.add("active");
+        stopEQ();
+
+        // Speak! (When finished, closeBreakPanel() will swell the music up over 6 seconds)
+        speakDJBreak(text);
+      })
+      .catch((e) => console.error("Play with startup intro failed:", e));
+
+    // Update UI Elements
+    lastSong.title = track.title;
+    lastSong.artist = track.artist.toUpperCase();
+    songTitle.textContent = lastSong.title;
+    songArtist.textContent = lastSong.artist;
+    stopTaglineRotation();
+
+    this.connectToVisualizer();
+    this.isFading = false;
+  }
+
   playNextWithDJIntro() {
-    // Start next song with DJ still talking (music at 20%, then fades up)
+    // Start next song with DJ talking over a long, slow music intro build
     if (this.playlist.length === 0) return;
 
     this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
@@ -1103,41 +1240,31 @@ class MusicPlayer {
     this.audio.src = track.url;
     this.audio.volume = 1.0;
 
-    // Start at low gain (DJ talking over intro)
+    // Fast-seek to intro if needed, but start music very low (5%)
     if (this.gainNode && audioCtx) {
-      this.gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-    } else {
-      this.audio.volume = 0.2;
+      this.gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
     }
 
-    this.audio.play().then(() => {
-      console.log(`📻 Playing with DJ intro: ${track.title}`);
+    this.audio
+      .play()
+      .then(() => {
+        console.log(`📻 Apple Music Style Intro: ${track.title}`);
 
-      // After 4 seconds, fade music up as DJ finishes (REAL RADIO INTRO)
-      setTimeout(() => {
-        if (this.gainNode && audioCtx) {
-          this.gainNode.gain.exponentialRampToValueAtTime(
-            1.0,
-            audioCtx.currentTime + 3
-          );
-        } else {
-          // Fade up using volume
-          const fadeSteps = 60;
-          const fadeTime = 3000 / fadeSteps;
-          let step = 0;
-          const fadeInterval = setInterval(() => {
-            step++;
-            this.audio.volume = Math.min(1.0, 0.2 + (step / fadeSteps) * 0.8);
-            if (step >= fadeSteps) clearInterval(fadeInterval);
-          }, fadeTime);
-        }
+        // SLOW, dramatic 6-second fade up from the 5% intro floor back to 100%
+        setTimeout(() => {
+          if (this.gainNode && audioCtx) {
+            this.gainNode.gain.exponentialRampToValueAtTime(
+              1.0,
+              audioCtx.currentTime + 6.0, // Very slow rise
+            );
+          }
 
-        // Restore UI when music comes up
-        restoreLastHeard();
-        showPanel('normal');
-        startEQ();
-      }, 4000);
-    }).catch(e => console.error('Play with DJ intro failed:', e));
+          restoreLastHeard();
+          showPanel("normal");
+          startEQ();
+        }, 1000); // 1 second after DJ strictly finishes speaking
+      })
+      .catch((e) => console.error("Play with DJ intro failed:", e));
 
     // Update UI
     lastSong.title = track.title;
@@ -1158,6 +1285,70 @@ class MusicPlayer {
     this._playTrackAtIndex(this.currentIndex, true); // true = seek mid-song
   }
 
+  continueFromPosition(index, position) {
+    // Resume playback from a specific track and position (for station continuity)
+    if (this.playlist.length === 0) return;
+
+    this.currentIndex = index % this.playlist.length; // Ensure valid index
+    const track = this.playlist[this.currentIndex];
+    if (!track) return;
+
+    this.audio.src = track.url;
+    this.audio.volume = 1.0;
+
+    // Add slight fade-in
+    if (this.gainNode && audioCtx) {
+      this.gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      this.gainNode.gain.exponentialRampToValueAtTime(
+        1.0,
+        audioCtx.currentTime + 1.5,
+      );
+    }
+
+    this.audio
+      .play()
+      .then(() => {
+        // Seek to the specified position once metadata is loaded
+        if (this.audio.duration && isFinite(this.audio.duration)) {
+          // Clamp position to valid range
+          const seekPos = Math.min(position, this.audio.duration - 1);
+          this.audio.currentTime = seekPos;
+          const progress = Math.floor((seekPos / this.audio.duration) * 100);
+          console.log(
+            `📻 Station continued at ${Math.floor(seekPos)}s / ${Math.floor(this.audio.duration)}s (${progress}%)`,
+          );
+        }
+      })
+      .catch((e) => console.error("Continue playback failed:", e));
+
+    // Fallback for when duration isn't immediately available
+    this.audio.addEventListener(
+      "loadedmetadata",
+      () => {
+        if (
+          this.audio.duration &&
+          isFinite(this.audio.duration) &&
+          this.audio.currentTime === 0
+        ) {
+          const seekPos = Math.min(position, this.audio.duration - 1);
+          this.audio.currentTime = seekPos;
+        }
+      },
+      { once: true },
+    );
+
+    // Update UI
+    lastSong.title = track.title;
+    lastSong.artist = track.artist.toUpperCase();
+    songTitle.textContent = lastSong.title;
+    songArtist.textContent = lastSong.artist;
+    stopTaglineRotation();
+
+    // Ensure visualizer is connected
+    this.connectToVisualizer();
+    this.isFading = false;
+  }
+
   _playTrackAtIndex(index, midSong = false) {
     const track = this.playlist[index];
     if (!track) return;
@@ -1168,49 +1359,61 @@ class MusicPlayer {
     // Add slight fade-in for smoother feel (especially for mid-song tuning)
     if (midSong && this.gainNode && audioCtx) {
       this.gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-      this.gainNode.gain.exponentialRampToValueAtTime(1.0, audioCtx.currentTime + 1.5);
+      this.gainNode.gain.exponentialRampToValueAtTime(
+        1.0,
+        audioCtx.currentTime + 1.5,
+      );
     }
 
-    this.audio.play().then(() => {
-      // Enhanced mid-song tuning logic
-      if (midSong && this.audio.duration && isFinite(this.audio.duration)) {
-        // More varied positioning:
-        // 40% chance: early in song (15-40%)
-        // 40% chance: middle of song (40-70%)
-        // 20% chance: late in song (70-85%)
-        const rand = Math.random();
-        let pos;
-        if (rand < 0.4) {
-          pos = this.audio.duration * (0.15 + Math.random() * 0.25);
-        } else if (rand < 0.8) {
-          pos = this.audio.duration * (0.40 + Math.random() * 0.30);
-        } else {
-          pos = this.audio.duration * (0.70 + Math.random() * 0.15);
-        }
-
-        this.audio.currentTime = pos;
-        const progress = Math.floor((pos / this.audio.duration) * 100);
-        console.log(`📻 Tuned in at ${Math.floor(pos)}s / ${Math.floor(this.audio.duration)}s (${progress}%)`);
-      }
-    }).catch(e => console.error('Play failed:', e));
-
-    // Attempt mid-song seek after metadata loads (duration may not be ready immediately)
-    if (midSong) {
-      this.audio.addEventListener('loadedmetadata', () => {
-        if (this.audio.duration && isFinite(this.audio.duration)) {
-          // Same enhanced positioning logic
+    this.audio
+      .play()
+      .then(() => {
+        // Enhanced mid-song tuning logic
+        if (midSong && this.audio.duration && isFinite(this.audio.duration)) {
+          // More varied positioning:
+          // 40% chance: early in song (15-40%)
+          // 40% chance: middle of song (40-70%)
+          // 20% chance: late in song (70-85%)
           const rand = Math.random();
           let pos;
           if (rand < 0.4) {
             pos = this.audio.duration * (0.15 + Math.random() * 0.25);
           } else if (rand < 0.8) {
-            pos = this.audio.duration * (0.40 + Math.random() * 0.30);
+            pos = this.audio.duration * (0.4 + Math.random() * 0.3);
           } else {
-            pos = this.audio.duration * (0.70 + Math.random() * 0.15);
+            pos = this.audio.duration * (0.7 + Math.random() * 0.15);
           }
+
           this.audio.currentTime = pos;
+          const progress = Math.floor((pos / this.audio.duration) * 100);
+          console.log(
+            `📻 Tuned in at ${Math.floor(pos)}s / ${Math.floor(this.audio.duration)}s (${progress}%)`,
+          );
         }
-      }, { once: true });
+      })
+      .catch((e) => console.error("Play failed:", e));
+
+    // Attempt mid-song seek after metadata loads (duration may not be ready immediately)
+    if (midSong) {
+      this.audio.addEventListener(
+        "loadedmetadata",
+        () => {
+          if (this.audio.duration && isFinite(this.audio.duration)) {
+            // Same enhanced positioning logic
+            const rand = Math.random();
+            let pos;
+            if (rand < 0.4) {
+              pos = this.audio.duration * (0.15 + Math.random() * 0.25);
+            } else if (rand < 0.8) {
+              pos = this.audio.duration * (0.4 + Math.random() * 0.3);
+            } else {
+              pos = this.audio.duration * (0.7 + Math.random() * 0.15);
+            }
+            this.audio.currentTime = pos;
+          }
+        },
+        { once: true },
+      );
     }
 
     // Update UI
@@ -1228,11 +1431,11 @@ class MusicPlayer {
   parseFilename(name) {
     // Basic "Artist - Title.mp3" parser
     const nameWithoutExt = name.replace(/\.[^/.]+$/, "");
-    if (nameWithoutExt.includes(' - ')) {
-      const parts = nameWithoutExt.split(' - ');
+    if (nameWithoutExt.includes(" - ")) {
+      const parts = nameWithoutExt.split(" - ");
       return { artist: parts[0].toUpperCase(), title: parts[1] };
     }
-    return { artist: 'LOCAL LIBRARY', title: nameWithoutExt };
+    return { artist: "LOCAL LIBRARY", title: nameWithoutExt };
   }
 
   checkForCrossfade() {
@@ -1247,7 +1450,7 @@ class MusicPlayer {
 
   startCrossfade() {
     this.isFading = true;
-    console.log('Starting smooth crossfade...');
+    console.log("Starting smooth crossfade...");
 
     // 60% chance of DJ break, 40% direct crossfade to next song
     if (Math.random() < 0.6) {
@@ -1261,48 +1464,43 @@ class MusicPlayer {
 
   djTalkOverOutro() {
     // REAL RADIO: DJ talks over the song outro while music plays underneath
-    console.log('📻 DJ talking over outro...');
+    console.log("📻 DJ talking over outro...");
 
-    // Duck music down to 20% over 1.5 seconds (DJ starts talking)
+    // Apple Style: Extremely slow fade down to 2% over 4 seconds
     if (this.gainNode && audioCtx) {
-      this.gainNode.gain.exponentialRampToValueAtTime(
-        0.2,
-        audioCtx.currentTime + 1.5
+      this.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+      this.gainNode.gain.setValueAtTime(
+        this.gainNode.gain.value,
+        audioCtx.currentTime,
       );
-    } else {
-      // Fallback
-      const fadeSteps = 30;
-      const fadeTime = 1500 / fadeSteps;
-      let step = 0;
-      const fadeInterval = setInterval(() => {
-        step++;
-        this.audio.volume = Math.max(0.2, 1 - (step / fadeSteps) * 0.8);
-        if (step >= fadeSteps) clearInterval(fadeInterval);
-      }, fadeTime);
+      this.gainNode.gain.exponentialRampToValueAtTime(
+        0.02,
+        audioCtx.currentTime + 4.0,
+      );
     }
 
-    // Trigger DJ break after 1.5 seconds (when music is ducked)
+    // Trigger DJ break after 2 seconds (when music is partially ducked)
     setTimeout(() => {
       this.triggerBreakOrNext();
 
-      // After 3 more seconds, fade current song out completely and start next
+      // After 5 more seconds, fade current song out completely and swap
       setTimeout(() => {
         if (this.gainNode && audioCtx) {
           this.gainNode.gain.exponentialRampToValueAtTime(
-            0.01,
-            audioCtx.currentTime + 2
+            0.001,
+            audioCtx.currentTime + 3,
           );
         }
 
-        // After fade, song ends naturally and next one starts via closeBreakPanel()
+        // Song ends naturally and next one starts via closeBreakPanel()
         setTimeout(() => {
           this.audio.pause();
           this.audio.currentTime = 0;
           if (this.gainNode) this.gainNode.gain.value = 1.0;
           this.isFading = false;
-        }, 2000);
-      }, 3000);
-    }, 1500);
+        }, 3000);
+      }, 5000);
+    }, 2000);
   }
 
   fadeOutForBreak() {
@@ -1316,7 +1514,7 @@ class MusicPlayer {
     const fadeDuration = 3;
     this.gainNode.gain.exponentialRampToValueAtTime(
       0.01, // Can't go to 0 with exponential
-      audioCtx.currentTime + fadeDuration
+      audioCtx.currentTime + fadeDuration,
     );
 
     // After fade completes, pause and trigger break
@@ -1373,58 +1571,73 @@ class MusicPlayer {
     this.connectNextAudioToVisualizer();
 
     // Start playing next track (will fade in)
-    this.nextAudio.play().then(() => {
-      console.log(`📻 Crossfading to: ${nextTrack.title}`);
+    this.nextAudio
+      .play()
+      .then(() => {
+        console.log(`📻 Apple Style Direct Crossfade to: ${nextTrack.title}`);
 
-      // Update UI
-      lastSong.title = nextTrack.title;
-      lastSong.artist = nextTrack.artist.toUpperCase();
-      songTitle.textContent = lastSong.title;
-      songArtist.textContent = lastSong.artist;
-      stopTaglineRotation();
+        // Update UI
+        lastSong.title = nextTrack.title;
+        lastSong.artist = nextTrack.artist.toUpperCase();
+        songTitle.textContent = lastSong.title;
+        songArtist.textContent = lastSong.artist;
+        stopTaglineRotation();
 
-      if (this.gainNode && this.nextGainNode && audioCtx) {
-        // Smooth crossfade using gain nodes
-        const crossfadeDuration = 4; // 4 seconds overlap
+        if (this.gainNode && this.nextGainNode && audioCtx) {
+          // Smooth crossfade using gain nodes
+          const crossfadeDuration = 6.0; // 6 seconds overlap for buttery flow
 
-        // Fade out current track
-        this.gainNode.gain.exponentialRampToValueAtTime(
-          0.01,
-          audioCtx.currentTime + crossfadeDuration
-        );
+          // Slow, elegant fade out of current track
+          this.gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+          this.gainNode.gain.setValueAtTime(
+            this.gainNode.gain.value,
+            audioCtx.currentTime,
+          );
+          this.gainNode.gain.exponentialRampToValueAtTime(
+            0.01,
+            audioCtx.currentTime + crossfadeDuration,
+          );
 
-        // Fade in next track
-        this.nextGainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
-        this.nextGainNode.gain.exponentialRampToValueAtTime(
-          1.0,
-          audioCtx.currentTime + crossfadeDuration
-        );
+          // Slow, elegant fade in of next track
+          this.nextGainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+          this.nextGainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
+          this.nextGainNode.gain.exponentialRampToValueAtTime(
+            1.0,
+            audioCtx.currentTime + crossfadeDuration,
+          );
 
-        // After crossfade, swap audio elements
-        setTimeout(() => {
-          this.audio.pause();
-          this.audio.currentTime = 0;
+          // After crossfade, swap audio elements
+          setTimeout(() => {
+            this.audio.pause();
+            this.audio.currentTime = 0;
 
-          // Swap audio elements and sources
-          [this.audio, this.nextAudio] = [this.nextAudio, this.audio];
-          [this.audioSource, this.nextAudioSource] = [this.nextAudioSource, this.audioSource];
-          [this.gainNode, this.nextGainNode] = [this.nextGainNode, this.gainNode];
+            // Swap audio elements and sources
+            [this.audio, this.nextAudio] = [this.nextAudio, this.audio];
+            [this.audioSource, this.nextAudioSource] = [
+              this.nextAudioSource,
+              this.audioSource,
+            ];
+            [this.gainNode, this.nextGainNode] = [
+              this.nextGainNode,
+              this.gainNode,
+            ];
 
-          // Reset gain for next crossfade
-          if (this.gainNode) this.gainNode.gain.value = 1.0;
-          if (this.nextGainNode) this.nextGainNode.gain.value = 0;
+            // Reset gain for next crossfade
+            if (this.gainNode) this.gainNode.gain.value = 1.0;
+            if (this.nextGainNode) this.nextGainNode.gain.value = 0;
 
-          this.currentIndex = nextIndex;
-          this.isFading = false;
-        }, crossfadeDuration * 1000);
-      } else {
-        // Fallback without Web Audio API gain nodes
-        this.crossfadeWithVolume(nextIndex);
-      }
-    }).catch(e => {
-      console.error('Crossfade play failed:', e);
-      this.fadeOutForBreak();
-    });
+            this.currentIndex = nextIndex;
+            this.isFading = false;
+          }, crossfadeDuration * 1000);
+        } else {
+          // Fallback without Web Audio API gain nodes
+          this.crossfadeWithVolume(nextIndex);
+        }
+      })
+      .catch((e) => {
+        console.error("Crossfade play failed:", e);
+        this.fadeOutForBreak();
+      });
   }
 
   crossfadeWithVolume(nextIndex) {
@@ -1469,17 +1682,17 @@ class MusicPlayer {
   triggerShortSnippet() {
     const snippets = DJ_BREAKS.short;
     const text = snippets[Math.floor(Math.random() * snippets.length)];
-    
+
     // Update UI minimally
     djBreakContent.textContent = text;
-    // Don't show full panel, just flash message or keep normal view 
-    // but maybe pulse the On Air light? 
+    // Don't show full panel, just flash message or keep normal view
+    // but maybe pulse the On Air light?
     // For now, let's just use the panel but it will be quick.
-    showPanel('djbreak');
-    
+    showPanel("djbreak");
+
     speakDJBreak(text);
   }
-  
+
   handleSongEnd() {
     if (!this.isFading) this.playNext();
   }
@@ -1514,38 +1727,63 @@ class MusicPlayer {
 
 const musicPlayer = new MusicPlayer();
 
+// --- Restore persisted state from localStorage ---
+function restoreRadioState() {
+  try {
+    const saved = localStorage.getItem("romRadioState");
+    if (!saved) return;
+
+    const state = JSON.parse(saved);
+
+    // Restore last power-off time and playback position
+    if (state.timestamp) {
+      lastPowerOffTime = state.timestamp;
+      lastSongIndex = state.songIndex || -1;
+      lastSongPosition = state.position || 0;
+
+      const elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
+      console.log(
+        `📻 Restored state: Station was off for ${elapsed}s, last at song ${lastSongIndex + 1}, position ${Math.floor(lastSongPosition)}s`,
+      );
+    }
+
+    // Restore volume setting
+    if (state.volume !== undefined) {
+      volumeSlider.value = state.volume;
+      volValue.textContent = state.volume;
+
+      // Apply volume to FM output gain when audio context is ready
+      if (fmOutputGain && audioCtx) {
+        const volumeGain = state.volume / 100;
+        fmOutputGain.gain.setValueAtTime(volumeGain, audioCtx.currentTime);
+      }
+    }
+  } catch (e) {
+    console.warn("Could not restore radio state:", e);
+  }
+}
+
+// Restore state on page load
+restoreRadioState();
+
 // Auto-load local playlist on startup (no file picker needed)
 loadLocalPlaylist();
 
 // Hook up events — manual override still available via Load button
-document.getElementById('musicFolder').addEventListener('change', (e) => {
+document.getElementById("musicFolder").addEventListener("change", (e) => {
   musicPlayer.loadFiles(e.target.files);
 });
 
-document.getElementById('loadBtn').addEventListener('click', () => {
-  document.getElementById('musicFolder').click();
+document.getElementById("loadBtn").addEventListener("click", () => {
+  document.getElementById("musicFolder").click();
 });
 
 // Update powerOn to use local music if available
 // (Modified logic in powerOn function below)
 
-
-// --- Global click handler to overcome autoplay restrictions ---
-let hasTriedManualPlay = false;
-document.addEventListener('click', () => {
-  if (isOn && !musicPlayer.playlist.length && spotifyCtrl && !hasTriedManualPlay) {
-    hasTriedManualPlay = true;
-    spotifyCtrl.play().then(() => {
-      console.log('Spotify playing after user click!');
-    }).catch(e => {
-      console.warn('Manual play also failed:', e);
-    });
-  }
-});
-
 // --- Init ---
-songTitle.textContent  = STATION_CONFIG.stationName;
-songArtist.textContent = 'PLAYING THE HITS, DEDICATED TO YOU';
+songTitle.textContent = STATION_CONFIG.stationName;
+songArtist.textContent = "PLAYING THE HITS, DEDICATED TO YOU";
 
 // --- Expose for testing ---
 window.triggerDJBreak = triggerDJBreak;

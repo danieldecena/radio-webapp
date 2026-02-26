@@ -23,6 +23,7 @@ Choose the platform you're using:
 #### **Option A: Netlify** (Recommended if already deployed there)
 
 **Via Dashboard (Easier):**
+
 1. [ ] Go to https://app.netlify.com
 2. [ ] Select your `93.4-rom-radio` site
 3. [ ] Click **Site settings** → **Environment variables**
@@ -35,6 +36,7 @@ Choose the platform you're using:
 10. [ ] Wait for deploy to complete (~1-2 minutes)
 
 **Via CLI (Alternative):**
+
 ```bash
 npm install -g netlify-cli  # If not installed
 netlify login
@@ -47,6 +49,7 @@ netlify deploy --prod
 #### **Option B: Vercel**
 
 **Via Dashboard:**
+
 1. [ ] Go to https://vercel.com/dashboard
 2. [ ] Select your `93.4-rom-radio` project
 3. [ ] Click **Settings** → **Environment Variables**
@@ -64,6 +67,7 @@ netlify deploy --prod
 12. [ ] Wait for deploy to complete
 
 **Via CLI (Alternative):**
+
 ```bash
 # Remove old key
 npx vercel env rm ELEVENLABS_API_KEY production
@@ -91,7 +95,7 @@ Once deployed, test your radio:
 3. [ ] Verify Spotify plays
 4. [ ] Wait ~13 minutes for DJ break OR open browser console (F12) and type:
    ```javascript
-   triggerDJBreak()
+   triggerDJBreak();
    ```
 5. [ ] Verify DJ voice speaks with AI (not robotic Web Speech API)
 6. [ ] Test on mobile device
@@ -108,6 +112,7 @@ git push origin main
 ```
 
 This pushes:
+
 - ✅ Security fixes (removed exposed API key)
 - ✅ Documentation cleanup
 - ✅ New organized structure
@@ -148,21 +153,25 @@ Your update is successful if:
 ### DJ breaks not speaking
 
 **Check browser console (F12):**
+
 - Look for errors mentioning "API" or "TTS"
 - Try manually triggering: `triggerDJBreak()`
 
 **Verify environment variable:**
+
 - Netlify: Check Site settings → Environment variables
 - Vercel: Check Settings → Environment Variables
 - Make sure it matches: `sk_36763345876ec7d1f668816731fef8d910899f7662bd8403`
 
 **Check deployment logs:**
+
 - Netlify: Deploys tab → Click latest deploy → View logs
 - Vercel: Deployments tab → Click deployment → View function logs
 
 ### Still using old key
 
 If you see 401 errors:
+
 1. Double-check environment variable was saved
 2. Make sure you triggered a redeploy
 3. Clear browser cache and reload
@@ -173,6 +182,7 @@ If you see 401 errors:
 ## 📊 API Usage (Free Tier)
 
 Your new key has the same limits:
+
 - **10,000 characters/month** free
 - Each DJ break ≈ 150 characters
 - With pre-generated snippets, you use almost no API calls

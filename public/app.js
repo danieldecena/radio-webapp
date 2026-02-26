@@ -40,6 +40,8 @@ const displayDJBreak = document.getElementById("displayDJBreak");
 const tunerNeedle = document.getElementById("tunerNeedle");
 const scanningText = document.getElementById("scanningText");
 const djBreakContent = document.getElementById("djBreakContent");
+const trackProgress = document.getElementById("trackProgress");
+const trackProgressBar = document.getElementById("trackProgressBar");
 
 // --- State ---
 let isOn = false;
@@ -49,6 +51,7 @@ let eqInterval = null;
 let clockInterval = null;
 let breakInterval = null;
 let breakTimeout = null;
+let progressInterval = null;
 let audioCtx = null;
 let currentSource = null;
 let taglineTimer = null;
@@ -183,6 +186,28 @@ function stopEQ() {
     bar.style.height = "4px";
     bar.style.opacity = "0.2";
   });
+}
+
+// --- Track Progress Bar ---
+function startProgressUpdates() {
+  stopProgressUpdates();
+  trackProgress.classList.add("visible");
+
+  function updateProgress() {
+    if (musicPlayer.audio && !musicPlayer.audio.paused && musicPlayer.audio.duration) {
+      const progress = (musicPlayer.audio.currentTime / musicPlayer.audio.duration) * 100;
+      trackProgressBar.style.width = `${progress}%`;
+    }
+  }
+
+  updateProgress(); // Update immediately
+  progressInterval = setInterval(updateProgress, 1000); // Then every second
+}
+
+function stopProgressUpdates() {
+  clearInterval(progressInterval);
+  trackProgress.classList.remove("visible");
+  trackProgressBar.style.width = "0%";
 }
 
 // --- Display Panels ---
@@ -741,6 +766,7 @@ async function powerOn() {
 
   isScanning = true;
   powerBtn.classList.add("on");
+  powerBtn.setAttribute("aria-pressed", "true");
 
   // Start background hiss
   noiseGen.startHiss();
@@ -900,6 +926,7 @@ async function powerOff() {
   noiseGen.stopHiss();
 
   powerBtn.classList.remove("on");
+  powerBtn.setAttribute("aria-pressed", "false");
   signalBars.classList.remove("active");
   onAirDot.classList.remove("active");
   onAirEl.classList.remove("active");
@@ -920,11 +947,19 @@ function toggleVolume() {
   volVisible = !volVisible;
   volumeContainer.style.display = volVisible ? "block" : "none";
   volBtn.classList.toggle("active", volVisible);
+  volBtn.setAttribute("aria-expanded", volVisible ? "true" : "false");
 }
 
 // --- Helpers ---
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
+}
+
+// Haptic feedback for mobile devices
+function hapticFeedback(pattern = 10) {
+  if ("vibrate" in navigator) {
+    navigator.vibrate(pattern);
+  }
 }
 
 function animateNeedle(needle, targetPercent, duration) {
@@ -945,11 +980,15 @@ function animateNeedle(needle, targetPercent, duration) {
 
 // --- Events ---
 powerBtn.addEventListener("click", () => {
+  hapticFeedback(20); // Stronger feedback for power button
   if (!isOn && !isScanning) powerOn();
   else if (isOn) powerOff();
 });
 
-volBtn.addEventListener("click", toggleVolume);
+volBtn.addEventListener("click", () => {
+  hapticFeedback(10);
+  toggleVolume();
+});
 
 volumeSlider.addEventListener("input", (e) => {
   const volumePercent = e.target.value;
@@ -957,6 +996,9 @@ volumeSlider.addEventListener("input", (e) => {
 
   // Update display
   if (volValue) volValue.textContent = volumePercent;
+
+  // Update ARIA attribute
+  e.target.setAttribute("aria-valuenow", volumePercent);
 
   // Control actual audio output via FM effects chain
   if (fmOutputGain && audioCtx) {
@@ -1191,6 +1233,9 @@ class MusicPlayer {
     this.audio
       .play()
       .then(() => {
+        // Start progress bar updates
+        startProgressUpdates();
+
         console.log(`📻 Startup Epic Intro: ${track.title}`);
 
         // Craft a long, dynamic, contextual greeting
@@ -1248,6 +1293,9 @@ class MusicPlayer {
     this.audio
       .play()
       .then(() => {
+        // Start progress bar updates
+        startProgressUpdates();
+
         console.log(`📻 Apple Music Style Intro: ${track.title}`);
 
         // SLOW, dramatic 6-second fade up from the 5% intro floor back to 100%
@@ -1308,6 +1356,9 @@ class MusicPlayer {
     this.audio
       .play()
       .then(() => {
+        // Start progress bar updates
+        startProgressUpdates();
+
         // Seek to the specified position once metadata is loaded
         if (this.audio.duration && isFinite(this.audio.duration)) {
           // Clamp position to valid range
@@ -1368,6 +1419,9 @@ class MusicPlayer {
     this.audio
       .play()
       .then(() => {
+        // Start progress bar updates
+        startProgressUpdates();
+
         // Enhanced mid-song tuning logic
         if (midSong && this.audio.duration && isFinite(this.audio.duration)) {
           // More varied positioning:
@@ -1775,11 +1829,60 @@ document.getElementById("musicFolder").addEventListener("change", (e) => {
 });
 
 document.getElementById("loadBtn").addEventListener("click", () => {
+  hapticFeedback(10);
   document.getElementById("musicFolder").click();
 });
 
 // Update powerOn to use local music if available
 // (Modified logic in powerOn function below)
+
+// --- Keyboard Shortcuts ---
+document.addEventListener("keydown", (e) => {
+  // Ignore if user is typing in an input field
+  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
+    return;
+  }
+
+  switch (e.key) {
+    case " ": // Spacebar - Toggle power
+      e.preventDefault();
+      if (!isOn && !isScanning && !powerBtn.disabled) {
+        powerOn();
+      } else if (isOn) {
+        powerOff();
+      }
+      break;
+
+    case "ArrowUp": // Increase volume
+      e.preventDefault();
+      {
+        const currentVol = parseInt(volumeSlider.value);
+        const newVol = Math.min(100, currentVol + 5);
+        volumeSlider.value = newVol;
+        volumeSlider.dispatchEvent(new Event("input"));
+      }
+      break;
+
+    case "ArrowDown": // Decrease volume
+      e.preventDefault();
+      {
+        const currentVol = parseInt(volumeSlider.value);
+        const newVol = Math.max(0, currentVol - 5);
+        volumeSlider.value = newVol;
+        volumeSlider.dispatchEvent(new Event("input"));
+      }
+      break;
+
+    case "m":
+    case "M": // Toggle volume panel
+      e.preventDefault();
+      toggleVolume();
+      break;
+
+    default:
+      break;
+  }
+});
 
 // --- Init ---
 songTitle.textContent = STATION_CONFIG.stationName;

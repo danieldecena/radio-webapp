@@ -41,7 +41,7 @@
     <div class="screen">
       <div class="ambient-glow"></div>
 
-      <div class="radio">
+      <div class="radio" role="application" aria-label="93.4 ROM Radio Player">
         <!-- Top Bar -->
         <div class="top-bar">
           <div class="signal" id="signalBars">
@@ -66,19 +66,22 @@
         </div>
 
         <!-- Car Display Panel -->
-        <div class="car-display">
+        <div class="car-display" role="region" aria-label="Radio Display">
           <!-- Normal view -->
           <div id="displayNormal">
-            <div class="display-song-title" id="songTitle">93.4 ROM</div>
-            <div class="display-song-artist" id="songArtist">
+            <div class="display-song-title" id="songTitle" aria-live="polite">93.4 ROM</div>
+            <div class="display-song-artist" id="songArtist" aria-live="polite">
               PLAYING THE HITS, DEDICATED TO YOU
             </div>
             <div class="display-time-row">
-              <span class="display-live-dot" id="liveDot"></span>
-              <span class="display-live-text" id="liveText">OFF AIR</span>
-              <span class="display-clock" id="displayClock">--:--</span>
+              <span class="display-live-dot" id="liveDot" aria-hidden="true"></span>
+              <span class="display-live-text" id="liveText" aria-live="polite">OFF AIR</span>
+              <span class="display-clock" id="displayClock" aria-live="off">--:--</span>
             </div>
-            <div class="eq-visualizer">
+            <div class="track-progress" id="trackProgress" aria-hidden="true">
+              <div class="track-progress-bar" id="trackProgressBar"></div>
+            </div>
+            <div class="eq-visualizer" role="img" aria-label="Audio equalizer visualization">
               <span class="eq-bar"></span><span class="eq-bar"></span
               ><span class="eq-bar"></span> <span class="eq-bar"></span
               ><span class="eq-bar"></span><span class="eq-bar"></span>
@@ -108,7 +111,7 @@
           <!-- DJ Break view -->
           <div id="displayDJBreak" style="display: none">
             <div class="dj-break-label">DJ BREAK</div>
-            <div class="dj-break-content" id="djBreakContent"></div>
+            <div class="dj-break-content" id="djBreakContent" role="status" aria-live="assertive"></div>
           </div>
         </div>
 
@@ -123,12 +126,17 @@
             style="display: none"
           />
 
-          <button class="ctrl-btn load-btn" id="loadBtn" title="Load Music">
+          <button
+            class="ctrl-btn load-btn"
+            id="loadBtn"
+            aria-label="Load music from folder"
+            title="Load Music">
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="1.5"
+              aria-hidden="true"
             >
               <path d="M9 18V5l12-2v13"></path>
               <circle cx="6" cy="18" r="3"></circle>
@@ -136,23 +144,33 @@
             </svg>
           </button>
 
-          <button class="ctrl-btn power-btn" id="powerBtn">
+          <button
+            class="ctrl-btn power-btn"
+            id="powerBtn"
+            aria-label="Power"
+            aria-pressed="false">
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="1.5"
+              aria-hidden="true"
             >
               <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
               <line x1="12" y1="2" x2="12" y2="12"></line>
             </svg>
           </button>
-          <button class="ctrl-btn vol-btn" id="volBtn">
+          <button
+            class="ctrl-btn vol-btn"
+            id="volBtn"
+            aria-label="Volume"
+            aria-expanded="false">
             <svg
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="1.5"
+              aria-hidden="true"
             >
               <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"></polygon>
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
@@ -178,6 +196,10 @@
             min="0"
             max="100"
             value="100"
+            aria-label="Volume level"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="100"
           />
         </div>
 

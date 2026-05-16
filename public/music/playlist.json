@@ -1,29 +1,484 @@
 {
   "tracks": [
     {
-      "file": "APLMate.com - Danielle _smile on my face_ - Fred again...mp3",
+      "file": "13 by LANY.mp3",
+      "title": "13",
+      "artist": "LANY"
+    },
+    {
+      "file": "2009 by Mac Miller.mp3",
+      "title": "2009",
+      "artist": "Mac Miller"
+    },
+    {
+      "file": "About You by The 1975.mp3",
+      "title": "About You",
+      "artist": "The 1975"
+    },
+    {
+      "file": "Across The Room by ODESZA, Leon Bridges.mp3",
+      "title": "Across The Room",
+      "artist": "ODESZA, Leon Bridges"
+    },
+    {
+      "file": "Adore You by Miley Cyrus.mp3",
+      "title": "Adore You",
+      "artist": "Miley Cyrus"
+    },
+    {
+      "file": "Agora Hills by Doja Cat.mp3",
+      "title": "Agora Hills",
+      "artist": "Doja Cat"
+    },
+    {
+      "file": "All I Want by Dawn Golden.mp3",
+      "title": "All I Want",
+      "artist": "Dawn Golden"
+    },
+    {
+      "file": "Always Be My Baby by Mariah Carey.mp3",
+      "title": "Always Be My Baby",
+      "artist": "Mariah Carey"
+    },
+    {
+      "file": "Break from Toronto by PARTYNEXTDOOR.mp3",
+      "title": "Break from Toronto",
+      "artist": "PARTYNEXTDOOR"
+    },
+    {
+      "file": "By Yourself (feat. Bryson Tiller, Jhené Aiko & Mustard) - Remix by Ty Dolla $ign, Bryson Tiller, Jhené Aiko, Mustard.mp3",
+      "title": "By Yourself (feat. Bryson Tiller, Jhené Aiko & Mustard) - Remix",
+      "artist": "Ty Dolla $ign, Bryson Tiller, Jhené Aiko, Mustard"
+    },
+    {
+      "file": "Calm Down (with Selena Gomez) by Rema, Selena Gomez.mp3",
+      "title": "Calm Down (with Selena Gomez)",
+      "artist": "Rema, Selena Gomez"
+    },
+    {
+      "file": "Carry On by GRiZ.mp3",
+      "title": "Carry On",
+      "artist": "GRiZ"
+    },
+    {
+      "file": "Caught Their Eyes by JAŸ-Z, Frank Ocean.mp3",
+      "title": "Caught Their Eyes",
+      "artist": "JAŸ-Z, Frank Ocean"
+    },
+    {
+      "file": "Come Back to Earth by Mac Miller.mp3",
+      "title": "Come Back to Earth",
+      "artist": "Mac Miller"
+    },
+    {
+      "file": "Come and Get Your Love - Single Version by Redbone.mp3",
+      "title": "Come and Get Your Love - Single Version",
+      "artist": "Redbone"
+    },
+    {
+      "file": "Crooked Smile (feat. TLC) by J. Cole, TLC.mp3",
+      "title": "Crooked Smile (feat. TLC)",
+      "artist": "J. Cole, TLC"
+    },
+    {
+      "file": "DO BETTER by Ab-Soul, Zacari.mp3",
+      "title": "DO BETTER",
+      "artist": "Ab-Soul, Zacari"
+    },
+    {
+      "file": "Dancing in the Moonlight - 2001 Remix by Toploader.mp3",
+      "title": "Dancing in the Moonlight - 2001 Remix",
+      "artist": "Toploader"
+    },
+    {
+      "file": "Danielle (smile on my face) by Fred again.., 070 Shake.mp3",
       "title": "Danielle (smile on my face)",
+      "artist": "Fred again.., 070 Shake"
+    },
+    {
+      "file": "Delilah (pull me out of this) by Fred again.., Delilah Montagu.mp3",
+      "title": "Delilah (pull me out of this)",
+      "artist": "Fred again.., Delilah Montagu"
+    },
+    {
+      "file": "Differences by Ginuwine.mp3",
+      "title": "Differences",
+      "artist": "Ginuwine"
+    },
+    {
+      "file": "Disillusioned (with serpentwithfeet) by Daniel Caesar, serpentwithfeet.mp3",
+      "title": "Disillusioned (with serpentwithfeet)",
+      "artist": "Daniel Caesar, serpentwithfeet"
+    },
+    {
+      "file": "Don't Trip by Zacari.mp3",
+      "title": "Don't Trip",
+      "artist": "Zacari"
+    },
+    {
+      "file": "Down to Earth by UMI.mp3",
+      "title": "Down to Earth",
+      "artist": "UMI"
+    },
+    {
+      "file": "Essence (feat. Justin Bieber & Tems) by Wizkid, Justin Bieber, Tems.mp3",
+      "title": "Essence (feat. Justin Bieber & Tems)",
+      "artist": "Wizkid, Justin Bieber, Tems"
+    },
+    {
+      "file": "Ex-Factor by Ms. Lauryn Hill.mp3",
+      "title": "Ex-Factor",
+      "artist": "Ms. Lauryn Hill"
+    },
+    {
+      "file": "Fast Talk by Houses.mp3",
+      "title": "Fast Talk",
+      "artist": "Houses"
+    },
+    {
+      "file": "For James by Pale Jay.mp3",
+      "title": "For James",
+      "artist": "Pale Jay"
+    },
+    {
+      "file": "Hell N Back (feat. Summer Walker) by Bakar, Summer Walker.mp3",
+      "title": "Hell N Back (feat. Summer Walker)",
+      "artist": "Bakar, Summer Walker"
+    },
+    {
+      "file": "Home by Good Neighbours.mp3",
+      "title": "Home",
+      "artist": "Good Neighbours"
+    },
+    {
+      "file": "Hometown Girl by ZHU.mp3",
+      "title": "Hometown Girl",
+      "artist": "ZHU"
+    },
+    {
+      "file": "I Love You So by The Walters.mp3",
+      "title": "I Love You So",
+      "artist": "The Walters"
+    },
+    {
+      "file": "I Wish I Missed My Ex by Mahalia.mp3",
+      "title": "I Wish I Missed My Ex",
+      "artist": "Mahalia"
+    },
+    {
+      "file": "I Wonder by Kanye West.mp3",
+      "title": "I Wonder",
+      "artist": "Kanye West"
+    },
+    {
+      "file": "I've Been Drinking by Prelow.mp3",
+      "title": "I've Been Drinking",
+      "artist": "Prelow"
+    },
+    {
+      "file": "ILYSB by LANY.mp3",
+      "title": "ILYSB",
+      "artist": "LANY"
+    },
+    {
+      "file": "IMPATIENT by SEBASTIAN PAUL.mp3",
+      "title": "IMPATIENT",
+      "artist": "SEBASTIAN PAUL"
+    },
+    {
+      "file": "Itsumo by DiCE and K9, Hi-C.mp3",
+      "title": "Itsumo",
+      "artist": "DiCE and K9, Hi-C"
+    },
+    {
+      "file": "Ivy by Frank Ocean.mp3",
+      "title": "Ivy",
+      "artist": "Frank Ocean"
+    },
+    {
+      "file": "Kyle (i found you) by Fred again...mp3",
+      "title": "Kyle (i found you)",
       "artist": "Fred again.."
     },
     {
-      "file": "APLMate.com - Delilah _pull me out of this_ - Fred again.._ Delilah Montagu 2.mp3",
-      "title": "Delilah (pull me out of this)",
-      "artist": "Fred again.._ Delilah Montagu 2"
+      "file": "Last Last by Burna Boy.mp3",
+      "title": "Last Last",
+      "artist": "Burna Boy"
     },
     {
-      "file": "APLMate.com - Delilah _pull me out of this_ - Fred again.._ Delilah Montagu.mp3",
-      "title": "Delilah (pull me out of this)",
-      "artist": "Fred again.._ Delilah Montagu"
+      "file": "Leavin' by Jesse McCartney.mp3",
+      "title": "Leavin'",
+      "artist": "Jesse McCartney"
     },
     {
-      "file": "APLMate.com - Kyle _I Found You_ - Fred again...mp3",
-      "title": "Kyle (I Found You)",
-      "artist": "Fred again.."
+      "file": "Let U Go by lucidbeatz.mp3",
+      "title": "Let U Go",
+      "artist": "lucidbeatz"
     },
     {
-      "file": "APLMate.com - Marea _We_ve Lost Dancing_ - Fred again.._ The Blessed Madonna.mp3",
-      "title": "Marea (We_ve Lost Dancing)",
-      "artist": "Fred again.._ The Blessed Madonna"
+      "file": "Line Of Sight by ODESZA, WYNNE, Mansionair.mp3",
+      "title": "Line Of Sight",
+      "artist": "ODESZA, WYNNE, Mansionair"
+    },
+    {
+      "file": "Lit - Bonus by Bas, J. Cole, KQuick.mp3",
+      "title": "Lit - Bonus",
+      "artist": "Bas, J. Cole, KQuick"
+    },
+    {
+      "file": "Long Story Short (with Lil Wayne) by 2 Chainz, Lil Wayne.mp3",
+      "title": "Long Story Short (with Lil Wayne)",
+      "artist": "2 Chainz, Lil Wayne"
+    },
+    {
+      "file": "Love Affair by UMI.mp3",
+      "title": "Love Affair",
+      "artist": "UMI"
+    },
+    {
+      "file": "Love Lost by Mac Miller, The Temper Trap.mp3",
+      "title": "Love Lost",
+      "artist": "Mac Miller, The Temper Trap"
+    },
+    {
+      "file": "MILFORD SOUND by Caye.mp3",
+      "title": "MILFORD SOUND",
+      "artist": "Caye"
+    },
+    {
+      "file": "Marea (we’ve lost dancing) by Fred again.., The Blessed Madonna.mp3",
+      "title": "Marea (we’ve lost dancing)",
+      "artist": "Fred again.., The Blessed Madonna"
+    },
+    {
+      "file": "Mariposa by Peach Tree Rascals.mp3",
+      "title": "Mariposa",
+      "artist": "Peach Tree Rascals"
+    },
+    {
+      "file": "Me & U by Tems.mp3",
+      "title": "Me & U",
+      "artist": "Tems"
+    },
+    {
+      "file": "Mistakes Like This by Prelow.mp3",
+      "title": "Mistakes Like This",
+      "artist": "Prelow"
+    },
+    {
+      "file": "My Type - sped up by SAISO CUPID.mp3",
+      "title": "My Type - sped up",
+      "artist": "SAISO CUPID"
+    },
+    {
+      "file": "NIGHTS LIKE THIS by The Kid LAROI.mp3",
+      "title": "NIGHTS LIKE THIS",
+      "artist": "The Kid LAROI"
+    },
+    {
+      "file": "Nights by Frank Ocean.mp3",
+      "title": "Nights",
+      "artist": "Frank Ocean"
+    },
+    {
+      "file": "Nikes by Frank Ocean.mp3",
+      "title": "Nikes",
+      "artist": "Frank Ocean"
+    },
+    {
+      "file": "No Going Back by Yuno.mp3",
+      "title": "No Going Back",
+      "artist": "Yuno"
+    },
+    {
+      "file": "No Love by Sainté, Miraa May.mp3",
+      "title": "No Love",
+      "artist": "Sainté, Miraa May"
+    },
+    {
+      "file": "Nobody Gets Me by SZA.mp3",
+      "title": "Nobody Gets Me",
+      "artist": "SZA"
+    },
+    {
+      "file": "Off My Face by Justin Bieber.mp3",
+      "title": "Off My Face",
+      "artist": "Justin Bieber"
+    },
+    {
+      "file": "Planez by Jeremih, J. Cole.mp3",
+      "title": "Planez",
+      "artist": "Jeremih, J. Cole"
+    },
+    {
+      "file": "Real One by Marc E. Bassy.mp3",
+      "title": "Real One",
+      "artist": "Marc E. Bassy"
+    },
+    {
+      "file": "Red Leather by Future, Metro Boomin, J. Cole.mp3",
+      "title": "Red Leather",
+      "artist": "Future, Metro Boomin, J. Cole"
+    },
+    {
+      "file": "Remember Me by UMI.mp3",
+      "title": "Remember Me",
+      "artist": "UMI"
+    },
+    {
+      "file": "SUPERPOSITION (feat. John Mayer) by Daniel Caesar, John Mayer.mp3",
+      "title": "SUPERPOSITION (feat. John Mayer)",
+      "artist": "Daniel Caesar, John Mayer"
+    },
+    {
+      "file": "Saving Up by Dom Dolla.mp3",
+      "title": "Saving Up",
+      "artist": "Dom Dolla"
+    },
+    {
+      "file": "Say It by Maggie Rogers.mp3",
+      "title": "Say It",
+      "artist": "Maggie Rogers"
+    },
+    {
+      "file": "Self Control by Frank Ocean.mp3",
+      "title": "Self Control",
+      "artist": "Frank Ocean"
+    },
+    {
+      "file": "Simple Song by Prelow.mp3",
+      "title": "Simple Song",
+      "artist": "Prelow"
+    },
+    {
+      "file": "Snooze (Acoustic) (feat. Justin Bieber) by SZA, Justin Bieber.mp3",
+      "title": "Snooze (Acoustic) (feat. Justin Bieber)",
+      "artist": "SZA, Justin Bieber"
+    },
+    {
+      "file": "Snooze by SZA.mp3",
+      "title": "Snooze",
+      "artist": "SZA"
+    },
+    {
+      "file": "Spread Thin by Mariah the Scientist.mp3",
+      "title": "Spread Thin",
+      "artist": "Mariah the Scientist"
+    },
+    {
+      "file": "Streetcar by Daniel Caesar.mp3",
+      "title": "Streetcar",
+      "artist": "Daniel Caesar"
+    },
+    {
+      "file": "Take Me Where Your Heart Is by Q.mp3",
+      "title": "Take Me Where Your Heart Is",
+      "artist": "Q"
+    },
+    {
+      "file": "The Beach by GIVĒON.mp3",
+      "title": "The Beach",
+      "artist": "GIVĒON"
+    },
+    {
+      "file": "The Morning by The Weeknd.mp3",
+      "title": "The Morning",
+      "artist": "The Weeknd"
+    },
+    {
+      "file": "The Need to Know (feat. SZA) by Wale, SZA.mp3",
+      "title": "The Need to Know (feat. SZA)",
+      "artist": "Wale, SZA"
+    },
+    {
+      "file": "This View by Surfaces.mp3",
+      "title": "This View",
+      "artist": "Surfaces"
+    },
+    {
+      "file": "Too Deep by dvsn.mp3",
+      "title": "Too Deep",
+      "artist": "dvsn"
+    },
+    {
+      "file": "Violent Crimes by Kanye West.mp3",
+      "title": "Violent Crimes",
+      "artist": "Kanye West"
+    },
+    {
+      "file": "WHAT JUST HAPPENED by The Kid LAROI.mp3",
+      "title": "WHAT JUST HAPPENED",
+      "artist": "The Kid LAROI"
+    },
+    {
+      "file": "Warm by Dre'es, Lali Bi Baby.mp3",
+      "title": "Warm",
+      "artist": "Dre'es, Lali Bi Baby"
+    },
+    {
+      "file": "Weekend Friend by Goth Babe.mp3",
+      "title": "Weekend Friend",
+      "artist": "Goth Babe"
+    },
+    {
+      "file": "What It Is (Block Boy) (with Kodak Black) by Doechii, Kodak Black.mp3",
+      "title": "What It Is (Block Boy) (with Kodak Black)",
+      "artist": "Doechii, Kodak Black"
+    },
+    {
+      "file": "Witchy (feat. Childish Gambino) by KAYTRANADA, Childish Gambino.mp3",
+      "title": "Witchy (feat. Childish Gambino)",
+      "artist": "KAYTRANADA, Childish Gambino"
+    },
+    {
+      "file": "With Me by dvsn.mp3",
+      "title": "With Me",
+      "artist": "dvsn"
+    },
+    {
+      "file": "YUKON (INTERLUDE) by Joji.mp3",
+      "title": "YUKON (INTERLUDE)",
+      "artist": "Joji"
+    },
+    {
+      "file": "act v- there goes another vase by 4batz.mp3",
+      "title": "act v- there goes another vase",
+      "artist": "4batz"
+    },
+    {
+      "file": "act viii- i hate to be alone by 4batz.mp3",
+      "title": "act viii- i hate to be alone",
+      "artist": "4batz"
+    },
+    {
+      "file": "no song without you by HONNE.mp3",
+      "title": "no song without you",
+      "artist": "HONNE"
+    },
+    {
+      "file": "on the street (with J. Cole) by j-hope, J. Cole.mp3",
+      "title": "on the street (with J. Cole)",
+      "artist": "j-hope, J. Cole"
+    },
+    {
+      "file": "put yo gun 2 use ontheradar freestyle by 4batz.mp3",
+      "title": "put yo gun 2 use ontheradar freestyle",
+      "artist": "4batz"
+    },
+    {
+      "file": "seasons by wave to earth.mp3",
+      "title": "seasons",
+      "artist": "wave to earth"
+    },
+    {
+      "file": "ten by Fred again.., Jozzy.mp3",
+      "title": "ten",
+      "artist": "Fred again.., Jozzy"
+    },
+    {
+      "file": "weneverdie by whiterosemoxie.mp3",
+      "title": "weneverdie",
+      "artist": "whiterosemoxie"
     }
   ]
 }

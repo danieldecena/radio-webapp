@@ -1,4 +1,4 @@
-# 93.4 ROM Radio 📻
+# 96.6 ROM Radio 📻
 
 A personal web radio station dedicated to Pauline, featuring:
 
@@ -32,22 +32,22 @@ A personal web radio station dedicated to Pauline, featuring:
 
 ```bash
 # Initialize git repository
-cd ~/Development/93.4-rom-radio
+cd ~/Development/96.6-rom-radio
 git init
 git add .
-git commit -m "Initial commit: 93.4 ROM Radio"
+git commit -m "Initial commit: 96.6 ROM Radio"
 
 # Create GitHub repository (using gh CLI)
-gh repo create 93.4-rom-radio --private --source=. --remote=origin --push
+gh repo create 96.6-rom-radio --private --source=. --remote=origin --push
 ```
 
 **Or manually:**
 
 1. Go to [GitHub](https://github.com/new)
-2. Create a new **private** repository named `93.4-rom-radio`
+2. Create a new **private** repository named `96.6-rom-radio`
 3. Push your code:
    ```bash
-   git remote add origin https://github.com/YOUR_USERNAME/93.4-rom-radio.git
+   git remote add origin https://github.com/YOUR_USERNAME/96.6-rom-radio.git
    git branch -M main
    git push -u origin main
    ```
@@ -58,7 +58,7 @@ gh repo create 93.4-rom-radio --private --source=. --remote=origin --push
 
 1. Go to [Netlify](https://app.netlify.com)
 2. Click **"Add new site"** → **"Import an existing project"**
-3. Choose **GitHub** and select your `93.4-rom-radio` repository
+3. Choose **GitHub** and select your `96.6-rom-radio` repository
 4. Configuration (should auto-detect):
    - **Build command**: (leave empty)
    - **Publish directory**: `public`
@@ -225,7 +225,7 @@ Personal project - All rights reserved
 ---
 
 **Made with ❤️ for Pauline**
-**93.4 ROM - Victoria's station for love**
+**96.6 ROM - Victoria's station for love**
 
 ## 🎧 Generating Audio Snippets (Zero Cost Mode)
 
@@ -241,7 +241,7 @@ To save ElevenLabs credits, you can pre-generate the ~40 static DJ snippets as M
 
    ```bash
    # Make sure you are in the project folder
-   cd ~/Development/93.4-rom-radio
+   cd ~/Development/96.6-rom-radio
 
    # Run the script
    node scripts/generate_breaks.js

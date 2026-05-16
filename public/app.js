@@ -1,5 +1,5 @@
 // ==============================================
-// 93.4 ROM — APP
+// 96.6 ROM — APP
 // ==============================================
 
 import {
@@ -11,6 +11,10 @@ import {
   getWeightedCategory,
 } from "./breaks.js";
 
+// --- Configuration ---
+// Change this to the exact name of your Apple Personal Voice (or leave "Personal" to match any personal voice)
+const APPLE_PERSONAL_VOICE_NAME = "Daniel";
+
 // --- Serverless TTS Config ---
 // API key is now secure on the server side
 // Works with both Netlify and Vercel
@@ -18,30 +22,45 @@ const TTS_ENDPOINT = window.location.hostname.includes("netlify")
   ? "/.netlify/functions/speak"
   : "/api/speak";
 
-// --- Elements ---
-const powerBtn = document.getElementById("powerBtn");
-const volBtn = document.getElementById("volBtn");
-const volumeSlider = document.getElementById("volumeSlider");
-const volumeContainer = document.getElementById("volumeContainer");
-const volValue = document.getElementById("volValue");
-const onAirDot = document.getElementById("onAirDot");
-const onAirEl = document.getElementById("onAirEl");
-const freqDisplay = document.getElementById("freqDisplay");
-const signalBars = document.getElementById("signalBars");
-const songTitle = document.getElementById("songTitle");
-const songArtist = document.getElementById("songArtist");
-const liveDot = document.getElementById("liveDot");
-const liveText = document.getElementById("liveText");
-const displayClock = document.getElementById("displayClock");
-const eqBars = document.querySelectorAll(".eq-bar");
-const displayNormal = document.getElementById("displayNormal");
-const displayScanning = document.getElementById("displayScanning");
-const displayDJBreak = document.getElementById("displayDJBreak");
-const tunerNeedle = document.getElementById("tunerNeedle");
-const scanningText = document.getElementById("scanningText");
-const djBreakContent = document.getElementById("djBreakContent");
-const trackProgress = document.getElementById("trackProgress");
-const trackProgressBar = document.getElementById("trackProgressBar");
+// --- Elements (Global Scope) ---
+let powerBtn, volBtn, loadBtn, shuffleBtn, clockEl, djBooth, volumeSlider, volumeContainer, volValue;
+let presetBtns, tunerBar, onAirDot, onAirEl, freqDisplay, signalBars;
+let songTitle, songArtist, liveDot, liveText, displayClock, eqBars;
+let displayNormal, displayScanning, displayDJBreak, tunerNeedle, scanningText;
+let djBreakContent, trackProgress, trackProgressBar;
+
+function initElements() {
+  powerBtn = document.getElementById("powerBtn");
+  volBtn = document.getElementById("volBtn");
+  loadBtn = document.getElementById("loadBtn");
+  shuffleBtn = document.getElementById("shuffleBtn");
+  clockEl = document.getElementById("clock");
+  djBooth = document.getElementById("djBooth");
+  volumeSlider = document.getElementById("volumeSlider");
+  volumeContainer = document.getElementById("volumeContainer");
+  volValue = document.getElementById("volValue");
+  presetBtns = document.querySelectorAll(".preset-btn");
+  tunerBar = document.querySelector(".tuner-bar");
+  onAirDot = document.getElementById("onAirDot");
+  onAirEl = document.getElementById("onAirEl");
+  freqDisplay = document.getElementById("freqDisplay");
+  signalBars = document.getElementById("signalBars");
+  songTitle = document.getElementById("songTitle");
+  songArtist = document.getElementById("songArtist");
+  liveDot = document.getElementById("liveDot");
+  liveText = document.getElementById("liveText");
+  displayClock = document.getElementById("displayClock");
+  eqBars = document.querySelectorAll(".eq-bar");
+  displayNormal = document.getElementById("displayNormal");
+  displayScanning = document.getElementById("displayScanning");
+  displayDJBreak = document.getElementById("displayDJBreak");
+  tunerNeedle = document.getElementById("tunerNeedle");
+  scanningText = document.getElementById("scanningText");
+  djBreakContent = document.getElementById("djBreakContent");
+  trackProgress = document.getElementById("trackProgress");
+  trackProgressBar = document.getElementById("trackProgressBar");
+  console.log("🛠️ UI Elements Bound.");
+}
 
 // --- State ---
 let isOn = false;
@@ -70,6 +89,7 @@ let fmWaveshaper = null;
 let fmOutputGain = null;
 let fmAnalyser = null;
 let eqDataArray = null;
+let djFilter = null; // Voice of God EQ
 
 // --- Initialize FM Radio Effects ---
 function initFMEffects() {
@@ -121,6 +141,30 @@ function initFMEffects() {
 
   // Store the filter for later use
   fmFilter = highpass;
+
+  // --- Initialize DJ Voice of God Effects ---
+  const djLowShelf = audioCtx.createBiquadFilter();
+  djLowShelf.type = "lowshelf";
+  djLowShelf.frequency.value = 150; // Boost deep announcer bass
+  djLowShelf.gain.value = 4.0; // +4dB
+
+  const djHighShelf = audioCtx.createBiquadFilter();
+  djHighShelf.type = "highshelf";
+  djHighShelf.frequency.value = 4000; // Crisp highs
+  djHighShelf.gain.value = 2.0; // +2dB
+
+  const djCompressor = audioCtx.createDynamicsCompressor();
+  djCompressor.threshold.value = -30;
+  djCompressor.knee.value = 5;
+  djCompressor.ratio.value = 6;
+  djCompressor.attack.value = 0.005;
+  djCompressor.release.value = 0.1;
+
+  djLowShelf.connect(djHighShelf);
+  djHighShelf.connect(djCompressor);
+  djCompressor.connect(fmFilter); // Pass into FM effects after DJ EQ
+
+  djFilter = djLowShelf;
 }
 
 // Create subtle warmth curve for analog tape-like saturation
@@ -221,7 +265,7 @@ function showPanel(panel) {
 function startTaglineRotation() {
   stopTaglineRotation();
   taglineIdx = 0;
-  songTitle.textContent = "93.4 ROM";
+  songTitle.textContent = "96.6 ROM";
   songArtist.textContent = STATION_TAGLINES[0];
   taglineTimer = setInterval(() => {
     if (lastSong.title) {
@@ -311,7 +355,7 @@ async function loadLocalPlaylist() {
     powerBtn.disabled = false;
     powerBtn.style.opacity = "";
     powerBtn.style.cursor = "";
-    songTitle.textContent = "93.4 ROM";
+    songTitle.textContent = "96.6 ROM";
     songArtist.textContent = "PLAYING THE HITS, DEDICATED TO YOU";
   } catch (e) {
     console.error("Failed to load playlist:", e);
@@ -328,6 +372,8 @@ async function loadLocalPlaylist() {
 
 // --- ElevenLabs TTS with fallbacks ---
 async function speakDJBreak(text) {
+  if (djBooth) djBooth.classList.add("active");
+  
   // Tier 0: Pre-generated Local Audio (Zero Cost)
   if (snippetManifest[text]) {
     try {
@@ -337,9 +383,11 @@ async function speakDJBreak(text) {
       const source = audioCtx.createMediaElementSource(audio);
       const gain = audioCtx.createGain();
 
-      // Connect to FM chain
+      // Connect to FM chain with Voice of God EQ
       source.connect(gain);
-      if (fmFilter) {
+      if (djFilter) {
+        gain.connect(djFilter);
+      } else if (fmFilter) {
         gain.connect(fmFilter);
       } else {
         gain.connect(audioCtx.destination);
@@ -355,18 +403,22 @@ async function speakDJBreak(text) {
     }
   }
 
-  // Tier 1: ElevenLabs via secure serverless function
-  try {
-    const response = await fetch(TTS_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ text }),
-    });
+  // Voice Mixing Logic: 50% chance to skip ElevenLabs and use Apple Personal Voice (Web Speech API)
+  const useAppleVoice = Math.random() < 0.5;
 
-    if (response.ok) {
-      const data = await response.json();
+  if (!useAppleVoice) {
+    // Tier 1: ElevenLabs via secure serverless function
+    try {
+      const response = await fetch(TTS_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
 
       // Convert base64 audio to ArrayBuffer
       const binaryString = atob(data.audio);
@@ -419,9 +471,9 @@ async function speakDJBreak(text) {
           audioCtx.currentTime + duration,
         );
       }
-      // Route through FM radio effects chain for authentic sound
+      // Route through DJ Voice of God effects, then FM radio
       source.connect(gain);
-      gain.connect(fmFilter); // Connect to FM effects instead of direct output
+      gain.connect(djFilter ? djFilter : fmFilter);
       source.start(0);
       currentSource = source;
       source.onended = () => {
@@ -435,6 +487,7 @@ async function speakDJBreak(text) {
   } catch (err) {
     console.warn("ElevenLabs failed:", err);
   }
+  } // end if (!useAppleVoice)
 
   // Tier 2: Web Speech API (free, unlimited, built-in)
   if ("speechSynthesis" in window) {
@@ -465,6 +518,7 @@ async function speakDJBreak(text) {
 
       const preferred = voices.find(
         (v) =>
+          v.name.includes(APPLE_PERSONAL_VOICE_NAME) ||
           v.name.includes("Samantha") ||
           v.name.includes("Google US English") ||
           v.lang === "en-US",
@@ -570,6 +624,9 @@ async function closeBreakPanel() {
 
   restoreLastHeard();
   showPanel("normal");
+  onAirDot.classList.remove("active");
+  onAirEl.classList.remove("active");
+  if (djBooth) djBooth.classList.remove("active");
   startEQ();
 }
 
@@ -619,17 +676,15 @@ async function triggerDJBreak() {
   }
 
   // Apple Music Style Outro Fade:
-  // Fade out music VERY slowly over 4 seconds before speaking
-  await fadeMusicPlayerVolume(0.02, 4000);
+  // Fade out music down to 15% (Music Bed) over 2.5 seconds before speaking
+  await fadeMusicPlayerVolume(0.15, 2500);
 
   djBreakContent.textContent = text;
   showPanel("djbreak");
   onAirDot.classList.add("active");
   onAirEl.classList.add("active");
+  if (djBooth) djBooth.classList.add("active");
   stopEQ();
-
-  // Actually pause the song once faded out
-  if (!musicPlayer.audio.paused) musicPlayer.audio.pause();
 
   speakDJBreak(text);
 }
@@ -768,9 +823,6 @@ async function powerOn() {
   powerBtn.classList.add("on");
   powerBtn.setAttribute("aria-pressed", "true");
 
-  // Start background hiss
-  noiseGen.startHiss();
-
   // 50% chance to do instant-on (simulate tuning into live broadcast)
   const instantOn = Math.random() < 0.5;
 
@@ -783,12 +835,12 @@ async function powerOn() {
     liveDot.classList.add("active");
     liveText.textContent = "LIVE";
 
-    // Set needle to 93.4 instantly
+    // Set needle to 96.6 instantly
     function freqToPercent(f) {
       return ((f - 87.5) / (108 - 87.5)) * 100;
     }
-    tunerNeedle.style.left = freqToPercent(93.4) + "%";
-    freqDisplay.textContent = "93.4 FM";
+    tunerNeedle.style.left = freqToPercent(96.6) + "%";
+    freqDisplay.textContent = "96.6 FM";
 
     isOn = true;
     isScanning = false;
@@ -809,19 +861,12 @@ async function powerOn() {
   showPanel("scanning");
   scanningText.textContent = "Searching...";
 
-  // Increase static hiss during station scanning
-  if (noiseGen.hissGain && audioCtx) {
-    noiseGen.hissGain.gain.setValueAtTime(0.015, audioCtx.currentTime);
-  }
-
   function freqToPercent(f) {
     return ((f - 87.5) / (108 - 87.5)) * 100;
   }
 
-  const stations = [88.1, 91.3, 93.4];
+  const stations = [88.1, 91.3, 96.6];
   for (let i = 0; i < stations.length; i++) {
-    // Play static burst with each needle move
-    noiseGen.playBurst(0.4);
     await animateNeedle(
       tunerNeedle,
       freqToPercent(stations[i]),
@@ -831,15 +876,7 @@ async function powerOn() {
     if (i < stations.length - 1) await sleep(150);
   }
 
-  scanningText.textContent = "FOUND -- 93.4 ROM";
-
-  // Fade static down to a subtle analog noise floor as station tunes in
-  if (noiseGen.hissGain && audioCtx) {
-    noiseGen.hissGain.gain.exponentialRampToValueAtTime(
-      0.001,
-      audioCtx.currentTime + 1.0,
-    );
-  }
+  scanningText.textContent = "FOUND -- 96.6 ROM";
 
   await sleep(500);
 
@@ -922,9 +959,6 @@ async function powerOff() {
   }
   if ("speechSynthesis" in window) window.speechSynthesis.cancel();
 
-  // Stop Radio Static
-  noiseGen.stopHiss();
-
   powerBtn.classList.remove("on");
   powerBtn.setAttribute("aria-pressed", "false");
   signalBars.classList.remove("active");
@@ -932,9 +966,9 @@ async function powerOff() {
   onAirEl.classList.remove("active");
   liveDot.classList.remove("active");
   liveText.textContent = "OFF AIR";
-  freqDisplay.textContent = "93.4 FM";
+  freqDisplay.textContent = "96.6 FM";
   displayClock.textContent = "--:--";
-  songTitle.textContent = "93.4 ROM";
+  songTitle.textContent = "96.6 ROM";
   songArtist.textContent = "PLAYING THE HITS, DEDICATED TO YOU";
 
   showPanel("normal");
@@ -978,33 +1012,66 @@ function animateNeedle(needle, targetPercent, duration) {
   });
 }
 
-// --- Events ---
-powerBtn.addEventListener("click", () => {
-  hapticFeedback(20); // Stronger feedback for power button
-  if (!isOn && !isScanning) powerOn();
-  else if (isOn) powerOff();
-});
+// Logic functions (startTuning, tuneTo, etc.) remain in global scope
+function startTuning(e) {
+  if (!isOn && !isScanning) return;
+  isDraggingNeedle = true;
+  doTuning(e);
+}
 
-volBtn.addEventListener("click", () => {
-  hapticFeedback(10);
-  toggleVolume();
-});
+function doTuning(e) {
+  if (!isDraggingNeedle) return;
+  const rect = tunerBar.getBoundingClientRect();
+  const x = (e.clientX || e.pageX) - rect.left;
+  let percent = (x / rect.width) * 100;
+  percent = Math.max(0, Math.min(100, percent));
+  tunerNeedle.style.left = percent + "%";
+  const freq = 87.5 + (percent / 100) * (108 - 87.5);
+  freqDisplay.textContent = freq.toFixed(1) + " FM";
+  checkFrequencyLock(freq);
+}
 
-volumeSlider.addEventListener("input", (e) => {
-  const volumePercent = e.target.value;
-  const volumeGain = volumePercent / 100;
+function stopTuning() {
+  isDraggingNeedle = false;
+}
 
-  // Update display
-  if (volValue) volValue.textContent = volumePercent;
+let lastLockedFreq = null;
 
-  // Update ARIA attribute
-  e.target.setAttribute("aria-valuenow", volumePercent);
-
-  // Control actual audio output via FM effects chain
-  if (fmOutputGain && audioCtx) {
-    fmOutputGain.gain.setValueAtTime(volumeGain, audioCtx.currentTime);
+function checkFrequencyLock(freq) {
+  const targetFreq = 96.6;
+  const tolerance = 0.3;
+  if (Math.abs(freq - targetFreq) < tolerance) {
+    if (lastLockedFreq !== targetFreq) lockStation(targetFreq);
+  } else {
+    if (lastLockedFreq !== null) unlockStation();
   }
-});
+}
+
+function lockStation(freq) {
+  lastLockedFreq = freq;
+  scanningText.textContent = `FOUND -- ${freq.toFixed(1)} ROM`;
+  freqDisplay.textContent = freq.toFixed(1) + " FM";
+  if (isOn) {
+    showPanel("normal");
+    if (musicPlayer.audio.paused) musicPlayer.playNext();
+  }
+}
+
+function unlockStation() {
+  lastLockedFreq = null;
+  scanningText.textContent = "Searching...";
+  if (isOn) showPanel("scanning");
+}
+
+const presets = { 1: 96.6, 2: 88.1, 3: 104.5 };
+
+async function tuneTo(freq) {
+  if (!isOn && !isScanning) return;
+  const targetPercent = ((freq - 87.5) / (108 - 87.5)) * 100;
+  await animateNeedle(tunerNeedle, targetPercent, 500);
+  freqDisplay.textContent = freq.toFixed(1) + " FM";
+  checkFrequencyLock(freq);
+}
 
 // --- Noise Generator (Static & Hiss) ---
 let noiseBuffer = null;
@@ -1029,6 +1096,7 @@ class NoiseGenerator {
   }
 
   startHiss() {
+    return; // Completely disabled per user request
     if (!audioCtx || !noiseBuffer) return;
     this.stopHiss();
 
@@ -1038,7 +1106,7 @@ class NoiseGenerator {
 
     const gain = audioCtx.createGain();
     // Very subtle background hiss (-50dB)
-    gain.gain.value = 0.001; // Reduced from 0.005 - subtle background hiss
+    gain.gain.value = 0.000;
 
     source.connect(gain);
     // Connect to FM effects for "radio" sound, or direct
@@ -1063,6 +1131,7 @@ class NoiseGenerator {
   }
 
   playBurst(duration = 0.2) {
+    return; // Completely disabled per user request
     if (!audioCtx || !noiseBuffer) return;
 
     const source = audioCtx.createBufferSource();
@@ -1070,13 +1139,13 @@ class NoiseGenerator {
 
     const gain = audioCtx.createGain();
     // Louder burst for tuning (-12dB)
-    gain.gain.value = 0.05; // Reduced from 0.15 - quieter scanning bursts
+    gain.gain.value = 0.000;
 
     // Envelope for burst (fade in/out fast)
     const now = audioCtx.currentTime;
     gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.15, now + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+    gain.gain.linearRampToValueAtTime(0.000, now + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.000, now + duration);
 
     source.connect(gain);
     gain.connect(audioCtx.destination);
@@ -1107,8 +1176,8 @@ class MusicPlayer {
     this.nextGainNode = null;
 
     // Connect to AudioContext for visualizer
-    this.audioSource = null;
     this.nextAudioSource = null;
+    this.isShuffle = true; // Default to shuffle on
 
     this.audio.addEventListener("ended", () => this.handleSongEnd());
     this.audio.addEventListener("timeupdate", () => this.checkForCrossfade());
@@ -1153,7 +1222,7 @@ class MusicPlayer {
 
       // Update UI to show ready state
       if (!isOn) {
-        songTitle.textContent = "93.4 ROM";
+        songTitle.textContent = "96.6 ROM";
         songArtist.textContent = "PLAYING THE HITS, DEDICATED TO YOU";
       }
 
@@ -1211,7 +1280,18 @@ class MusicPlayer {
   playNext() {
     if (this.playlist.length === 0) return;
 
-    this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
+    if (this.isShuffle) {
+      // Pick a random track that isn't the current one if possible
+      let nextIndex;
+      do {
+        nextIndex = Math.floor(Math.random() * this.playlist.length);
+      } while (nextIndex === this.currentIndex && this.playlist.length > 1);
+      this.currentIndex = nextIndex;
+    } else {
+      // Linear playback
+      this.currentIndex = (this.currentIndex + 1) % this.playlist.length;
+    }
+
     this._playTrackAtIndex(this.currentIndex);
   }
 
@@ -1249,7 +1329,7 @@ class MusicPlayer {
         const idText =
           stationIDs[Math.floor(Math.random() * stationIDs.length)];
 
-        const text = `${greeting}, Victoria. ${idText} We are kicking off the broadcast right now with a massive track. This is ${track.title} by ${track.artist} on 93.4 ROM!`;
+        const text = `${greeting}, Victoria. ${idText} We are kicking off the broadcast right now with a massive track. This is ${track.title} by ${track.artist} on 96.6 ROM!`;
 
         // Update UI for DJ break
         djBreakContent.textContent = text;
@@ -1475,6 +1555,15 @@ class MusicPlayer {
     lastSong.artist = track.artist.toUpperCase();
     songTitle.textContent = lastSong.title;
     songArtist.textContent = lastSong.artist;
+    
+    // Marquee check:
+    songTitle.classList.remove("scroll");
+    setTimeout(() => {
+      if (songTitle.offsetWidth > songTitle.parentElement.offsetWidth) {
+        songTitle.classList.add("scroll");
+      }
+    }, 100);
+
     stopTaglineRotation();
 
     // Ensure visualizer is connected
@@ -1817,76 +1906,123 @@ function restoreRadioState() {
   }
 }
 
-// Restore state on page load
-restoreRadioState();
-
-// Auto-load local playlist on startup (no file picker needed)
-loadLocalPlaylist();
-
-// Hook up events — manual override still available via Load button
-document.getElementById("musicFolder").addEventListener("change", (e) => {
-  musicPlayer.loadFiles(e.target.files);
-});
-
-document.getElementById("loadBtn").addEventListener("click", () => {
-  hapticFeedback(10);
-  document.getElementById("musicFolder").click();
-});
-
-// Update powerOn to use local music if available
-// (Modified logic in powerOn function below)
-
-// --- Keyboard Shortcuts ---
-document.addEventListener("keydown", (e) => {
-  // Ignore if user is typing in an input field
-  if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") {
-    return;
+// --- Main Bootstrapping ---
+window.addEventListener("DOMContentLoaded", () => {
+  initElements();
+  
+  // 1. Power & Core Controls
+  if (powerBtn) {
+    powerBtn.addEventListener("click", () => {
+      hapticFeedback(20);
+      if (!isOn && !isScanning) powerOn();
+      else if (isOn) powerOff();
+    });
   }
-
-  switch (e.key) {
-    case " ": // Spacebar - Toggle power
-      e.preventDefault();
-      if (!isOn && !isScanning && !powerBtn.disabled) {
-        powerOn();
-      } else if (isOn) {
-        powerOff();
-      }
-      break;
-
-    case "ArrowUp": // Increase volume
-      e.preventDefault();
-      {
-        const currentVol = parseInt(volumeSlider.value);
-        const newVol = Math.min(100, currentVol + 5);
-        volumeSlider.value = newVol;
-        volumeSlider.dispatchEvent(new Event("input"));
-      }
-      break;
-
-    case "ArrowDown": // Decrease volume
-      e.preventDefault();
-      {
-        const currentVol = parseInt(volumeSlider.value);
-        const newVol = Math.max(0, currentVol - 5);
-        volumeSlider.value = newVol;
-        volumeSlider.dispatchEvent(new Event("input"));
-      }
-      break;
-
-    case "m":
-    case "M": // Toggle volume panel
-      e.preventDefault();
+  
+  if (volBtn) {
+    volBtn.addEventListener("click", () => {
+      hapticFeedback(10);
       toggleVolume();
-      break;
-
-    default:
-      break;
+    });
   }
-});
 
-// --- Init ---
-songTitle.textContent = STATION_CONFIG.stationName;
-songArtist.textContent = "PLAYING THE HITS, DEDICATED TO YOU";
+  if (shuffleBtn) {
+    shuffleBtn.addEventListener("click", () => {
+      musicPlayer.isShuffle = !musicPlayer.isShuffle;
+      shuffleBtn.classList.toggle("active", musicPlayer.isShuffle);
+    });
+    shuffleBtn.classList.toggle("active", musicPlayer.isShuffle);
+  }
+
+  if (loadBtn) {
+    loadBtn.addEventListener("click", () => {
+      hapticFeedback(10);
+      const folderInput = document.getElementById("musicFolder");
+      if (folderInput) folderInput.click();
+    });
+  }
+
+  // 2. Volume & Audio Chain
+  if (volumeSlider) {
+    volumeSlider.addEventListener("input", (e) => {
+      const volumePercent = e.target.value;
+      const volumeGain = volumePercent / 100;
+      if (volValue) volValue.textContent = volumePercent;
+      musicPlayer.setVolume(volumeGain);
+      e.target.setAttribute("aria-valuenow", volumePercent);
+    });
+  }
+
+  // 3. Manual Tuning
+  if (tunerBar) {
+    tunerBar.addEventListener("mousedown", startTuning);
+    tunerBar.addEventListener("mousemove", doTuning);
+    window.addEventListener("mouseup", stopTuning);
+    
+    // Touch support
+    tunerBar.addEventListener("touchstart", (e) => {
+      e.preventDefault();
+      startTuning(e.touches[0]);
+    }, { passive: false });
+    tunerBar.addEventListener("touchmove", (e) => {
+      e.preventDefault();
+      doTuning(e.touches[0]);
+    }, { passive: false });
+    window.addEventListener("touchend", stopTuning);
+  }
+
+  // 4. Presets
+  presetBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const p = btn.dataset.preset;
+      const freq = presets[p];
+      if (freq) {
+        tuneTo(freq);
+        presetBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        hapticFeedback(10);
+      }
+    });
+  });
+
+  // 5. Keyboard Shortcuts
+  document.addEventListener("keydown", (e) => {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
+    switch (e.key) {
+      case " ": 
+        e.preventDefault();
+        if (!isOn && !isScanning && !powerBtn?.disabled) powerOn();
+        else if (isOn) powerOff();
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        if (volumeSlider) {
+          volumeSlider.value = Math.min(100, parseInt(volumeSlider.value) + 5);
+          volumeSlider.dispatchEvent(new Event("input"));
+        }
+        break;
+      case "ArrowDown":
+        e.preventDefault();
+        if (volumeSlider) {
+          volumeSlider.value = Math.max(0, parseInt(volumeSlider.value) - 5);
+          volumeSlider.dispatchEvent(new Event("input"));
+        }
+        break;
+      case "m":
+      case "M":
+        e.preventDefault();
+        toggleVolume();
+        break;
+    }
+  });
+
+  // 6. Init UI & State
+  if (songTitle) songTitle.textContent = STATION_CONFIG.stationName;
+  restoreRadioState();
+  loadLocalPlaylist();
+
+  console.log("📻 96.6 ROM Radio Engine Ready!");
+});
 
 // --- Expose for testing ---
 window.triggerDJBreak = triggerDJBreak;

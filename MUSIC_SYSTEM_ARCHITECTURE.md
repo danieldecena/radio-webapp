@@ -1,4 +1,4 @@
-# 🎵 Music System Architecture - 93.4 ROM Radio
+# 🎵 Music System Architecture - 96.6 ROM Radio
 
 ## Overview
 
@@ -211,7 +211,7 @@ quickIDTimeout = setTimeout(() => {
 ```
 
 **Timing:**
-- **Quick IDs**: Every 2.5 min, 10-20 sec long ("93.4 ROM, playing hits for Pauline")
+- **Quick IDs**: Every 2.5 min, 10-20 sec long ("96.6 ROM, playing hits for Pauline")
 - **Full Breaks**: Every 7 min, 30-60 sec long (shoutouts, weather, commercials)
 - **Offset**: 90 seconds between quick IDs and full breaks (no overlap)
 
@@ -249,7 +249,7 @@ function checkLiveDJBreak() {
 // Load manifest of pre-generated snippets
 snippetManifest = {
   "Hey Pauline!": "audio/snippets/hey_pauline_.mp3",
-  "93.4 ROM, playing hits for you": "audio/snippets/93_4_rom__yours_.mp3",
+  "96.6 ROM, playing hits for you": "audio/snippets/96.6_rom__yours_.mp3",
   // ... 37 total snippets
 }
 
@@ -435,7 +435,7 @@ Volume
 ## 💾 File Structure
 
 ```
-93.4-rom-radio/
+96.6-rom-radio/
 ├── public/
 │   ├── index.html          # Spotify embed, UI structure
 │   ├── app.js              # Main audio engine (this file!)
@@ -446,7 +446,7 @@ Volume
 │       └── snippets/       # Pre-generated MP3s
 │           ├── manifest.json           # File mapping
 │           ├── hey_pauline_.mp3
-│           ├── 93_4_rom__yours_.mp3
+│           ├── 96.6_rom__yours_.mp3
 │           └── ... (37 total)
 │
 ├── netlify/functions/

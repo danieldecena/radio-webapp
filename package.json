@@ -1,5 +1,5 @@
 {
-  "name": "93.4-rom-radio",
+  "name": "96.6-rom-radio",
   "version": "1.0.0",
   "description": "Personal web radio station with Spotify integration and AI DJ breaks",
   "private": true,
@@ -21,12 +21,12 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/danieldecena/93.4-rom-radio.git"
+    "url": "git+https://github.com/danieldecena/96.6-rom-radio.git"
   },
   "bugs": {
-    "url": "https://github.com/danieldecena/93.4-rom-radio/issues"
+    "url": "https://github.com/danieldecena/96.6-rom-radio/issues"
   },
-  "homepage": "https://github.com/danieldecena/93.4-rom-radio#readme",
+  "homepage": "https://github.com/danieldecena/96.6-rom-radio#readme",
   "dependencies": {
     "dotenv": "^17.3.1"
   }

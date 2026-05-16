@@ -12,26 +12,24 @@ const MUSIC_DIR = path.join(__dirname, '../public/music');
 const OUTPUT_FILE = path.join(MUSIC_DIR, 'playlist.json');
 
 function parseFilename(filename) {
-  // Remove APLMate.com prefix and extension
-  let name = filename.replace(/^APLMate\.com\s*-\s*/, '').replace(/\.[^/.]+$/, '');
+  // Remove extension
+  let name = filename.replace(/\.[^/.]+$/, '');
 
-  // Handle patterns like "Artist _Title_ - Artist2"
-  // Example: "Danielle _smile on my face_ - Fred again.."
-  const match = name.match(/^(.+?)\s*_(.+?)_\s*-\s*(.+)$/);
-  if (match) {
-    const [, trackName, subtitle, artist] = match;
+  // Try "Title by Artist" pattern
+  if (name.includes(' by ')) {
+    const parts = name.split(' by ');
     return {
-      title: `${trackName} (${subtitle})`,
-      artist: artist.trim()
+      title: parts[0].trim(),
+      artist: parts.slice(1).join(' by ').trim()
     };
   }
 
-  // Fallback: try "Title - Artist" pattern
+  // Fallback: try "Artist - Title" pattern (spotDL default)
   if (name.includes(' - ')) {
     const parts = name.split(' - ');
     return {
-      title: parts[0].trim(),
-      artist: parts.slice(1).join(' - ').trim()
+      title: parts.slice(1).join(' - ').trim(),
+      artist: parts[0].trim()
     };
   }
 

@@ -1,10 +1,10 @@
-# 93.4 ROM Radio - Project Context
+# 96.6 ROM Radio - Project Context
 
 ## Project Overview
 Personal web radio station dedicated to Pauline featuring Spotify integration, AI-powered DJ breaks, and a retro car radio UI.
 
 **Live URL**: (Add when deployed to Netlify)
-**Repository**: https://github.com/danieldecena/93.4-rom-radio
+**Repository**: https://github.com/danieldecena/96.6-rom-radio
 
 ## Tech Stack
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3
@@ -169,7 +169,7 @@ curl http://localhost:8888/.netlify/functions/tts \
 
 ## Personal Context
 This is a personal project for Pauline featuring:
-- Station name: "93.4 ROM Radio"
+- Station name: "96.6 ROM Radio"
 - Tagline: "Victoria's station for love"
 - Music: Curated Spotify playlist
 - Special dates: Birthday, Valentine's, Anniversary messages

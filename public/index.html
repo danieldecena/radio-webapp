@@ -12,17 +12,17 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="apple-mobile-web-app-title" content="93.4 ROM" />
-    <meta name="theme-color" content="#080808" />
-    <title>93.4 ROM Radio</title>
-    <link rel="stylesheet" href="style.css" />
+    <meta name="apple-mobile-web-app-title" content="96.6 ROM" />
+    <meta name="theme-color" content="#f2f2f7" />
+    <title>96.6 ROM Radio</title>
+    <link rel="stylesheet" href="style.css?v=16" />
     <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/png" href="icon.png" />
     <link rel="apple-touch-icon" href="icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&family=Orbitron:wght@500;700&display=swap"
       rel="stylesheet"
     />
 
@@ -41,9 +41,20 @@
     <div class="screen">
       <div class="ambient-glow"></div>
 
-      <div class="radio" role="application" aria-label="93.4 ROM Radio Player">
+      <div class="radio" role="application" aria-label="96.6 ROM Radio Player">
         <!-- Top Bar -->
-        <div class="top-bar">
+        <!-- DJ Booth Indicator -->
+        <div class="dj-booth" id="djBooth">
+          <div class="dj-avatar">
+            <div class="headphones"></div>
+          </div>
+          <div class="dj-status">
+            <span class="studio-text">STUDIO</span>
+            <div class="live-blink"></div>
+          </div>
+        </div>
+
+        <div class="top-meta">
           <div class="signal" id="signalBars">
             <span class="bar b1"></span>
             <span class="bar b2"></span>
@@ -51,7 +62,7 @@
             <span class="bar b4"></span>
           </div>
           <div class="frequency-display">
-            <span class="freq-number" id="freqDisplay">93.4 FM</span>
+            <span class="freq-number" id="freqDisplay">96.6 FM</span>
           </div>
           <div class="on-air" id="onAirEl">
             <span class="on-air-dot" id="onAirDot"></span>
@@ -61,7 +72,7 @@
 
         <!-- Station Name -->
         <div class="station-identity">
-          <div class="station-name">93.4 ROM</div>
+          <div class="station-name">96.6 ROM</div>
           <div class="station-tagline">Playing the hits, dedicated to you</div>
         </div>
 
@@ -69,8 +80,10 @@
         <div class="car-display" role="region" aria-label="Radio Display">
           <!-- Normal view -->
           <div id="displayNormal">
-            <div class="display-song-title" id="songTitle" aria-live="polite">93.4 ROM</div>
-            <div class="display-song-artist" id="songArtist" aria-live="polite">
+            <div class="track-title-container">
+              <div class="track-title" id="songTitle" aria-live="polite">96.6 ROM</div>
+            </div>
+            <div class="track-artist" id="songArtist" aria-live="polite">
               PLAYING THE HITS, DEDICATED TO YOU
             </div>
             <div class="display-time-row">
@@ -98,6 +111,11 @@
           <!-- Scanning view -->
           <div id="displayScanning" style="display: none">
             <div class="scanning-label">SCANNING</div>
+            <div class="scanning-text" id="scanningText">Scanning...</div>
+          </div>
+
+          <!-- Always-Visible Tuner (for manual dragging) -->
+          <div class="tuner-bar-container">
             <div class="tuner-bar">
               <div class="tuner-needle" id="tunerNeedle" style="left: 0%"></div>
               <div class="tuner-marks">
@@ -105,7 +123,6 @@
                 ><span>104</span>
               </div>
             </div>
-            <div class="scanning-text" id="scanningText">Scanning...</div>
           </div>
 
           <!-- DJ Break view -->
@@ -133,9 +150,8 @@
             title="Load Music">
             <svg
               viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
+              fill="currentColor"
+              stroke="none"
               aria-hidden="true"
             >
               <path d="M9 18V5l12-2v13"></path>
@@ -147,17 +163,15 @@
           <button
             class="ctrl-btn power-btn"
             id="powerBtn"
-            aria-label="Power"
+            aria-label="Play Radio"
             aria-pressed="false">
             <svg
               viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
+              fill="currentColor"
+              stroke="none"
               aria-hidden="true"
             >
-              <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-              <line x1="12" y1="2" x2="12" y2="12"></line>
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
             </svg>
           </button>
           <button
@@ -167,14 +181,34 @@
             aria-expanded="false">
             <svg
               viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="1.5"
+              fill="currentColor"
+              stroke="none"
               aria-hidden="true"
             >
               <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"></polygon>
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
               <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </button>
+          <button
+            class="ctrl-btn shuffle-btn"
+            id="shuffleBtn"
+            aria-label="Toggle Shuffle"
+            title="Shuffle">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="21" y2="3"></line>
+              <polyline points="21 16 21 21 16 21"></polyline>
+              <line x1="15" y1="15" x2="21" y2="21"></line>
+              <line x1="4" y1="4" x2="9" y2="9"></line>
             </svg>
           </button>
         </div>
@@ -203,11 +237,18 @@
           />
         </div>
 
+        <!-- Presets -->
+        <div class="presets">
+          <button class="preset-btn" data-preset="1">P1</button>
+          <button class="preset-btn" data-preset="2">P2</button>
+          <button class="preset-btn" data-preset="3">P3</button>
+        </div>
+        
         <!-- Bottom Label -->
         <div class="bottom-label">
           <span>STEREO</span>
           <span>◆</span>
-          <span>DIGITAL</span>
+          <span>PAULINE SIGNATURE EDITION</span>
           <span>◆</span>
           <span>VICTORIA BC</span>
         </div>
@@ -215,7 +256,7 @@
     </div>
 
     <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
-    <script src="breaks.js" type="module"></script>
-    <script src="app.js" type="module"></script>
+    <script src="breaks.js?v=2" type="module"></script>
+    <script src="app.js?v=15" type="module"></script>
   </body>
 </html>

@@ -176,3 +176,67 @@ This is a personal project for Pauline featuring:
 
 ---
 **Last Updated**: 2026-02-25
+
+---
+
+## Task System
+
+Paste this into any agent's CLAUDE.md to give it task read/write access.
+
+---
+
+## Task System
+
+You have access to a shared task manager. Tasks are stored in JSON and synced
+directly to the Obsidian vault at `http://127.0.0.1:27123`.
+
+### Reading tasks
+
+```bash
+cd ~/Obsidian\ Cloud/Developer/Projects/agent-system
+python3 -c "from tasks import list_tasks; import json; print(json.dumps(list_tasks(), indent=2))"
+```
+
+### Creating a task
+
+```bash
+python3 -c "
+from tasks import create_task
+task = create_task('Your task title', 'Description here', agent='claude')
+print(task['id'])
+"
+```
+
+### Updating a task
+
+```bash
+python3 -c "
+from tasks import update_task, TaskStatus
+update_task('TASK-001', status=TaskStatus.DONE, notes='Completed successfully')
+"
+```
+
+### Writing a note directly to the vault
+
+```bash
+curl -X PUT http://127.0.0.1:27123/vault/Tasks/TASK-001.md \
+  -H "Authorization: Bearer f1f3ea9887a7e492326c5d897246b173c45464a1a73a266ff3b1a42aa22a2c98" \
+  -H "Content-Type: text/markdown" \
+  -d "# TASK-001: Your Task
+status: done
+"
+```
+
+### Task statuses
+- `pending` — not started
+- `in_progress` — actively being worked on
+- `done` — completed
+- `blocked` — waiting on something
+
+### Rules
+- Always create a task before starting non-trivial work
+- Update status to `in_progress` when you begin
+- Add notes when you hit blockers or finish
+- Mark `done` when complete — this updates the vault note automatically
+
+---

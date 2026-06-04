@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="96.6 ROM" />
+    <meta name="theme-color" content="#f2f2f7" />
+    <title>96.6 ROM Radio</title>
+    <link rel="stylesheet" href="style.css?v=16" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" type="image/png" href="icon.png" />
+    <link rel="apple-touch-icon" href="icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@500;700&family=Orbitron:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((req) => console.log("SW Registered!", req))
+            .catch((err) => console.log("SW Failed", err));
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div class="screen">
+      <div class="ambient-glow"></div>
+
+      <div class="radio" role="application" aria-label="96.6 ROM Radio Player">
+        <!-- Top Bar -->
+        <!-- DJ Booth Indicator -->
+        <div class="dj-booth" id="djBooth">
+          <div class="dj-avatar">
+            <div class="headphones"></div>
+          </div>
+          <div class="dj-status">
+            <span class="studio-text">STUDIO</span>
+            <div class="live-blink"></div>
+          </div>
+        </div>
+
+        <div class="top-meta">
+          <div class="signal" id="signalBars">
+            <span class="bar b1"></span>
+            <span class="bar b2"></span>
+            <span class="bar b3"></span>
+            <span class="bar b4"></span>
+          </div>
+          <div class="frequency-display">
+            <span class="freq-number" id="freqDisplay">96.6 FM</span>
+          </div>
+          <div class="on-air" id="onAirEl">
+            <span class="on-air-dot" id="onAirDot"></span>
+            <span class="on-air-text">ON AIR</span>
+          </div>
+        </div>
+
+        <!-- Station Name -->
+        <div class="station-identity">
+          <div class="station-name">96.6 ROM</div>
+          <div class="station-tagline">Playing the hits, dedicated to you</div>
+        </div>
+
+        <!-- Car Display Panel -->
+        <div class="car-display" role="region" aria-label="Radio Display">
+          <!-- Normal view -->
+          <div id="displayNormal">
+            <div class="track-title-container">
+              <div class="track-title" id="songTitle" aria-live="polite">96.6 ROM</div>
+            </div>
+            <div class="track-artist" id="songArtist" aria-live="polite">
+              PLAYING THE HITS, DEDICATED TO YOU
+            </div>
+            <div class="display-time-row">
+              <span class="display-live-dot" id="liveDot" aria-hidden="true"></span>
+              <span class="display-live-text" id="liveText" aria-live="polite">OFF AIR</span>
+              <span class="display-clock" id="displayClock" aria-live="off">--:--</span>
+            </div>
+            <div class="track-progress" id="trackProgress" aria-hidden="true">
+              <div class="track-progress-bar" id="trackProgressBar"></div>
+            </div>
+            <div class="eq-visualizer" role="img" aria-label="Audio equalizer visualization">
+              <span class="eq-bar"></span><span class="eq-bar"></span
+              ><span class="eq-bar"></span> <span class="eq-bar"></span
+              ><span class="eq-bar"></span><span class="eq-bar"></span>
+              <span class="eq-bar"></span><span class="eq-bar"></span
+              ><span class="eq-bar"></span> <span class="eq-bar"></span
+              ><span class="eq-bar"></span><span class="eq-bar"></span>
+              <span class="eq-bar"></span><span class="eq-bar"></span
+              ><span class="eq-bar"></span> <span class="eq-bar"></span
+              ><span class="eq-bar"></span><span class="eq-bar"></span>
+              <span class="eq-bar"></span><span class="eq-bar"></span>
+            </div>
+          </div>
+
+          <!-- Scanning view -->
+          <div id="displayScanning" style="display: none">
+            <div class="scanning-label">SCANNING</div>
+            <div class="scanning-text" id="scanningText">Scanning...</div>
+          </div>
+
+          <!-- Always-Visible Tuner (for manual dragging) -->
+          <div class="tuner-bar-container">
+            <div class="tuner-bar">
+              <div class="tuner-needle" id="tunerNeedle" style="left: 0%"></div>
+              <div class="tuner-marks">
+                <span>88</span><span>92</span><span>96</span><span>100</span
+                ><span>104</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- DJ Break view -->
+          <div id="displayDJBreak" style="display: none">
+            <div class="dj-break-label">DJ BREAK</div>
+            <div class="dj-break-content" id="djBreakContent" role="status" aria-live="assertive"></div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <input
+            type="file"
+            id="musicFolder"
+            webkitdirectory
+            directory
+            multiple
+            style="display: none"
+          />
+
+          <button
+            class="ctrl-btn load-btn"
+            id="loadBtn"
+            aria-label="Load music from folder"
+            title="Load Music">
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="none"
+              aria-hidden="true"
+            >
+              <path d="M9 18V5l12-2v13"></path>
+              <circle cx="6" cy="18" r="3"></circle>
+              <circle cx="18" cy="16" r="3"></circle>
+            </svg>
+          </button>
+
+          <button
+            class="ctrl-btn power-btn"
+            id="powerBtn"
+            aria-label="Play Radio"
+            aria-pressed="false">
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="none"
+              aria-hidden="true"
+            >
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </button>
+          <button
+            class="ctrl-btn vol-btn"
+            id="volBtn"
+            aria-label="Volume"
+            aria-expanded="false">
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              stroke="none"
+              aria-hidden="true"
+            >
+              <polygon points="11,5 6,9 2,9 2,15 6,15 11,19"></polygon>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </button>
+          <button
+            class="ctrl-btn shuffle-btn"
+            id="shuffleBtn"
+            aria-label="Toggle Shuffle"
+            title="Shuffle">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="16 3 21 3 21 8"></polyline>
+              <line x1="4" y1="20" x2="21" y2="3"></line>
+              <polyline points="21 16 21 21 16 21"></polyline>
+              <line x1="15" y1="15" x2="21" y2="21"></line>
+              <line x1="4" y1="4" x2="9" y2="9"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Volume Slider -->
+        <div
+          class="volume-container"
+          id="volumeContainer"
+          style="display: none"
+        >
+          <div class="volume-label">
+            <span>VOL</span>
+            <span id="volValue">100</span>
+          </div>
+          <input
+            type="range"
+            class="volume-slider"
+            id="volumeSlider"
+            min="0"
+            max="100"
+            value="100"
+            aria-label="Volume level"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow="100"
+          />
+        </div>
+
+        <!-- Presets -->
+        <div class="presets">
+          <button class="preset-btn" data-preset="1">P1</button>
+          <button class="preset-btn" data-preset="2">P2</button>
+          <button class="preset-btn" data-preset="3">P3</button>
+        </div>
+        
+        <!-- Bottom Label -->
+        <div class="bottom-label">
+          <span>STEREO</span>
+          <span>◆</span>
+          <span>PAULINE SIGNATURE EDITION</span>
+          <span>◆</span>
+          <span>VICTORIA BC</span>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+    <script src="breaks.js?v=2" type="module"></script>
+    <script src="app.js?v=15" type="module"></script>
+  </body>
+</html>

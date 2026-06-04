@@ -1,0 +1,33 @@
+# Environment variables (contains API keys)
+.env
+.env.local
+.env.production
+
+# Dependencies
+node_modules/
+
+# Build outputs
+.netlify/
+dist/
+
+# IDE
+.vscode/
+.idea/
+.claude/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local music files (large MP3s — tracked via playlist.json)
+public/music/*.mp3
+public/music_locked/
+public/music_locked_*/
+
+# Logs
+*.log
+npm-debug.log*
+.vercel

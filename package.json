@@ -1,0 +1,33 @@
+{
+  "name": "96.6-rom-radio",
+  "version": "1.0.0",
+  "description": "Personal web radio station with Spotify integration and AI DJ breaks",
+  "private": true,
+  "scripts": {
+    "dev": "node dev-server.js",
+    "dev:netlify": "netlify dev",
+    "playlist": "node scripts/generate_playlist.js",
+    "build": "echo 'Static site - no build needed'",
+    "deploy": "netlify deploy --prod"
+  },
+  "keywords": [
+    "radio",
+    "spotify",
+    "tts",
+    "web-app"
+  ],
+  "author": "Daniel",
+  "license": "MIT",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danieldecena/96.6-rom-radio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/danieldecena/96.6-rom-radio/issues"
+  },
+  "homepage": "https://github.com/danieldecena/96.6-rom-radio#readme",
+  "dependencies": {
+    "dotenv": "^17.3.1"
+  }
+}

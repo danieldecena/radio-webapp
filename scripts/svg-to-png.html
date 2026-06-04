@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SVG to PNG Converter - 93.4 ROM Radio</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #080808;
+      color: #fff;
+    }
+    .preview {
+      display: flex;
+      gap: 30px;
+      margin: 30px 0;
+      align-items: center;
+    }
+    .icon-preview {
+      text-align: center;
+    }
+    img {
+      border: 2px solid #ff3366;
+      border-radius: 10px;
+      background: #000;
+    }
+    button {
+      background: #ff3366;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: bold;
+      margin: 10px 5px;
+    }
+    button:hover {
+      background: #cc0044;
+    }
+    .instructions {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      margin: 20px 0;
+      border-left: 4px solid #ff3366;
+    }
+    h1 { color: #ff3366; }
+    h2 { color: #ff6699; }
+  </style>
+</head>
+<body>
+  <h1>❤️ 93.4 ROM Radio - Icon Generator</h1>
+
+  <div class="instructions">
+    <h2>Step 1: Preview Your Icons</h2>
+    <p>The heart icons with "RADIO" text are shown below:</p>
+  </div>
+
+  <div class="preview">
+    <div class="icon-preview">
+      <h3>192x192</h3>
+      <img id="icon192" width="192" height="192"/>
+      <br>
+      <button onclick="downloadPNG('icon192', 192)">Download 192x192</button>
+    </div>
+    <div class="icon-preview">
+      <h3>512x512</h3>
+      <img id="icon512" width="192" height="192"/>
+      <br>
+      <button onclick="downloadPNG('icon512', 512)">Download 512x512</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <h2>Step 2: Download & Replace</h2>
+    <p>1. Click the download buttons above to save both PNG files</p>
+    <p>2. Rename "icon-192.png" to "icon.png"</p>
+    <p>3. Rename "icon-512.png" to "icon-512.png"</p>
+    <p>4. Replace the files in your <code>public/</code> folder</p>
+    <p>5. Copy icon.png to favicon.ico</p>
+  </div>
+
+  <div class="instructions">
+    <h2>Or: Auto-Download All</h2>
+    <button onclick="downloadAll()" style="font-size: 18px; padding: 20px 40px;">
+      📥 Download All Icons (192 + 512)
+    </button>
+  </div>
+
+  <script>
+    // Heart SVG generator
+    function createHeartSVG(size) {
+      const padding = size * 0.1;
+      const heartSize = size * 0.8;
+      const centerX = size / 2;
+      const centerY = size / 2;
+
+      const heartPath = `
+        M ${centerX} ${centerY - heartSize * 0.15}
+        C ${centerX} ${centerY - heartSize * 0.35},
+          ${centerX - heartSize * 0.25} ${centerY - heartSize * 0.45},
+          ${centerX - heartSize * 0.25} ${centerY - heartSize * 0.25}
+        C ${centerX - heartSize * 0.25} ${centerY - heartSize * 0.1},
+          ${centerX} ${centerY + heartSize * 0.05},
+          ${centerX} ${centerY + heartSize * 0.3}
+        C ${centerX} ${centerY + heartSize * 0.05},
+          ${centerX + heartSize * 0.25} ${centerY - heartSize * 0.1},
+          ${centerX + heartSize * 0.25} ${centerY - heartSize * 0.25}
+        C ${centerX + heartSize * 0.25} ${centerY - heartSize * 0.45},
+          ${centerX} ${centerY - heartSize * 0.35},
+          ${centerX} ${centerY - heartSize * 0.15}
+        Z
+      `;
+
+      const fontSize = size * 0.16;
+      const textY = centerY + fontSize * 0.3;
+
+      return `
+        <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="heartGradient${size}" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff3366;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#cc0044;stop-opacity:1" />
+            </linearGradient>
+          </defs>
+          <circle cx="${centerX}" cy="${centerY}" r="${size / 2}" fill="#080808"/>
+          <path d="${heartPath}" fill="url(#heartGradient${size})" stroke="#ff0044" stroke-width="${size * 0.01}"/>
+          <text
+            x="${centerX}"
+            y="${textY}"
+            font-family="Arial, Helvetica, sans-serif"
+            font-size="${fontSize}"
+            font-weight="bold"
+            fill="#ffffff"
+            text-anchor="middle"
+            dominant-baseline="middle"
+            style="text-transform: uppercase; letter-spacing: ${size * 0.008}px;">
+            RADIO
+          </text>
+        </svg>
+      `;
+    }
+
+    // Load SVG into img tags
+    function loadSVG(imgId, size) {
+      const svgString = createHeartSVG(size);
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      document.getElementById(imgId).src = url;
+    }
+
+    // Convert SVG to PNG and download
+    function downloadPNG(imgId, size) {
+      const svgString = createHeartSVG(size);
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+
+      const img = new Image();
+      const blob = new Blob([svgString], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+
+      img.onload = function() {
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob(function(blob) {
+          const link = document.createElement('a');
+          link.download = `icon-${size}.png`;
+          link.href = URL.createObjectURL(blob);
+          link.click();
+        });
+      };
+
+      img.src = url;
+    }
+
+    // Download all sizes
+    function downloadAll() {
+      downloadPNG('icon192', 192);
+      setTimeout(() => downloadPNG('icon512', 512), 500);
+    }
+
+    // Load previews on page load
+    window.onload = function() {
+      loadSVG('icon192', 192);
+      loadSVG('icon512', 512);
+    };
+  </script>
+</body>
+</html>

@@ -251,6 +251,3 @@ To save ElevenLabs credits, you can pre-generate the ~40 static DJ snippets as M
    ```bash
    npm run deploy
    ```
-
-## Related
-- [[Vault Health Report]]

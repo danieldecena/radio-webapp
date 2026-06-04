@@ -1,7 +1,3 @@
----
-related:
-  - "[[Projects/Hold/Radio/docs/archive/DEPLOY]]"
----
 # ⚡ Quick Start
 
 ## Test Locally First (Recommended)
@@ -103,18 +99,11 @@ The `speak.js` serverless function handles TTS securely server-side.
 
 ## Need Help?
 
-- **Full docs**: [README.md](Daily/README.md)
-- **Deployment guide**: [DEPLOY.md]([[DEPLOY]].md)
+- **Full docs**: [README.md](README.md)
+- **Deployment guide**: [DEPLOY.md](DEPLOY.md)
 - **Local testing issues**: Check browser console (F12)
 - **Netlify issues**: Check deploy logs in dashboard
 
 ---
 
 **🎵 93.4 ROM - Playing the hits, dedicated to you**
-
-## Related
-- [[IMPLEMENTATION_SUMMARY]]
-- [[PROJECT_SUMMARY]]
-- [[SETUP_COMPLETE]]
-- [[STATUS]]
-- [[VISUAL_OVERVIEW]]

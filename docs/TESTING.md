@@ -199,6 +199,3 @@ git push origin main
 ```
 
 Then visit your Netlify URL and test everything again on the live site!
-
-## Related
-- [[IMPROVEMENTS_SUMMARY]]

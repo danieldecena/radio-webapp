@@ -1,7 +1,3 @@
----
-related:
-  - "[[Projects/Hold/Radio/SECURITY]]"
----
 # Documentation Cleanup Summary
 
 **Date**: 2026-02-17
@@ -23,7 +19,7 @@ Your ElevenLabs API key was accidentally committed to git history. Even though i
 5. Update environment variables on Netlify/Vercel
 6. Redeploy your application
 
-See [SECURITY.md]([[SECURITY]].md) for detailed instructions.
+See [SECURITY.md](SECURITY.md) for detailed instructions.
 
 ---
 
@@ -138,7 +134,7 @@ See [SECURITY.md]([[SECURITY]].md) for detailed instructions.
 1. **Regenerate API key** (Required, safest)
 2. **Rewrite git history** (Optional, if you want to remove from history)
 
-See [SECURITY.md]([[SECURITY]].md) for git history cleanup instructions.
+See [SECURITY.md](SECURITY.md) for git history cleanup instructions.
 
 ---
 

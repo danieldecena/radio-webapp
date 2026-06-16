@@ -87,9 +87,3 @@ gitleaks detect
 ---
 
 **Last Updated**: 2026-02-17
-
-## Related
-- [[API_KEY_UPDATE_CHECKLIST]]
-- [[Projects/Hold/Radio/node_modules/dotenv/CHANGELOG]]
-- [[CLEANUP_SUMMARY]]
-- [[Projects/Hold/Radio/README]]

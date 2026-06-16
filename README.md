@@ -2,252 +2,122 @@
 
 A personal web radio station dedicated to Pauline, featuring:
 
-- 🎵 Spotify playlist integration
-- 🎙️ AI-powered DJ breaks with ElevenLabs TTS
+- 🎵 Curated local music library
+- 🎙️ DJ breaks (station IDs, talk-ups, weather, traffic, news, commercials)
+- 📼 Pre-rendered "shows" — music + DJ drops mixed into single files with baked-in crossfades, ducking, and broadcast voice processing
 - 📱 Progressive Web App (PWA) support
-- 🎨 Beautiful retro car radio UI
-- 🔒 Secure serverless architecture
+- 🎨 Retro car-radio UI
+- 🔒 No API needed at playback time
 
-## Features
+## How it works
 
-- **Dynamic DJ Breaks**: Time-based categories (shoutouts, weather, traffic, news, commercials)
-- **Special Date Messages**: Custom messages for birthdays, Valentine's Day, anniversaries
-- **Rotating Taglines**: Station identity that cycles before songs load
-- **Spotify Integration**: Embedded playlist with song metadata
-- **Multi-tier TTS**: ElevenLabs → Web Speech API → Text-only fallbacks
-- **Mobile Optimized**: Touch-friendly controls, PWA installable
+The station plays **pre-rendered show files**. A build script mixes your music
+library and DJ voice drops into continuous show MP3s (with crossfades, ducking,
+a sweeper stinger, and a "radio" master chain baked in). The player just loads a
+finished file and plays it — no Spotify, no live API calls, no quota, works
+offline.
 
-## 🚀 Deployment Instructions
+```
+public/music/*.mp3          ← your songs
+public/audio/snippets/*.mp3 ← short DJ station-ID clips
+        │
+        ▼  scripts/build_shows.py  (uses scripts/render_show.py + ffmpeg)
+        │
+public/shows/show_N.mp3     ← finished shows
+public/shows/show_N.cue.json← per-show track + DJ-drop timings (now-playing)
+public/shows/data.js        ← inlined data so player.html works from file://
+        │
+        ▼
+public/player.html          ← show picker + retro player
+```
 
-### Prerequisites
+Voicing the longer DJ scripts (weather, traffic, news, etc.) with ElevenLabs is
+**optional** and done once, offline (see "Voicing DJ breaks"). It is not required
+to play the station.
 
-1. **ElevenLabs API Key** (Free tier: 10k characters/month)
-   - Sign up at [elevenlabs.io](https://elevenlabs.io)
-   - Get your API key from [Settings → API Keys](https://elevenlabs.io/app/settings/api-keys)
-
-2. **GitHub Account** (free)
-3. **Netlify Account** (free) - [Sign up here](https://app.netlify.com/signup)
-
-### Step 1: Set Up Repository
+## Quick start (local)
 
 ```bash
-# Initialize git repository
-cd ~/Development/96.6-rom-radio
-git init
-git add .
-git commit -m "Initial commit: 96.6 ROM Radio"
+cd ~/Obsidian/Projects/radio
 
-# Create GitHub repository (using gh CLI)
-gh repo create 96.6-rom-radio --private --source=. --remote=origin --push
+# Render the shows into public/shows/ (needs ffmpeg: brew install ffmpeg)
+python3 scripts/build_shows.py --all
+
+# Then either double-click public/player.html in Safari,
+# or serve it:
+npm run dev          # http://localhost:8888/player.html
 ```
 
-**Or manually:**
+`build_shows.py` also writes `public/shows/data.js`, which lets `player.html`
+run when opened directly from disk (Safari blocks `fetch` from `file://`, but a
+`<script>` include works).
 
-1. Go to [GitHub](https://github.com/new)
-2. Create a new **private** repository named `96.6-rom-radio`
-3. Push your code:
-   ```bash
-   git remote add origin https://github.com/YOUR_USERNAME/96.6-rom-radio.git
-   git branch -M main
-   git push -u origin main
-   ```
+## Voicing DJ breaks (optional, one-time, uses your key)
 
-### Step 2: Deploy to Netlify
-
-#### Option A: Using Netlify UI (Easiest)
-
-1. Go to [Netlify](https://app.netlify.com)
-2. Click **"Add new site"** → **"Import an existing project"**
-3. Choose **GitHub** and select your `96.6-rom-radio` repository
-4. Configuration (should auto-detect):
-   - **Build command**: (leave empty)
-   - **Publish directory**: `public`
-5. Click **"Deploy site"**
-
-#### Option B: Using Netlify CLI
+The scripted DJ lines live in `public/breaks.js`. To turn them into audio:
 
 ```bash
-# Install Netlify CLI globally
-npm install -g netlify-cli
-
-# Login to Netlify
-netlify login
-
-# Initialize and deploy
-netlify init
-netlify deploy --prod
+export ELEVENLABS_API_KEY="your_api_key"     # stays local; never commit it
+DRY_RUN=1 node scripts/generate_dj_breaks.js  # estimate character cost first
+node scripts/generate_dj_breaks.js            # generate into public/audio/breaks/
 ```
 
-### Step 3: Add Environment Variables
+Output goes to `public/audio/breaks/` with a `breaks_manifest.json`. Once present,
+`build_shows.py` automatically uses these announcement-style drops (talk-ups,
+station IDs) instead of just the short clips. Re-running skips files already made.
 
-**Critical: Add your API key to Netlify**
+> ElevenLabs free tier is 10,000 characters/month; the full script set is larger,
+> so use a paid tier or generate selected categories.
 
-1. In Netlify dashboard, go to your site
-2. Navigate to **Site settings** → **Environment variables**
-3. Click **"Add a variable"**
-4. Add:
-   - **Key**: `ELEVENLABS_API_KEY`
-   - **Value**: `your_api_key_here` (paste your actual key)
-5. Click **"Save"**
+## Deployment (Netlify)
 
-6. **Trigger a redeploy**:
-   - Go to **Deploys** tab
-   - Click **"Trigger deploy"** → **"Clear cache and deploy site"**
+The site is static; the only server-side piece is an **optional** TTS function
+(`netlify/functions/speak.js`) used by the legacy live-DJ mode.
 
-### Step 4: Test Your Site
+1. Push to GitHub, then in Netlify: **Add new site → Import an existing project**.
+2. Build command: empty. Publish directory: `public`.
+3. (Optional, for live TTS) add environment variables:
+   - `ELEVENLABS_API_KEY`
+   - `ELEVENLABS_VOICE_ID` (optional; defaults to `KLoixBflzS2a9rg6nT8x`)
+   - `ALLOWED_ORIGINS` (your site URL, for the TTS function's origin allowlist)
+4. Deploy.
 
-Once deployed, your site will be live at `https://your-site-name.netlify.app`
+**Live URL:** _not yet deployed_
 
-**Test checklist:**
+## Customization
 
-- ✅ Power button turns on the radio
-- ✅ Spotify playlist starts playing
-- ✅ DJ breaks play with AI voice (wait ~13 minutes for first break)
-- ✅ Volume controls work
-- ✅ Display shows song information
-- ✅ Mobile responsive and installable as PWA
+- `public/breaks.js` — `STATION_CONFIG`, `STATION_TAGLINES`, `SPECIAL_DATES`, and
+  the `DJ_BREAKS` categories (stationids, talkups, shoutouts, commercials,
+  weather, traffic, news, short).
+- `scripts/build_shows.py` — `TRACKS_PER_SHOW`, crossfade length, drop frequency.
+- `scripts/render_show.py` — the broadcast voice chain, ducking, master glue.
 
-## 🔧 Customization
+## PWA installation
 
-### Update DJ Breaks Content
+On mobile: open the site, tap **Add to Home Screen**. Core assets are cached by
+the service worker for offline use (`public/sw.js`, network-first for HTML,
+stale-while-revalidate for assets).
 
-Edit `public/breaks.js`:
+## Scripts
 
-- `STATION_CONFIG` - Station name, tagline, city
-- `STATION_TAGLINES` - Rotating taglines
-- `SPECIAL_DATES` - Birthday, anniversary messages
-- `DJ_BREAKS` - Shoutouts, commercials, weather, traffic, news
+| Script | Purpose |
+| --- | --- |
+| `scripts/build_shows.py` | Render the library into pre-mixed show files + cues |
+| `scripts/render_show.py` | The mixing engine (crossfades, ducking, voice chain) |
+| `scripts/generate_dj_breaks.js` | Voice all `breaks.js` lines via ElevenLabs |
+| `scripts/generate_playlist.js` | Build `music/playlist.json` from the MP3 folder |
 
-### Change Spotify Playlist
+## Legacy live-DJ mode
 
-Edit `public/index.html` line 61:
+`public/index.html` + `public/app.js` are the original real-time engine
+(per-break ElevenLabs TTS via `netlify/functions/speak.js`, with a Web Speech API
+fallback). It still works but is being superseded by the pre-rendered player.
 
-```javascript
-uri: 'spotify:playlist:YOUR_PLAYLIST_ID',
-```
+## License
 
-Get playlist ID from Spotify URL:
-`https://open.spotify.com/playlist/45dvmYti7Kn9EDRzc31hS4`
-→ ID is `45dvmYti7Kn9EDRzc31hS4`
-
-### Change DJ Voice
-
-1. Go to [ElevenLabs Voice Library](https://elevenlabs.io/voice-library)
-2. Choose a voice and copy its Voice ID
-3. Add to Netlify environment variables:
-   - **Key**: `ELEVENLABS_VOICE_ID`
-   - **Value**: `your_voice_id_here`
-
-## 📊 Usage Limits & Costs
-
-### ElevenLabs Free Tier
-
-- **10,000 characters/month** free
-- Each DJ break ≈ 150 characters
-- At 13-minute intervals = ~67 breaks per day
-- **~10,000 characters/day of listening**
-
-**Recommendation**: With casual listening (1-2 hours/day), you'll stay within free tier easily.
-
-### Netlify Free Tier
-
-- **100 GB bandwidth/month**
-- **300 build minutes/month**
-- Unlimited sites
-- This app will use ~0 build minutes (static site)
-
-## 🛠️ Local Development
-
-```bash
-# Install Netlify CLI (if not already installed)
-npm install -g netlify-cli
-
-# Create .env file with your API key
-cp .env.example .env
-# Edit .env and add your ELEVENLABS_API_KEY
-
-# Run local dev server with functions
-netlify dev
-
-# Open http://localhost:8888
-```
-
-## 🎯 Architecture
-
-```
-User Browser
-    ↓
-[Static HTML/CSS/JS]
-    ↓
-[Netlify Serverless Function] ← Environment Variable (API Key)
-    ↓
-[ElevenLabs API]
-```
-
-**Security**: API key never exposed to browser, stays server-side
-
-## 📱 PWA Installation
-
-On mobile devices (iOS/Android):
-
-1. Open site in browser
-2. Tap **"Add to Home Screen"**
-3. App installs with icon
-4. Works offline (cached assets)
-
-## 🐛 Troubleshooting
-
-### DJ breaks not speaking
-
-- Check Netlify environment variable is set correctly
-- Check ElevenLabs API key is valid and has credits
-- Check browser console for errors
-- Fallback: Web Speech API will play instead (robotic voice)
-
-### Spotify not playing
-
-- Check Spotify playlist is **public**
-- Try refreshing the page
-- Check browser console for Spotify embed errors
-
-### Site not deploying
-
-```bash
-# Check build logs in Netlify dashboard
-# Redeploy with clear cache:
-netlify deploy --prod --build
-```
-
-## 📝 License
-
-Personal project - All rights reserved
+Personal project — all rights reserved.
 
 ---
 
 **Made with ❤️ for Pauline**
-**96.6 ROM - Victoria's station for love**
-
-## 🎧 Generating Audio Snippets (Zero Cost Mode)
-
-To save ElevenLabs credits, you can pre-generate the ~40 static DJ snippets as MP3s.
-
-1. **Set your API Key**:
-
-   ```bash
-   export ELEVENLABS_API_KEY="your_api_key"
-   ```
-
-2. **Run the Generator Script**:
-
-   ```bash
-   # Make sure you are in the project folder
-   cd ~/Development/96.6-rom-radio
-
-   # Run the script
-   node scripts/generate_breaks.js
-   ```
-
-3. **Deploy**:
-   ```bash
-   npm run deploy
-   ```
+**96.6 ROM — Victoria's station for love**

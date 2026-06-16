@@ -70,4 +70,4 @@ Your site is now live at: `https://your-site-name.netlify.app`
 
 ---
 
-**Need help?** Check the full [README.md](README.md) for detailed instructions.
+**Need help?** Check the full [README.md](Daily/README.md) for detailed instructions.

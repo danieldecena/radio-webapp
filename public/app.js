@@ -11,6 +11,11 @@ import {
   getWeightedCategory,
 } from "./breaks.js";
 
+// --- Debug logging ---
+// Verbose console logs are off by default; flip to true while developing.
+const DEBUG = false;
+const log = (...args) => { if (DEBUG) log(...args); };
+
 // --- Configuration ---
 // Change this to the exact name of your Apple Personal Voice (or leave "Personal" to match any personal voice)
 const APPLE_PERSONAL_VOICE_NAME = "Daniel";
@@ -59,7 +64,7 @@ function initElements() {
   djBreakContent = document.getElementById("djBreakContent");
   trackProgress = document.getElementById("trackProgress");
   trackProgressBar = document.getElementById("trackProgressBar");
-  console.log("🛠️ UI Elements Bound.");
+  log("🛠️ UI Elements Bound.");
 }
 
 // --- State ---
@@ -301,7 +306,7 @@ async function loadSnippetManifest() {
     const res = await fetch("audio/snippets/manifest.json");
     if (res.ok) {
       snippetManifest = await res.json();
-      console.log(
+      log(
         "Loaded snippet manifest:",
         Object.keys(snippetManifest).length,
         "items",
@@ -347,7 +352,7 @@ async function loadLocalPlaylist() {
     }));
 
     musicPlayer.loadURLTracks(tracks);
-    console.log(
+    log(
       `📻 Auto-loaded ${tracks.length} local tracks from playlist.json`,
     );
 
@@ -377,7 +382,7 @@ async function speakDJBreak(text) {
   // Tier 0: Pre-generated Local Audio (Zero Cost)
   if (snippetManifest[text]) {
     try {
-      console.log("Playing local snippet:", text);
+      log("Playing local snippet:", text);
       const audio = new Audio(snippetManifest[text]);
 
       const source = audioCtx.createMediaElementSource(audio);
@@ -492,7 +497,7 @@ async function speakDJBreak(text) {
   // Tier 2: Web Speech API (free, unlimited, built-in)
   if ("speechSynthesis" in window) {
     try {
-      console.log("🎙️ Using Web Speech API for:", text);
+      log("🎙️ Using Web Speech API for:", text);
       window.speechSynthesis.cancel();
 
       const utter = new SpeechSynthesisUtterance(text);
@@ -505,7 +510,7 @@ async function speakDJBreak(text) {
 
       // If no voices yet, wait for them
       if (voices.length === 0) {
-        console.log("⏳ Waiting for voices to load...");
+        log("⏳ Waiting for voices to load...");
         await new Promise((resolve) => {
           window.speechSynthesis.onvoiceschanged = () => {
             voices = window.speechSynthesis.getVoices();
@@ -525,14 +530,14 @@ async function speakDJBreak(text) {
       );
       if (preferred) {
         utter.voice = preferred;
-        console.log("✅ Using voice:", preferred.name);
+        log("✅ Using voice:", preferred.name);
       } else {
-        console.log("⚠️ Using default voice");
+        log("⚠️ Using default voice");
       }
 
-      utter.onstart = () => console.log("🎙️ Speech started");
+      utter.onstart = () => log("🎙️ Speech started");
       utter.onend = () => {
-        console.log("✅ Speech finished");
+        log("✅ Speech finished");
         closeBreakPanel();
       };
       utter.onerror = (e) => {
@@ -541,7 +546,7 @@ async function speakDJBreak(text) {
       };
 
       window.speechSynthesis.speak(utter);
-      console.log("📻 Speech queued");
+      log("📻 Speech queued");
       return;
     } catch (err) {
       console.warn("Web Speech failed:", err);
@@ -784,7 +789,7 @@ function resumeBroadcast() {
       songIndex = (songIndex + 1) % musicPlayer.playlist.length;
     }
 
-    console.log(
+    log(
       `📻 Station kept broadcasting: ${Math.floor(elapsedSec)}s elapsed, resuming at song ${songIndex + 1}`,
     );
 
@@ -930,7 +935,7 @@ async function powerOff() {
     lastSongIndex = musicPlayer.currentIndex;
     lastSongPosition = musicPlayer.audio.currentTime || 0;
     const track = musicPlayer.playlist[lastSongIndex];
-    console.log(
+    log(
       `📻 Power OFF - Station at ${Math.floor(lastSongPosition)}s in "${track?.title || "Unknown"}"`,
     );
     musicPlayer.stop();
@@ -1213,7 +1218,7 @@ class MusicPlayer {
     this.currentIndex = -1;
 
     if (this.playlist.length > 0) {
-      console.log(`📻 Playlist ready: ${this.playlist.length} tracks`);
+      log(`📻 Playlist ready: ${this.playlist.length} tracks`);
 
       // Enable power button now that music is loaded
       powerBtn.disabled = false;
@@ -1316,7 +1321,7 @@ class MusicPlayer {
         // Start progress bar updates
         startProgressUpdates();
 
-        console.log(`📻 Startup Epic Intro: ${track.title}`);
+        log(`📻 Startup Epic Intro: ${track.title}`);
 
         // Craft a long, dynamic, contextual greeting
         const now = new Date();
@@ -1376,7 +1381,7 @@ class MusicPlayer {
         // Start progress bar updates
         startProgressUpdates();
 
-        console.log(`📻 Apple Music Style Intro: ${track.title}`);
+        log(`📻 Apple Music Style Intro: ${track.title}`);
 
         // SLOW, dramatic 6-second fade up from the 5% intro floor back to 100%
         setTimeout(() => {
@@ -1445,7 +1450,7 @@ class MusicPlayer {
           const seekPos = Math.min(position, this.audio.duration - 1);
           this.audio.currentTime = seekPos;
           const progress = Math.floor((seekPos / this.audio.duration) * 100);
-          console.log(
+          log(
             `📻 Station continued at ${Math.floor(seekPos)}s / ${Math.floor(this.audio.duration)}s (${progress}%)`,
           );
         }
@@ -1520,7 +1525,7 @@ class MusicPlayer {
 
           this.audio.currentTime = pos;
           const progress = Math.floor((pos / this.audio.duration) * 100);
-          console.log(
+          log(
             `📻 Tuned in at ${Math.floor(pos)}s / ${Math.floor(this.audio.duration)}s (${progress}%)`,
           );
         }
@@ -1593,7 +1598,7 @@ class MusicPlayer {
 
   startCrossfade() {
     this.isFading = true;
-    console.log("Starting smooth crossfade...");
+    log("Starting smooth crossfade...");
 
     // 60% chance of DJ break, 40% direct crossfade to next song
     if (Math.random() < 0.6) {
@@ -1607,7 +1612,7 @@ class MusicPlayer {
 
   djTalkOverOutro() {
     // REAL RADIO: DJ talks over the song outro while music plays underneath
-    console.log("📻 DJ talking over outro...");
+    log("📻 DJ talking over outro...");
 
     // Apple Style: Extremely slow fade down to 2% over 4 seconds
     if (this.gainNode && audioCtx) {
@@ -1717,7 +1722,7 @@ class MusicPlayer {
     this.nextAudio
       .play()
       .then(() => {
-        console.log(`📻 Apple Style Direct Crossfade to: ${nextTrack.title}`);
+        log(`📻 Apple Style Direct Crossfade to: ${nextTrack.title}`);
 
         // Update UI
         lastSong.title = nextTrack.title;
@@ -1885,7 +1890,7 @@ function restoreRadioState() {
       lastSongPosition = state.position || 0;
 
       const elapsed = Math.floor((Date.now() - state.timestamp) / 1000);
-      console.log(
+      log(
         `📻 Restored state: Station was off for ${elapsed}s, last at song ${lastSongIndex + 1}, position ${Math.floor(lastSongPosition)}s`,
       );
     }
@@ -2021,7 +2026,7 @@ window.addEventListener("DOMContentLoaded", () => {
   restoreRadioState();
   loadLocalPlaylist();
 
-  console.log("📻 96.6 ROM Radio Engine Ready!");
+  log("📻 96.6 ROM Radio Engine Ready!");
 });
 
 // --- Expose for testing ---

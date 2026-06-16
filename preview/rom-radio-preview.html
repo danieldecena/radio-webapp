@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>96.6 ROM — Show Preview</title>
+<style>
+  :root {
+    --bg: #1a1410;
+    --panel: #2a211a;
+    --amber: #ffb347;
+    --amber-dim: #8a5a1f;
+    --glow: #ffcf6b;
+    --cream: #f3e6cf;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%;
+    background: radial-gradient(circle at 50% 0%, #2a211a, #120d09 70%);
+    color: var(--cream);
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .radio {
+    width: min(440px, 92vw);
+    background: linear-gradient(#332821, #211913);
+    border: 1px solid #443429;
+    border-radius: 22px;
+    padding: 26px 26px 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .brand {
+    display: flex; align-items: baseline; gap: 8px;
+    font-weight: 800; letter-spacing: .5px;
+  }
+  .brand .freq { color: var(--amber); font-size: 26px; text-shadow: 0 0 14px var(--glow); }
+  .brand .name { color: var(--cream); font-size: 15px; opacity: .85; }
+  .tagline { font-size: 11px; opacity: .5; margin: 2px 0 18px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .screen {
+    background: #0f0b08;
+    border: 1px solid #4a3826;
+    border-radius: 12px;
+    padding: 16px 18px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,.7);
+  }
+  .nowlabel { font-size: 10px; letter-spacing: 2px; color: var(--amber-dim); text-transform: uppercase; }
+  .track {
+    font-size: 19px; font-weight: 700; color: var(--amber);
+    text-shadow: 0 0 12px var(--glow);
+    margin: 4px 0 2px; min-height: 24px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .onair {
+    display: inline-block; font-size: 10px; letter-spacing: 1.5px;
+    color: #ff5a4d; border: 1px solid #ff5a4d; border-radius: 4px;
+    padding: 1px 6px; opacity: 0; transition: opacity .2s;
+  }
+  .onair.live { opacity: 1; animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+
+  .bar {
+    height: 5px; background: #2a201a; border-radius: 3px; margin: 16px 0 6px; overflow: hidden;
+  }
+  .fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--amber-dim), var(--amber)); box-shadow: 0 0 8px var(--glow); }
+  .time { display: flex; justify-content: space-between; font-size: 11px; opacity: .55; font-variant-numeric: tabular-nums; }
+
+  .controls { display: flex; align-items: center; gap: 18px; margin-top: 22px; }
+  .power {
+    width: 62px; height: 62px; border-radius: 50%; cursor: pointer;
+    background: radial-gradient(circle at 35% 30%, #4a3826, #241b14);
+    border: 2px solid #54402c; color: var(--amber);
+    font-size: 22px; display: grid; place-items: center;
+    box-shadow: 0 6px 16px rgba(0,0,0,.5);
+    transition: transform .08s, box-shadow .2s;
+  }
+  .power:active { transform: scale(.95); }
+  .power.on { box-shadow: 0 0 22px var(--glow), 0 6px 16px rgba(0,0,0,.5); border-color: var(--amber); }
+  .vol { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 11px; opacity: .7; }
+  input[type=range] { flex: 1; accent-color: var(--amber); }
+  .meta { margin-top: 16px; font-size: 11px; opacity: .45; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <div class="radio">
+    <div class="brand"><span class="freq">96.6</span><span class="name">ROM RADIO</span></div>
+    <div class="tagline">Victoria's station for love</div>
+
+    <div class="screen">
+      <div class="nowlabel">Now Playing &nbsp;·&nbsp; <span class="onair" id="onair">DJ ON AIR</span></div>
+      <div class="track" id="track">— powered off —</div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="time"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+    </div>
+
+    <div class="controls">
+      <button class="power" id="power" title="Power">⏻</button>
+      <div class="vol">VOL
+        <input type="range" id="vol" min="0" max="1" step="0.01" value="0.85" />
+      </div>
+    </div>
+
+    <div class="meta">Preview show · 3 tracks with DJ drops &amp; baked-in crossfades.<br/>This is a static local preview — full version plays in the deployed app.</div>
+  </div>
+
+  <audio id="audio" src="preview_show.mp3" preload="metadata"></audio>
+
+<script>
+  // Cue sheet (inlined so it works from file:// without a fetch)
+  const CUE = {
+    duration: 603.9,
+    // DJ drop windows (seconds) — when the sweeper + station ID play over the mix
+    djWindows: [[0.6, 3.0], [150.0, 153.2], [354.1, 357.3]],
+    tracks: [
+      { start: 0.0,    title: "Home — Good Neighbours" },
+      { start: 150.51, title: "ILYSB — LANY" },
+      { start: 354.69, title: "Ivy — Frank Ocean" },
+    ],
+  };
+
+  const audio = document.getElementById("audio");
+  const powerBtn = document.getElementById("power");
+  const trackEl = document.getElementById("track");
+  const fill = document.getElementById("fill");
+  const curEl = document.getElementById("cur");
+  const durEl = document.getElementById("dur");
+  const onair = document.getElementById("onair");
+  const vol = document.getElementById("vol");
+  let on = false;
+
+  const fmt = (s) => {
+    if (!isFinite(s)) return "0:00";
+    const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+    return m + ":" + String(sec).padStart(2, "0");
+  };
+  const currentTitle = (t) => {
+    let title = CUE.tracks[0].title;
+    for (const tr of CUE.tracks) if (t >= tr.start) title = tr.title;
+    return title;
+  };
+  const djLive = (t) => CUE.djWindows.some(([a, b]) => t >= a && t <= b);
+
+  powerBtn.addEventListener("click", () => {
+    on = !on;
+    powerBtn.classList.toggle("on", on);
+    if (on) { audio.volume = parseFloat(vol.value); audio.play(); }
+    else { audio.pause(); trackEl.textContent = "— powered off —"; onair.classList.remove("live"); }
+  });
+  vol.addEventListener("input", () => { audio.volume = parseFloat(vol.value); });
+
+  audio.addEventListener("loadedmetadata", () => { durEl.textContent = fmt(audio.duration); });
+  audio.addEventListener("timeupdate", () => {
+    if (!on) return;
+    const t = audio.currentTime;
+    fill.style.width = (t / (audio.duration || CUE.duration)) * 100 + "%";
+    curEl.textContent = fmt(t);
+    trackEl.textContent = currentTitle(t);
+    onair.classList.toggle("live", djLive(t));
+  });
+  audio.addEventListener("ended", () => {
+    on = false; powerBtn.classList.remove("on");
+    trackEl.textContent = "— end of show —"; onair.classList.remove("live");
+  });
+</script>
+</body>
+</html>

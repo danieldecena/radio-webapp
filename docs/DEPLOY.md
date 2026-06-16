@@ -107,6 +107,3 @@ Once deployed and tested:
 
 **Live URL:** (Add after deployment)
 **Last Updated:** 2026-02-26
-
-## Related
-- [[Projects/Hold/Radio/docs/archive/QUICKSTART]]

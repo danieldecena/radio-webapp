@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>96.6 ROM Radio</title>
+<style>
+  :root {
+    --amber: #ffb347; --amber-dim: #8a5a1f; --glow: #ffcf6b; --cream: #f3e6cf;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; min-height: 100%;
+    background: radial-gradient(circle at 50% -10%, #2a211a, #120d09 70%);
+    color: var(--cream); font-family: "Helvetica Neue", Arial, sans-serif;
+    display: flex; align-items: center; justify-content: center; padding: 24px;
+  }
+  .radio {
+    width: min(460px, 94vw);
+    background: linear-gradient(#332821, #211913);
+    border: 1px solid #443429; border-radius: 22px; padding: 26px 26px 30px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .brand { display: flex; align-items: baseline; gap: 8px; font-weight: 800; }
+  .brand .freq { color: var(--amber); font-size: 26px; text-shadow: 0 0 14px var(--glow); }
+  .brand .name { color: var(--cream); font-size: 15px; opacity: .85; }
+  .tagline { font-size: 11px; opacity: .5; margin: 2px 0 18px; letter-spacing: 1px; text-transform: uppercase; }
+
+  .screen { background: #0f0b08; border: 1px solid #4a3826; border-radius: 12px;
+    padding: 16px 18px; box-shadow: inset 0 2px 10px rgba(0,0,0,.7); }
+  .nowlabel { font-size: 10px; letter-spacing: 2px; color: var(--amber-dim); text-transform: uppercase; }
+  .track { font-size: 19px; font-weight: 700; color: var(--amber); text-shadow: 0 0 12px var(--glow);
+    margin: 4px 0 2px; min-height: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .onair { display: inline-block; font-size: 10px; letter-spacing: 1.5px; color: #ff5a4d;
+    border: 1px solid #ff5a4d; border-radius: 4px; padding: 1px 6px; opacity: 0; transition: opacity .2s; }
+  .onair.live { opacity: 1; animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+  .bar { height: 5px; background: #2a201a; border-radius: 3px; margin: 16px 0 6px; overflow: hidden; }
+  .fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--amber-dim), var(--amber)); box-shadow: 0 0 8px var(--glow); }
+  .time { display: flex; justify-content: space-between; font-size: 11px; opacity: .55; font-variant-numeric: tabular-nums; }
+
+  .controls { display: flex; align-items: center; gap: 18px; margin-top: 22px; }
+  .power { width: 60px; height: 60px; border-radius: 50%; cursor: pointer;
+    background: radial-gradient(circle at 35% 30%, #4a3826, #241b14); border: 2px solid #54402c;
+    color: var(--amber); font-size: 22px; display: grid; place-items: center; box-shadow: 0 6px 16px rgba(0,0,0,.5);
+    transition: transform .08s, box-shadow .2s; }
+  .power:active { transform: scale(.95); }
+  .power.on { box-shadow: 0 0 22px var(--glow), 0 6px 16px rgba(0,0,0,.5); border-color: var(--amber); }
+  .vol { flex: 1; display: flex; align-items: center; gap: 8px; font-size: 11px; opacity: .7; }
+  input[type=range] { flex: 1; accent-color: var(--amber); }
+
+  .shows { margin-top: 20px; }
+  .shows h3 { font-size: 11px; letter-spacing: 2px; color: var(--amber-dim); text-transform: uppercase; margin: 0 0 8px; }
+  .show { display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px 12px; margin-bottom: 6px; border-radius: 9px; cursor: pointer;
+    background: #251c15; border: 1px solid transparent; transition: border-color .15s, background .15s; }
+  .show:hover { background: #2c2218; }
+  .show.active { border-color: var(--amber); background: #2c2218; }
+  .show.disabled { opacity: .4; cursor: not-allowed; }
+  .show .t { font-size: 14px; font-weight: 600; }
+  .show .meta { font-size: 11px; opacity: .55; }
+  .empty { font-size: 12px; opacity: .55; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <div class="radio">
+    <div class="brand"><span class="freq">96.6</span><span class="name">ROM RADIO</span></div>
+    <div class="tagline">Victoria's station for love</div>
+
+    <div class="screen">
+      <div class="nowlabel">Now Playing &nbsp;·&nbsp; <span class="onair" id="onair">DJ ON AIR</span></div>
+      <div class="track" id="track">— select a show —</div>
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="time"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+    </div>
+
+    <div class="controls">
+      <button class="power" id="power" title="Play / Pause">⏻</button>
+      <div class="vol">VOL <input type="range" id="vol" min="0" max="1" step="0.01" value="0.85" /></div>
+    </div>
+
+    <div class="shows">
+      <h3>Shows</h3>
+      <div id="showlist"><div class="empty">Loading…</div></div>
+    </div>
+  </div>
+
+  <audio id="audio" preload="metadata"></audio>
+
+  <!-- Inlined show data (written by build_shows.py). Lets this page work when
+       opened directly from disk in Safari, where fetch() is blocked. Harmless
+       if missing — the script then fetches the manifest instead. -->
+  <script src="shows/data.js" onerror="window.__noData=true"></script>
+
+<script>
+  const audio = document.getElementById("audio");
+  const powerBtn = document.getElementById("power");
+  const trackEl = document.getElementById("track");
+  const fill = document.getElementById("fill");
+  const curEl = document.getElementById("cur");
+  const durEl = document.getElementById("dur");
+  const onair = document.getElementById("onair");
+  const vol = document.getElementById("vol");
+  const showlist = document.getElementById("showlist");
+
+  let cue = null;       // current show's cue sheet
+  let activeId = null;
+
+  const fmt = (s) => {
+    if (!isFinite(s)) return "0:00";
+    const m = Math.floor(s / 60), sec = Math.floor(s % 60);
+    return m + ":" + String(sec).padStart(2, "0");
+  };
+  const prettyTitle = (raw) => {
+    // "Ivy by Frank Ocean" -> "Ivy — Frank Ocean"
+    const m = raw.match(/^(.*?) by (.*)$/i);
+    return m ? `${m[1]} — ${m[2]}` : raw;
+  };
+  const currentTitle = (t) => {
+    if (!cue || !cue.tracks.length) return "";
+    let title = cue.tracks[0].title;
+    for (const tr of cue.tracks) if (t >= tr.start) title = tr.title;
+    return prettyTitle(title);
+  };
+  const djLive = (t) =>
+    !!cue && (cue.djWindows || []).some(([a, b]) => t >= a && t <= b);
+
+  async function loadShow(show) {
+    if (!show.rendered) return;
+    activeId = show.id;
+    document.querySelectorAll(".show").forEach((el) =>
+      el.classList.toggle("active", +el.dataset.id === show.id));
+    // inlined cue (file://) first, else fetch (served)
+    const inlined = window.SHOWS_DATA && window.SHOWS_DATA.cues
+      ? window.SHOWS_DATA.cues[String(show.id)] : null;
+    if (inlined) {
+      cue = inlined;
+    } else {
+      try { cue = await (await fetch(show.cue)).json(); } catch { cue = null; }
+    }
+    audio.src = show.file;
+    durEl.textContent = cue ? fmt(cue.duration) : "0:00";
+    trackEl.textContent = "— ready —";
+    fill.style.width = "0%"; curEl.textContent = "0:00";
+    audio.volume = parseFloat(vol.value);
+    audio.play();
+    powerBtn.classList.add("on");
+  }
+
+  function renderList(shows) {
+    if (!shows.length) {
+      showlist.innerHTML =
+        '<div class="empty">No shows yet. Run <code>python3 scripts/build_shows.py --all</code> to generate them into public/shows/.</div>';
+      return;
+    }
+    showlist.innerHTML = "";
+    for (const s of shows) {
+      const div = document.createElement("div");
+      div.className = "show" + (s.rendered ? "" : " disabled");
+      div.dataset.id = s.id;
+      div.innerHTML =
+        `<span class="t">${s.title}</span>` +
+        `<span class="meta">${s.rendered ? s.tracks + " tracks" : "not rendered"}</span>`;
+      if (s.rendered) div.addEventListener("click", () => loadShow(s));
+      showlist.appendChild(div);
+    }
+  }
+
+  powerBtn.addEventListener("click", () => {
+    if (!audio.src) return;
+    if (audio.paused) { audio.play(); powerBtn.classList.add("on"); }
+    else { audio.pause(); powerBtn.classList.remove("on"); }
+  });
+  vol.addEventListener("input", () => { audio.volume = parseFloat(vol.value); });
+
+  audio.addEventListener("timeupdate", () => {
+    const t = audio.currentTime;
+    fill.style.width = (t / (audio.duration || (cue && cue.duration) || 1)) * 100 + "%";
+    curEl.textContent = fmt(t);
+    trackEl.textContent = currentTitle(t) || "— playing —";
+    onair.classList.toggle("live", djLive(t));
+  });
+  audio.addEventListener("pause", () => powerBtn.classList.remove("on"));
+  audio.addEventListener("play", () => powerBtn.classList.add("on"));
+  audio.addEventListener("ended", () => {
+    // roll into the next rendered show, radio-style
+    if (window._shows) {
+      const idx = window._shows.findIndex((s) => s.id === activeId);
+      const next = window._shows.slice(idx + 1).find((s) => s.rendered)
+                || window._shows.find((s) => s.rendered);
+      if (next && next.id !== activeId) return loadShow(next);
+    }
+    powerBtn.classList.remove("on");
+    trackEl.textContent = "— end of show —";
+    onair.classList.remove("live");
+  });
+
+  (async function init() {
+    // Prefer inlined data (works from file:// in Safari); fall back to fetch.
+    if (window.SHOWS_DATA && Array.isArray(window.SHOWS_DATA.shows)) {
+      window._shows = window.SHOWS_DATA.shows;
+      renderList(window._shows);
+      return;
+    }
+    try {
+      const data = await (await fetch("shows/manifest.json")).json();
+      window._shows = data.shows || [];
+      renderList(window._shows);
+    } catch {
+      showlist.innerHTML =
+        '<div class="empty">No show data found. Run <code>python3 scripts/build_shows.py --all</code> to generate the shows, then reopen this page.</div>';
+    }
+  })();
+</script>
+</body>
+</html>

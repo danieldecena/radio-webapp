@@ -1,7 +1,3 @@
----
-related:
-  - "[[Projects/Hold/Radio/SECURITY]]"
----
 # ✅ API Key Update Checklist
 
 **Date**: 2026-02-17
@@ -199,7 +195,7 @@ Your new key has the same limits:
 - ✅ New API key is fresh and secure
 - ✅ Never commit `.env` file to git (already in `.gitignore`)
 - ✅ Only set keys via environment variables on platforms
-- ✅ Git history cleanup (optional) - see [[Projects/Hold/Radio/SECURITY]].md
+- ✅ Git history cleanup (optional) - see SECURITY.md
 
 ---
 

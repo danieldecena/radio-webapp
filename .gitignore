@@ -6,6 +6,10 @@
 # Dependencies
 node_modules/
 
+# Python cache (from scripts/)
+__pycache__/
+*.pyc
+
 # Build outputs
 .netlify/
 dist/
@@ -24,6 +28,10 @@ Thumbs.db
 
 # Local music files (large MP3s — tracked via playlist.json)
 public/music/*.mp3
+
+# Generated show files (build outputs from build_shows.py: mp3 + cue + data.js + manifest)
+public/shows/
+preview/*.mp3
 public/music_locked/
 public/music_locked_*/
 

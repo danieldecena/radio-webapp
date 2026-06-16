@@ -1,35 +1,45 @@
 # 96.6 ROM Radio - Project Context
 
 ## Project Overview
-Personal web radio station dedicated to Pauline featuring Spotify integration, AI-powered DJ breaks, and a retro car radio UI.
+Personal web radio station dedicated to Pauline. Plays a curated **local music
+library** mixed with DJ breaks. The current direction is **pre-rendered shows**:
+music + DJ drops baked into single MP3 files (crossfades, ducking, broadcast
+voice processing) that play with no API and work offline. A retro car-radio UI.
 
-**Live URL**: (Add when deployed to Netlify)
+**Live URL**: not yet deployed
 **Repository**: https://github.com/danieldecena/96.6-rom-radio
 
 ## Tech Stack
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3
-- **Audio**: Spotify Web Playback SDK, Web Audio API
-- **TTS**: ElevenLabs API (primary), Web Speech API (fallback)
-- **Hosting**: Netlify (static site + serverless functions)
+- **Audio**: local MP3s + pre-rendered show files (HTML5 `<audio>`); ffmpeg for rendering
+- **TTS (offline, optional)**: ElevenLabs API to voice DJ breaks ahead of time
+- **Hosting**: Netlify (static site; optional serverless TTS function)
 - **PWA**: Service Worker for offline support
 
 ## Architecture
 ```
 public/
-├── index.html          # Main radio UI
-├── app.js             # Radio controller, Spotify integration
-├── breaks.js          # DJ break content and scheduling
-├── music/
-│   └── playlist.json  # Pre-generated audio snippets
-├── icons/             # PWA icons
+├── player.html        # NEW show-picker player (plays pre-rendered shows)
+├── index.html         # Legacy live-DJ UI (real-time TTS engine)
+├── app.js             # Legacy radio controller (live engine)
+├── breaks.js          # DJ break scripts (ES module: DJ_BREAKS, SPECIAL_DATES, ...)
+├── music/             # Curated song library (.mp3) + playlist.json
+├── audio/
+│   ├── snippets/      # Short pre-rendered station-ID clips
+│   ├── breaks/        # Voiced long-form DJ breaks (after generate_dj_breaks.js)
+│   └── fx/sweeper.wav # Sweeper stinger used in shows
+├── shows/             # Pre-rendered show_N.mp3 + show_N.cue.json + data.js + manifest.json
 └── manifest.json      # PWA manifest
 
 netlify/functions/
-└── tts.js            # Serverless function for ElevenLabs API
+└── speak.js           # Optional serverless TTS proxy (origin allowlist + rate limit)
 
 scripts/
-├── generate_breaks.js    # Pre-generate DJ audio snippets
-└── generate_playlist.js  # Convert breaks.js to playlist.json
+├── render_show.py        # Mixing engine: crossfades, ducking, voice chain, master glue
+├── build_shows.py        # Renders the library into public/shows/ (+ cues, data.js)
+├── generate_dj_breaks.js # Voices ALL breaks.js lines via ElevenLabs (local, your key)
+├── generate_breaks.js    # (older) voices only the `short` array
+└── generate_playlist.js  # Build music/playlist.json from the MP3 folder
 ```
 
 ## Key Features
@@ -58,24 +68,26 @@ netlify dev
 ### Testing
 ```bash
 # Manual testing checklist:
-# - Power button turns radio on/off
-# - Spotify playlist plays
-# - DJ breaks play after ~13 minutes
-# - Volume ducking works during DJ breaks
-# - Station state persists across power cycles
+# - player.html lists shows from shows/manifest.json
+# - Selecting a show plays the pre-rendered file
+# - Now-playing + DJ-on-air indicator track the cue sheet
+# - Volume control works; show auto-advances at end
 # - Mobile responsive and installable as PWA
 ```
 
-### Pre-generating Audio Snippets (Optional)
+### Rendering shows (primary workflow)
 ```bash
-# Export API key
+# Needs ffmpeg (brew install ffmpeg)
+python3 scripts/build_shows.py --all   # renders public/shows/*.mp3 + cues + data.js
+# then open public/player.html (double-click in Safari, or via netlify dev)
+```
+
+### Voicing DJ breaks (optional, one-time, your key)
+```bash
 export ELEVENLABS_API_KEY="your_key_here"
-
-# Generate all DJ breaks as MP3s
-node scripts/generate_breaks.js
-
-# Deploy with pre-generated audio
-npm run deploy
+DRY_RUN=1 node scripts/generate_dj_breaks.js   # estimate character cost
+node scripts/generate_dj_breaks.js             # -> public/audio/breaks/
+# build_shows.py then uses these announcement drops automatically
 ```
 
 ### Deployment
@@ -89,22 +101,25 @@ git push origin main
 
 ## Configuration
 
-### Environment Variables (Netlify)
-- `ELEVENLABS_API_KEY` - Required for real-time TTS
-- `ELEVENLABS_VOICE_ID` - Optional, defaults to current voice
+### Environment Variables (Netlify) — only for the optional live-TTS function
+- `ELEVENLABS_API_KEY` - For the legacy real-time TTS function (not needed for pre-rendered shows)
+- `ELEVENLABS_VOICE_ID` - Optional, defaults to `KLoixBflzS2a9rg6nT8x`
+- `ALLOWED_ORIGINS` - Origin allowlist for the TTS function
 
 ### Customization Files
 - `public/breaks.js` - Edit DJ content, special dates, station info
-- `public/index.html:61` - Change Spotify playlist URI
-- `public/app.js` - Modify radio behavior, timing, volume levels
+- `scripts/build_shows.py` - Tracks per show, crossfade length, drop frequency
+- `scripts/render_show.py` - Voice chain, ducking, master glue
+- `public/app.js` - Legacy live-engine behavior, timing, volume levels
 
 ## Important Files
 
 ### Core Files (Read First)
-- `README.md` - Full deployment and usage guide
-- `public/app.js` - Radio controller logic
+- `README.md` - Full setup and usage guide
+- `public/player.html` - Show-picker player (current front-end)
+- `scripts/build_shows.py` / `scripts/render_show.py` - Show rendering pipeline
 - `public/breaks.js` - All DJ break content
-- `netlify/functions/tts.js` - TTS API handler
+- `netlify/functions/speak.js` - Optional TTS API handler (legacy live mode)
 
 ### Documentation
 - `docs/MUSIC_SYSTEM_ARCHITECTURE.md` - Music playlist system design
@@ -166,7 +181,7 @@ curl http://localhost:8888/.netlify/functions/tts \
 
 ## Resources
 - [ElevenLabs API Docs](https://elevenlabs.io/docs)
-- [Spotify Web Playback SDK](https://developer.spotify.com/documentation/web-playback-sdk/)
+- [ffmpeg filters (acrossfade, sidechaincompress, loudnorm)](https://ffmpeg.org/ffmpeg-filters.html)
 - [Netlify Functions](https://docs.netlify.com/functions/overview/)
 - [PWA Guidelines](https://web.dev/progressive-web-apps/)
 
@@ -174,11 +189,11 @@ curl http://localhost:8888/.netlify/functions/tts \
 This is a personal project for Pauline featuring:
 - Station name: "96.6 ROM Radio"
 - Tagline: "Victoria's station for love"
-- Music: Curated Spotify playlist
+- Music: Curated local library, mixed into pre-rendered shows
 - Special dates: Birthday, Valentine's, Anniversary messages
 
 ---
-**Last Updated**: 2026-02-25
+**Last Updated**: 2026-06-16
 
 ---
 

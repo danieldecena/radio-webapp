@@ -99,7 +99,7 @@ The `speak.js` serverless function handles TTS securely server-side.
 
 ## Need Help?
 
-- **Full docs**: [README.md](README.md)
+- **Full docs**: [README.md](Daily/README.md)
 - **Deployment guide**: [DEPLOY.md](DEPLOY.md)
 - **Local testing issues**: Check browser console (F12)
 - **Netlify issues**: Check deploy logs in dashboard

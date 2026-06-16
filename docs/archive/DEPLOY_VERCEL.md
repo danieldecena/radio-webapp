@@ -148,4 +148,4 @@ Your radio is now live with:
 
 **🎵 93.4 ROM - Victoria's station for love**
 
-**Need help?** Check the main [README.md](README.md) for customization options.
+**Need help?** Check the main [README.md](Daily/README.md) for customization options.

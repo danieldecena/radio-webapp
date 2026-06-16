@@ -1,8 +1,21 @@
 // ==============================================
 // 96.6 ROM — SERVICE WORKER
 // ==============================================
+//
+// Caching strategy:
+//   • Navigation (HTML)      → network-first  (always get fresh app shell online,
+//                              fall back to cache when offline)
+//   • Static app assets      → stale-while-revalidate (serve fast from cache,
+//                              refresh the cache in the background so the *next*
+//                              load is up to date — no more waiting on a version bump)
+//   • API / TTS functions    → network-only   (never cache dynamic responses)
+//
+// IMPORTANT: bump CACHE_VERSION on every deploy that changes cached assets so
+// old caches are purged on activate.
 
-const CACHE_NAME = "rom-radio-v1";
+const CACHE_VERSION = "v2";
+const CACHE_NAME = `rom-radio-${CACHE_VERSION}`;
+
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
@@ -14,78 +27,85 @@ const ASSETS_TO_CACHE = [
   "/favicon.ico",
 ];
 
-// Install Event: Cache core assets
+// Install: pre-cache the core app shell
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log("[Service Worker] Caching all: app shell and content");
+      console.log("[Service Worker] Pre-caching app shell");
       return cache.addAll(ASSETS_TO_CACHE);
     }),
   );
-  // Activate immediately
   self.skipWaiting();
 });
 
-// Activate Event: Clean up old caches
+// Activate: remove caches from older versions
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(
+    caches.keys().then((keyList) =>
+      Promise.all(
         keyList.map((key) => {
           if (key !== CACHE_NAME) {
             console.log("[Service Worker] Removing old cache", key);
             return caches.delete(key);
           }
         }),
-      );
-    }),
+      ),
+    ),
   );
-  // Take control of all clients immediately
   self.clients.claim();
 });
 
-// Fetch Event: Cache First, Network Fallback
 self.addEventListener("fetch", (event) => {
-  // Skip cross-origin requests (like Spotify)
-  if (!event.request.url.startsWith(self.location.origin)) {
-    return;
-  }
+  const { request } = event;
 
-  // Handle API calls - Network First (don't cache dynamic API responses)
+  // Only handle GETs; skip cross-origin (e.g. ElevenLabs, CDNs)
+  if (request.method !== "GET") return;
+  if (!request.url.startsWith(self.location.origin)) return;
+
+  // API / serverless functions → always network, never cache
   if (
-    event.request.url.includes("/api/") ||
-    event.request.url.includes("/.netlify/functions/")
+    request.url.includes("/api/") ||
+    request.url.includes("/.netlify/functions/")
   ) {
-    event.respondWith(fetch(event.request));
+    event.respondWith(fetch(request));
     return;
   }
 
-  // Handle static assets - Cache First
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Return cached response if found
-      if (response) {
-        return response;
-      }
-      // Otherwise fetch from network
-      return fetch(event.request).then((networkResponse) => {
-        // Don't cache if response is not valid
-        if (
-          !networkResponse ||
-          networkResponse.status !== 200 ||
-          networkResponse.type !== "basic"
-        ) {
+  // Navigation requests (HTML) → network-first, cache fallback for offline
+  if (request.mode === "navigate") {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          const copy = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
           return networkResponse;
-        }
+        })
+        .catch(() =>
+          caches.match(request).then((r) => r || caches.match("/index.html")),
+        ),
+    );
+    return;
+  }
 
-        // Clone response to put in cache
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
+  // Everything else (CSS/JS/icons) → stale-while-revalidate
+  event.respondWith(
+    caches.match(request).then((cached) => {
+      const networkFetch = fetch(request)
+        .then((networkResponse) => {
+          if (
+            networkResponse &&
+            networkResponse.status === 200 &&
+            networkResponse.type === "basic"
+          ) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          }
+          return networkResponse;
+        })
+        .catch(() => cached);
 
-        return networkResponse;
-      });
+      // Serve cache immediately if present; otherwise wait on the network
+      return cached || networkFetch;
     }),
   );
 });

@@ -39,3 +39,6 @@ public/music_locked_*/
 *.log
 npm-debug.log*
 .vercel
+
+# Graphify generated output (knowledge graph cache + reports)
+graphify-out/

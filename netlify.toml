@@ -2,9 +2,17 @@
   publish = "public"
   functions = "netlify/functions"
 
+# Show-picker player is the product (pre-rendered shows). The legacy live-DJ
+# engine still lives at /index.html but is no longer the homepage. Real files
+# (assets, shows) are served directly; only unmatched routes fall through here.
+[[redirects]]
+  from = "/"
+  to = "/player.html"
+  status = 200
+
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/player.html"
   status = 200
 
 [functions]

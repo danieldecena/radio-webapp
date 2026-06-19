@@ -2,10 +2,9 @@
 // Run with: node test/smoke.mjs
 // Exit 0 = pass, exit 1 = fail.
 
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { readdirSync } from 'fs';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dir, '..');

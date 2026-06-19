@@ -6,6 +6,8 @@
 > **Landed:** the completed items below are merged to `main` (was PR #1, `fix/show-pipeline-cleanup`).
 
 ## Active
+- [ ] User reviews written spec #claude 📅 2026-06-19
+- [ ] Transition to implementation via writing-plans #claude 📅 2026-06-19
 _Curated work is tracked by priority below — **P1 is the live top.** Incomplete session tasks auto-land here._
 
 ## P1 — Content & quality (the real blocker)

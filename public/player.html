@@ -199,13 +199,13 @@
     // Prefer inlined data (works from file:// in Safari); fall back to fetch.
     if (window.SHOWS_DATA && Array.isArray(window.SHOWS_DATA.shows)) {
       window._shows = window.SHOWS_DATA.shows;
-      renderList(window._shows);
+      renderList(window._shows.filter(s => s.rendered));
       return;
     }
     try {
       const data = await (await fetch("shows/manifest.json")).json();
       window._shows = data.shows || [];
-      renderList(window._shows);
+      renderList(window._shows.filter(s => s.rendered));
     } catch {
       showlist.innerHTML =
         '<div class="empty">No show data found. Run <code>python3 scripts/build_shows.py --all</code> to generate the shows, then reopen this page.</div>';

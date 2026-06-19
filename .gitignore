@@ -42,3 +42,6 @@ npm-debug.log*
 
 # Graphify generated output (knowledge graph cache + reports)
 graphify-out/
+
+# Archived standalone preview render (12MB build artifact)
+docs/archive/preview_show.mp3

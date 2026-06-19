@@ -6,6 +6,11 @@
 > **Open:** PR #1 (`fix/show-pipeline-cleanup`) is still **open and mergeable** — not yet merged to `main`.
 
 ## Active
+- [ ] Decide PR #1 + clean up untracked logo.html #claude 📅 2026-06-19
+- [ ] Voice the DJ breaks #claude 📅 2026-06-19
+- [ ] Re-render shows after breaks are voiced #claude 📅 2026-06-19
+- [ ] Listen-test a full show end-to-end #claude 📅 2026-06-19
+- [ ] Deploy to Netlify #claude 📅 2026-06-19
 - [ ] Merge PR #1 (open, mergeable) + decide fate of untracked `logo.html` #claude 📅 2026-06-19
 - [ ] Deploy to Netlify — needs `netlify login` + linked site (`npm run deploy`) #claude 📅 2026-06-19
 - [ ] (optional) Voice the DJ breaks → re-render → human listen-test #claude 📅 2026-06-19

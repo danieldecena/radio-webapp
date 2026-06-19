@@ -30,5 +30,8 @@
   "homepage": "https://github.com/danieldecena/96.6-rom-radio#readme",
   "dependencies": {
     "dotenv": "^17.3.1"
+  },
+  "devDependencies": {
+    "netlify-cli": "^26.1.0"
   }
 }

@@ -5,6 +5,10 @@
 > **Now:** P1 is the real top — the picker is fixed, but there's only **one** rendered show and the DJ breaks aren't voiced. That's what actually holds back a good demo.
 > **Landed:** the completed items below are merged to `main` (was PR #1, `fix/show-pipeline-cleanup`).
 
+## Active
+
+_Curated work is tracked by priority below — **P1 is the live top.** Incomplete session tasks auto-land here._
+
 ## P1 — Content & quality (the real blocker)
 
 - [ ] **Render more shows.** "Trim to rendered" left exactly one playable show (`show_0`). A station for Pauline needs variety — render at least a few more (`python3 scripts/build_shows.py --all`, needs ffmpeg). *(Do after voicing if you want voiced breaks baked in — see below — else render now for a fuller library and re-render later.)*

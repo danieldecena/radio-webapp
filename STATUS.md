@@ -1,32 +1,33 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-19 07:31
+> Last refresh: 2026-06-19 07:37
 
 ## Git
 - Branch: `fix/show-pipeline-cleanup`
-- Last commit: `c79495a Auto-commit session changes (2026-06-19 07:29) (2 minutes ago)`
+- Last commit: `4a9be58 Auto-commit session changes (2026-06-19 07:31) (6 minutes ago)`
 - Uncommitted: **1** — 1 uncommitted
 
 ## Tests
 - Run by hand: `npm test`
 
 ## Confirmed working
-- Show pipeline renders: `show_0.mp3` + `show_0.cue.json` play in player.html with now-playing + DJ-on-air tracking
-- 96 music tracks in `public/music/` + playlist.json; 46 station-ID snippets voiced
-- player.html lists only `rendered:true` shows (filtered) and degrades gracefully when a cue is missing
-- `npm test` runs `test/smoke.mjs` — guards manifest↔disk consistency (catches orphan/missing show files)
+- **Full library rendered: all 7 shows** (`show_0`–`show_6`) — mp3 + cue.json each, 14/14/14/14/14/14/12 tracks, ~40–48 min apiece
+- Cue integrity verified: every show's cue `duration` matches its mp3 to ±0.0s, track start times monotonic (ffprobe check, 2026-06-19)
+- `npm test` (`test/smoke.mjs`) **PASSES** — manifest↔disk consistent, no orphans, manifest/data.js ids match
+- 96 music tracks in `public/music/` + playlist.json; 46 station-ID snippets voiced (used as DJ drops)
+- player.html lists only `rendered:true` shows; now-playing + DJ-on-air track the cue sheet
 - `netlify.toml` + `.github/workflows/claude.yml` deploy config present
 
-## Known broken
-- `audio/breaks/` empty — rendered shows have no long-form voiced DJ breaks (snippets only)
-- Thin library: only `show_0` is rendered (one playable show)
-- Not deployed: Live URL still unset
+## Known broken / blocked
+- **Deploy blocked**: Netlify CLI not installed/authenticated. `public/shows/` + `public/music/*.mp3` are gitignored, so a `git push` deploys NO audio — must `npm run deploy` (netlify CLI, uploads local `public/`). Needs your `netlify login` + linked site. Live URL still unset.
+- **DJ breaks unvoiced** (optional): `audio/breaks/` empty — shows use short station-ID snippets, not long-form voiced breaks. Blocked on `ELEVENLABS_API_KEY`. Shows play fine without; re-render with `build_shows.py --all` after voicing to fold them in.
+- Human listen-test still pending (structural verification done; needs ears).
 
-> Fixed and **merged to `main`** (was PR #1, `fix/show-pipeline-cleanup`): manifest over-advertising (player now filters to rendered), `show_1.mp3` orphan (removed), missing `npm test` (added).
+> PR #1 (`fix/show-pipeline-cleanup`) is **OPEN and mergeable** (state CLEAN) — earlier STATUS note claiming it was merged to `main` was wrong. It carries: honest picker (filters to rendered), `npm test` smoke test, archived legacy preview, login gate.
 
 ## Next Up / Blocked
-- See `TASKS.md`. Next (P1): render more shows ↔ voice DJ breaks (needs `ELEVENLABS_API_KEY`) → re-render → listen-test. Then deploy (P2).
+- Merge PR #1 (your call). Then **deploy** (`npm run deploy` after `netlify login`). Optionally voice DJ breaks (needs key) → re-render → human listen-test.
 
 ## Key paths
 scripts/, public/, netlify/, package.json

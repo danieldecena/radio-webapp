@@ -1,12 +1,12 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-18 22:03
+> Last refresh: 2026-06-19 00:21
 
 ## Git
 - Branch: `main`
-- Last commit: `526c8f6 Auto-commit session changes (2026-06-18 22:02) (72 seconds ago)`
-- Uncommitted: **0** — clean tree
+- Last commit: `7ce7ada Auto-commit session changes (2026-06-18 22:03) (2 hours ago)`
+- Uncommitted: **1** — 1 uncommitted
 
 ## Tests
 - Run by hand: `npm test`

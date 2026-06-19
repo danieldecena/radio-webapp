@@ -1,11 +1,11 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-19 01:34
+> Last refresh: 2026-06-19 01:48
 
 ## Git
 - Branch: `fix/show-pipeline-cleanup`
-- Last commit: `980490c Mark PR #1 merged and trim CLAUDE.md (5 minutes ago)`
+- Last commit: `4e9d1b0 Add Active section to TASKS board for task routing (7 minutes ago)`
 - Uncommitted: **0** — clean tree
 
 ## Tests

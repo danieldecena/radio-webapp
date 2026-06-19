@@ -1,12 +1,12 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-19 02:58
+> Last refresh: 2026-06-19 03:09
 
 ## Git
 - Branch: `fix/show-pipeline-cleanup`
-- Last commit: `f119141 Auto-commit session changes (2026-06-19 02:06) (52 minutes ago)`
-- Uncommitted: **3** — 3 uncommitted
+- Last commit: `470ed7e Add login gate to player.html + render fixes (81 seconds ago)`
+- Uncommitted: **0** — clean tree
 
 ## Tests
 - Run by hand: `npm test`

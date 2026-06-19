@@ -51,53 +51,14 @@ scripts/
 
 ## Development Workflow
 
-### Local Development
-```bash
-# Install dependencies
-npm install
+See `README.md` for the full local-dev / render / voice / deploy commands (it's the
+source of truth and stays current). Quick map: render shows with
+`python3 scripts/build_shows.py --all` (needs ffmpeg) → serve with `npm run dev`
+(http://localhost:8888/player.html) → deploy via `npm run deploy` or push to `main`.
 
-# Create .env file (not committed)
-cp .env.example .env
-# Add ELEVENLABS_API_KEY=your_key_here
-
-# Run local dev server with Netlify functions
-netlify dev
-# Opens at http://localhost:8888
-```
-
-### Testing
-```bash
-# Manual testing checklist:
-# - player.html lists shows from shows/manifest.json
-# - Selecting a show plays the pre-rendered file
-# - Now-playing + DJ-on-air indicator track the cue sheet
-# - Volume control works; show auto-advances at end
-# - Mobile responsive and installable as PWA
-```
-
-### Rendering shows (primary workflow)
-```bash
-# Needs ffmpeg (brew install ffmpeg)
-python3 scripts/build_shows.py --all   # renders public/shows/*.mp3 + cues + data.js
-# then open public/player.html (double-click in Safari, or via netlify dev)
-```
-
-### Voicing DJ breaks (optional, one-time, your key)
-```bash
-export ELEVENLABS_API_KEY="your_key_here"
-DRY_RUN=1 node scripts/generate_dj_breaks.js   # estimate character cost
-node scripts/generate_dj_breaks.js             # -> public/audio/breaks/
-# build_shows.py then uses these announcement drops automatically
-```
-
-### Deployment
-```bash
-# Deploy to Netlify
-npm run deploy
-
-# Or auto-deploy via git push to main
-git push origin main
-```
+Manual smoke check (no framework beyond `npm test`): player.html lists only rendered
+shows, selecting one plays the pre-rendered file, now-playing + DJ-on-air track the
+cue sheet, volume works, show auto-advances, and it installs as a PWA on mobile.
 
 ## Configuration
 
@@ -160,24 +121,6 @@ Implement 'station keeps broadcasting' - radio continues when powered back on
 - API key is server-side only (Netlify function)
 - Playlist JSON is public (pre-generated audio snippets)
 - Repository is private
-
-## Useful Commands
-```bash
-# Check git status
-git status
-
-# View recent commits
-git log --oneline -5
-
-# Test Netlify function locally
-curl http://localhost:8888/.netlify/functions/tts \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"text":"Hello from ROM Radio"}'
-
-# Check ElevenLabs API usage
-# Visit: https://elevenlabs.io/app/usage
-```
 
 ## Resources
 - [ElevenLabs API Docs](https://elevenlabs.io/docs)

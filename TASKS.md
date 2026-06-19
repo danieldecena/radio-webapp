@@ -3,7 +3,7 @@
 > Working task board. Grounded in repo ground-truth as of 2026-06-19 (see STATUS.md for live state).
 > Priority: **P1** content/quality · **P2** ship · **P3** code health · **P4** infra.
 > **Now:** P1 is the real top — the picker is fixed, but there's only **one** rendered show and the DJ breaks aren't voiced. That's what actually holds back a good demo.
-> **In flight:** the completed items below are on **PR #1** (`fix/show-pipeline-cleanup`), not yet merged to `main`.
+> **Landed:** the completed items below are merged to `main` (was PR #1, `fix/show-pipeline-cleanup`).
 
 ## P1 — Content & quality (the real blocker)
 
@@ -28,7 +28,7 @@ _All clear._
 
 ---
 
-## Done — on PR #1 (`fix/show-pipeline-cleanup`, pending merge)
+## Done — merged to `main` (was PR #1, `fix/show-pipeline-cleanup`)
 
 - [x] **Make the picker honest.** `player.html` filters to `rendered === true` shows. Durable — survives `build_shows.py` re-runs. *(Correction: unrendered shows never 404'd — the player already greyed them out. Cosmetic, not a crash fix.)*
 - [x] **Resolve the `show_1` orphan.** Deleted the stray `show_1.mp3`; `npm test` smoke test (`test/smoke.mjs`) now guards manifest↔disk consistency so orphans can't recur.

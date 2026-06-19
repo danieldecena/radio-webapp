@@ -1,11 +1,11 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-19 01:15
+> Last refresh: 2026-06-19 01:18
 
 ## Git
 - Branch: `fix/show-pipeline-cleanup`
-- Last commit: `0bdf9a9 Auto-commit session changes (2026-06-19 01:14) (44 seconds ago)`
+- Last commit: `c79adc4 Auto-commit session changes (2026-06-19 01:15) (4 minutes ago)`
 - Uncommitted: **0** — clean tree
 
 ## Tests
@@ -23,10 +23,10 @@
 - Thin library: only `show_0` is rendered (one playable show)
 - Not deployed: Live URL still unset
 
-> Fixed on **PR #1** (`fix/show-pipeline-cleanup`, pending merge to `main`): manifest over-advertising (player now filters to rendered), `show_1.mp3` orphan (removed), missing `npm test` (added). On `main` these are still open until merge.
+> Fixed and **merged to `main`** (was PR #1, `fix/show-pipeline-cleanup`): manifest over-advertising (player now filters to rendered), `show_1.mp3` orphan (removed), missing `npm test` (added).
 
 ## Next Up / Blocked
-- See `TASKS.md`. Next (P1): render more shows ↔ voice DJ breaks (needs `ELEVENLABS_API_KEY`) → re-render → listen-test. Then deploy (P2). Merge PR #1 to land the completed cleanup.
+- See `TASKS.md`. Next (P1): render more shows ↔ voice DJ breaks (needs `ELEVENLABS_API_KEY`) → re-render → listen-test. Then deploy (P2).
 
 ## Key paths
 scripts/, public/, netlify/, package.json

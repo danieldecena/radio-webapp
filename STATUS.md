@@ -1,12 +1,12 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-19 00:21
+> Last refresh: 2026-06-19 00:44
 
 ## Git
-- Branch: `main`
-- Last commit: `7ce7ada Auto-commit session changes (2026-06-18 22:03) (2 hours ago)`
-- Uncommitted: **1** — 1 uncommitted
+- Branch: `fix/show-pipeline-cleanup`
+- Last commit: `c6c5ebd Update task board to ground truth after cleanup branch (2 minutes ago)`
+- Uncommitted: **0** — clean tree
 
 ## Tests
 - Run by hand: `npm test`

@@ -6,6 +6,13 @@
 > **Open:** PR #1 (`fix/show-pipeline-cleanup`) is still **open and mergeable** — not yet merged to `main`.
 
 ## Active
+- [ ] Ask clarifying questions #claude 📅 2026-06-19
+- [ ] Propose 2-3 approaches #claude 📅 2026-06-19
+- [ ] Present design sections #claude 📅 2026-06-19
+- [ ] Write design doc + commit #claude 📅 2026-06-19
+- [ ] Spec self-review #claude 📅 2026-06-19
+- [ ] User reviews written spec #claude 📅 2026-06-19
+- [ ] Transition to writing-plans #claude 📅 2026-06-19
 - [ ] Decide PR #1 + clean up untracked logo.html #claude 📅 2026-06-19
 - [ ] Voice the DJ breaks #claude 📅 2026-06-19
 - [ ] Re-render shows after breaks are voiced #claude 📅 2026-06-19

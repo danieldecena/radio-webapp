@@ -3,10 +3,10 @@
 > Working task board. Grounded in repo ground-truth as of 2026-06-19 (see STATUS.md for live state).
 > Priority: **P0** blocks a usable demo · **P1** content/quality · **P2** ship · **P3** code health · **P4** infra.
 
-## P0 — Blocking a playable demo
+## P0 — Done (branch `fix/show-pipeline-cleanup`)
 
-- [ ] **Reconcile show manifest with reality.** `public/shows/manifest.json` + `data.js` advertise 7 shows (id 0–6); only `show_0` is rendered. Either render the rest (`python3 scripts/build_shows.py --all`) or trim the manifest so the player only lists what exists. Today the picker offers 6 shows that will 404 on play.
-- [ ] **Resolve the `show_1` orphan.** `show_1.mp3` exists on disk but has no `show_1.cue.json` and is `rendered:false`. Either finish rendering it (gets a cue) or delete the stray mp3 and drop it from the manifest — current state is inconsistent.
+- [x] **Make the picker honest.** `player.html` now filters to `rendered === true` shows (only `show_0` today). Durable — survives `build_shows.py` re-runs. *(Correction: unrendered shows never 404'd — the player already greyed them out as "not rendered". This was cosmetic, not a correctness bug.)*
+- [x] **Resolve the `show_1` orphan.** Deleted the stray `show_1.mp3` (no cue sheet). A new `npm test` smoke test (`test/smoke.mjs`) now guards manifest↔disk consistency so orphans can't recur.
 
 ## P1 — Content & quality
 
@@ -19,15 +19,15 @@
 - [ ] **Deploy to Netlify.** `netlify.toml` + `.github/workflows/claude.yml` are in place but Live URL is still unset. `npm run deploy` or push to `main`.
 - [ ] **Verify PWA + offline** on the deployed site: service worker caches shows, installs on iOS and Android.
 
-## P3 — Code health (from graphify graph)
+## P3 — Code health
 
-- [ ] **Split `MusicPlayer.stop()`.** It calls into 4 separate modules (DJ break, power lifecycle, hiss, static burst) — too much orchestration for a "stop" method. Highest-betweenness path in the graph.
-- [ ] **De-dupe cue-sheet logic** between `public/player.html` and `preview/rom-radio-preview.html` — the graph flagged them as near-duplicate now-playing/cue implementations.
-- [ ] **Decide the fate of the legacy live engine** (`index.html` / `app.js` real-time TTS + Spotify embed). The project direction is pre-rendered shows; either keep the legacy path documented or move it to an archive folder so it stops showing up as a parallel architecture.
+- [x] ~~De-dupe cue-sheet logic / preview duplication~~ → **Resolved by archiving** `preview/rom-radio-preview.html` to `docs/archive/`. The "duplication" was ~12 trivial helper lines across two standalone files; de-duping into a shared module was rejected as premature abstraction.
+- [x] ~~Split `MusicPlayer.stop()`~~ → **Dropped — not a real issue.** The method (app.js:1848–1863) is already single-responsibility (16 lines). The "orchestrates 4 modules" finding was a graphify misattribution across same-named `.stop()` methods; the real orchestrator is the top-level `powerOff()` (app.js:920).
+- [ ] **Decide the fate of the legacy live engine** (`index.html` / `app.js` real-time TTS + Spotify embed). The project direction is pre-rendered shows; either keep the legacy path documented or archive it so it stops reading as a parallel architecture. *(Still open — out of scope this session.)*
 
 ## P4 — Infra
 
-- [ ] **Fix the test story.** STATUS.md says `npm test` but `package.json` has no `test` script and `docs/TESTING.md` is a manual checklist. Add a minimal smoke test (manifest ↔ disk consistency is the obvious first one) or update the reference to reflect manual-only testing.
+- [x] **Fix the test story.** Added `test/smoke.mjs` + `"test": "node test/smoke.mjs"` in `package.json` — plain Node, no framework. Guards manifest↔disk consistency.
 
 ---
 ← see `STATUS.md` for confirmed-working / known-broken state

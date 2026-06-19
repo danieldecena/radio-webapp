@@ -4,6 +4,9 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>96.6 ROM Radio</title>
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#120d09" />
+<link rel="apple-touch-icon" href="/icon.png" />
 <style>
   :root {
     --amber: #ffb347; --amber-dim: #8a5a1f; --glow: #ffcf6b; --cream: #f3e6cf;
@@ -309,6 +312,13 @@
   });
   input.focus();
 })();
+</script>
+<script>
+  // Register the service worker so the player works offline (cache-on-play).
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () =>
+      navigator.serviceWorker.register("/sw.js").catch(() => {}));
+  }
 </script>
 </body>
 </html>

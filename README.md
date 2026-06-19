@@ -38,7 +38,7 @@ to play the station.
 ## Quick start (local)
 
 ```bash
-cd ~/Obsidian/Projects/radio
+cd ~/radio
 
 # Render the shows into public/shows/ (needs ffmpeg: brew install ffmpeg)
 python3 scripts/build_shows.py --all

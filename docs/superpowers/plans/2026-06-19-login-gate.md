@@ -142,7 +142,7 @@ Open `public/style.css`. Append after the final `}` on the last line (after the 
 - [ ] **Step 3: Verify `npm test` passes**
 
 ```bash
-cd /Users/home/Obsidian/Projects/radio
+cd /Users/home/radio
 npm test
 ```
 

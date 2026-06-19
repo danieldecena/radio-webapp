@@ -6,6 +6,11 @@
 > **Landed:** the completed items below are merged to `main` (was PR #1, `fix/show-pipeline-cleanup`).
 
 ## Active
+- [ ] Voice the DJ breaks (P1) #claude 📅 2026-06-19
+- [ ] Render more shows #claude 📅 2026-06-19
+- [ ] Listen-test a full show end-to-end #claude 📅 2026-06-19
+- [ ] Deploy to Netlify (P2) #claude 📅 2026-06-19
+- [ ] Decide fate of legacy live engine #claude 📅 2026-06-19
 
 _Curated work is tracked by priority below — **P1 is the live top.** Incomplete session tasks auto-land here._
 

@@ -6,6 +6,13 @@
 > **Landed:** the completed items below are merged to `main` (was PR #1, `fix/show-pipeline-cleanup`).
 
 ## Active
+- [ ] Decide PR #1 + clean up untracked logo.html #claude 📅 2026-06-19
+- [ ] Render more shows (shows 1–6 currently 404) #claude 📅 2026-06-19
+- [ ] Voice the DJ breaks #claude 📅 2026-06-19
+- [ ] Re-render shows after breaks are voiced #claude 📅 2026-06-19
+- [ ] Listen-test a full show end-to-end #claude 📅 2026-06-19
+- [ ] Deploy to Netlify #claude 📅 2026-06-19
+- [ ] Decide fate of legacy live-DJ engine #claude 📅 2026-06-19
 - [ ] Render full show library #claude 📅 2026-06-19
 - [ ] Verify: npm test passes + login gate works #claude 📅 2026-06-19
 - [ ] User reviews written spec #claude 📅 2026-06-19

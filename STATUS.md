@@ -5,8 +5,8 @@
 
 ## Git
 - Branch: `fix/show-pipeline-cleanup`
-- Last commit: `e672e30 Auto-commit session changes (2026-06-19 18:48) (7 seconds ago)`
-- Uncommitted: **0** — clean tree
+- Last commit: `e672e30 Auto-commit session changes (2026-06-19 18:48) (14 seconds ago)`
+- Uncommitted: **1** — 1 uncommitted
 
 ## Tests
 - Run by hand: `npm test`

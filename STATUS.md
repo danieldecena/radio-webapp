@@ -1,11 +1,11 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-19 17:38
+> Last refresh: 2026-06-19 17:41
 
 ## Git
 - Branch: `fix/show-pipeline-cleanup`
-- Last commit: `e3cc22c Auto-commit session changes (2026-06-19 17:38) (0 seconds ago)`
+- Last commit: `e3cc22c Auto-commit session changes (2026-06-19 17:38) (3 minutes ago)`
 - Uncommitted: **0** — clean tree
 
 ## Tests

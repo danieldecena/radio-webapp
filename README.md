@@ -45,7 +45,8 @@ python3 scripts/build_shows.py --all
 
 # Then either double-click public/player.html in Safari,
 # or serve it:
-npm run dev          # http://localhost:8888/player.html
+npm run dev          # http://localhost:3001/  (player.html, served at root)
+# or: npm run dev:netlify   # http://localhost:8888  (netlify dev, for the TTS function)
 ```
 
 `build_shows.py` also writes `public/shows/data.js`, which lets `player.html`

@@ -14,7 +14,7 @@ import {
 // --- Debug logging ---
 // Verbose console logs are off by default; flip to true while developing.
 const DEBUG = false;
-const log = (...args) => { if (DEBUG) log(...args); };
+const log = (...args) => { if (DEBUG) console.log(...args); };
 
 // --- Configuration ---
 // Change this to the exact name of your Apple Personal Voice (or leave "Personal" to match any personal voice)

@@ -53,6 +53,8 @@ def render_show(tracks, drops, out_path, crossfade=6.0, intro_drop=None,
     import os
     sweeper_path = sweeper if (sweeper and os.path.exists(sweeper)) else None
     tracks = [str(t) for t in tracks]
+    if not tracks:
+        raise ValueError("render_show: no tracks provided")
     durations = [probe_duration(t) for t in tracks]
 
     # --- compute where each track starts in the crossfaded bed --------------

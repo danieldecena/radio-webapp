@@ -54,7 +54,8 @@ scripts/
 See `README.md` for the full local-dev / render / voice / deploy commands (it's the
 source of truth and stays current). Quick map: render shows with
 `python3 scripts/build_shows.py --all` (needs ffmpeg) → serve with `npm run dev`
-(http://localhost:8888/player.html) → deploy via `npm run deploy` or push to `main`.
+(http://localhost:3001/, serves player.html at root; use `npm run dev:netlify` on 8888
+to exercise the TTS function) → deploy via `npm run deploy` or push to `main`.
 
 Manual smoke check (no framework beyond `npm test`): player.html lists only rendered
 shows, selecting one plays the pre-rendered file, now-playing + DJ-on-air track the

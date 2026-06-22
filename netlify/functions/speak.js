@@ -19,7 +19,7 @@ const DEFAULT_ORIGINS = [
   process.env.URL,              // Netlify production URL
   process.env.DEPLOY_PRIME_URL, // Netlify branch/deploy preview URL
   'http://localhost:8888',     // netlify dev
-  'http://localhost:3000',     // node dev-server.js
+  'http://localhost:3001',     // node dev-server.js
 ].filter(Boolean);
 
 const ALLOWED_ORIGINS = ENV_ORIGINS.length ? ENV_ORIGINS : DEFAULT_ORIGINS;

@@ -199,8 +199,9 @@
     trackEl.textContent = "— ready —";
     fill.style.width = "0%"; curEl.textContent = "0:00";
     audio.volume = parseFloat(vol.value);
-    audio.play();
-    powerBtn.classList.add("on");
+    audio.play()
+      .then(() => powerBtn.classList.add("on"))
+      .catch(() => powerBtn.classList.remove("on"));
   }
 
   function renderList(shows) {
@@ -224,7 +225,7 @@
 
   powerBtn.addEventListener("click", () => {
     if (!audio.src) return;
-    if (audio.paused) { audio.play(); powerBtn.classList.add("on"); }
+    if (audio.paused) { audio.play().catch(() => {}); powerBtn.classList.add("on"); }
     else { audio.pause(); powerBtn.classList.remove("on"); }
   });
   vol.addEventListener("input", () => { audio.volume = parseFloat(vol.value); });

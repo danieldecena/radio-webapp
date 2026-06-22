@@ -139,6 +139,10 @@ def main():
 
     shows = plan_shows()
     snips = snippets()
+    if not shows:
+        raise SystemExit("No music found in public/music/ — add .mp3 files first.")
+    if not snips:
+        raise SystemExit("No DJ drops found — add clips to public/audio/snippets/ or voice breaks first.")
     print(f"{len(music_tracks())} tracks -> {len(shows)} shows "
           f"(~{TRACKS_PER_SHOW} tracks each)")
 

@@ -6,23 +6,8 @@
 > **Open:** PR #1 (`fix/show-pipeline-cleanup`) is still **open and mergeable** — not yet merged to `main`.
 
 ## Active
-- [ ] Ask clarifying questions #claude 📅 2026-06-19
-- [ ] Propose 2-3 approaches #claude 📅 2026-06-19
-- [ ] Present design sections #claude 📅 2026-06-19
-- [ ] Write design doc + commit #claude 📅 2026-06-19
-- [ ] Spec self-review #claude 📅 2026-06-19
-- [ ] User reviews written spec #claude 📅 2026-06-19
-- [ ] Transition to writing-plans #claude 📅 2026-06-19
-- [ ] Decide PR #1 + clean up untracked logo.html #claude 📅 2026-06-19
-- [ ] Voice the DJ breaks #claude 📅 2026-06-19
-- [ ] Re-render shows after breaks are voiced #claude 📅 2026-06-19
-- [ ] Listen-test a full show end-to-end #claude 📅 2026-06-19
-- [ ] Deploy to Netlify #claude 📅 2026-06-19
-- [ ] Merge PR #1 (open, mergeable) + decide fate of untracked `logo.html` #claude 📅 2026-06-19
-- [ ] Deploy to Netlify — needs `netlify login` + linked site (`npm run deploy`) #claude 📅 2026-06-19
-- [ ] (optional) Voice the DJ breaks → re-render → human listen-test #claude 📅 2026-06-19
-- [ ] Decide fate of legacy live-DJ engine #claude 📅 2026-06-19
-_Curated work is tracked by priority below — **P2 (ship) is now the live top.** Incomplete session tasks auto-land here._
+- [ ] **Decide PR #1 + clean up untracked `logo.html`** #claude 📅 2026-06-19
+_Curated work is tracked by priority below — **P2 (ship) is the live top.** Cleared stale spec-workflow leftovers and de-duped Active on 2026-06-22; those items already live in P1–P3._
 
 ## P2 — Ship (the real top now)
 
@@ -37,8 +22,17 @@ _Curated work is tracked by priority below — **P2 (ship) is now the live top.*
 
 ## P3 — Code health
 
-- [ ] **Decide the fate of the legacy live engine** (`index.html` / `app.js` real-time TTS + Spotify embed). The project direction is pre-rendered shows; either keep the legacy path documented or archive it so it stops reading as a parallel architecture.
-- [ ] **Minor: drop dead branch in `renderList`** (`public/player.html`). Now that the list is pre-filtered to rendered shows, the `disabled` / "not rendered" branch is unreachable. Harmless, but worth removing for clarity.
+### From code review (2026-06-22)
+- [ ] **Bug: fix recursive `log()` in `app.js:17`** — `const log = (...args) => { if (DEBUG) log(...args); }` calls itself → stack overflow whenever `DEBUG=true`. Should be `console.log(...args)`. Latent only because `DEBUG` is `false`. #claude
+- [ ] **Bug: handle `audio.play()` rejection in `player.html`** (`loadShow`, ~line 188) — unhandled promise rejection under autoplay policy / rapid show-switching; power button can show "on" while nothing plays. Add a `.catch()`. #claude
+- [ ] **Harden `dev-server.js` against path traversal** — `path.join(PUBLIC_DIR, decodeURIComponent(url))` can escape `public/` (e.g. serve `.env`). Add a `filePath.startsWith(PUBLIC_DIR)` guard. Local-only, low severity. #claude
+- [ ] **Reconcile dev-port drift** — `dev-server.js` listens on 3001 and serves legacy `index.html` at `/`; README/CLAUDE say 8888 + `player.html`; `speak.js` allowlist comment says 3000. Pick one port, serve `player.html` at `/` to match the Netlify redirect, fix the docs + allowlist comment. #claude
+- [ ] **Add empty-input guards in `build_shows.py` / `render_show.py`** — `durations[0]` and `rnd.choice(snips)` throw an opaque `IndexError` with zero tracks/snippets; fail with a clear message instead. #claude
+- [ ] **Repo housekeeping** — remove the stray `q` line in `.gitignore`; update `package.json` description (still says "Spotify integration", which is gone). #claude
+
+### Standing
+- [ ] **Decide the fate of the legacy live engine** (`index.html` / `app.js` real-time TTS). The project direction is pre-rendered shows; either keep the legacy path documented or archive it so it stops reading as a parallel architecture.
+- [ ] **Minor: drop dead `.show.disabled` CSS in `public/player.html`** — the list is now pre-filtered to rendered shows, so the greyed-out/disabled styling is unreachable. Harmless, but worth removing for clarity.
 
 ## P4 — Infra
 

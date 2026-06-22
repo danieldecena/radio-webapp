@@ -1,7 +1,7 @@
 {
   "name": "96.6-rom-radio",
   "version": "1.0.0",
-  "description": "Personal web radio station with Spotify integration and AI DJ breaks",
+  "description": "Personal web radio station with pre-rendered shows and AI DJ breaks",
   "private": true,
   "scripts": {
     "test": "node test/smoke.mjs",
@@ -13,7 +13,7 @@
   },
   "keywords": [
     "radio",
-    "spotify",
+    "pwa",
     "tts",
     "web-app"
   ],

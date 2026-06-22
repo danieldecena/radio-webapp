@@ -45,3 +45,7 @@ graphify-out/
 
 # Archived standalone preview render (12MB build artifact)
 docs/archive/preview_show.mp3
+
+# Productivity system (local workspace, not part of the radio app)
+dashboard.html
+memory/

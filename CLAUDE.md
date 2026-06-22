@@ -7,7 +7,7 @@ music + DJ drops baked into single MP3 files (crossfades, ducking, broadcast
 voice processing) that play with no API and work offline. A retro car-radio UI.
 
 **Live URL**: not yet deployed
-**Repository**: https://github.com/danieldecena/96.6-rom-radio
+**Repository**: https://github.com/danieldecena/radio-webapp
 
 ## Tech Stack
 - **Frontend**: Vanilla JavaScript, HTML5, CSS3

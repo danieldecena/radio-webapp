@@ -22,12 +22,12 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/danieldecena/96.6-rom-radio.git"
+    "url": "git+https://github.com/danieldecena/radio-webapp.git"
   },
   "bugs": {
-    "url": "https://github.com/danieldecena/96.6-rom-radio/issues"
+    "url": "https://github.com/danieldecena/radio-webapp/issues"
   },
-  "homepage": "https://github.com/danieldecena/96.6-rom-radio#readme",
+  "homepage": "https://github.com/danieldecena/radio-webapp#readme",
   "dependencies": {
     "dotenv": "^17.3.1"
   },

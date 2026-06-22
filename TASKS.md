@@ -22,13 +22,19 @@ _Curated work is tracked by priority below — **P2 (ship) is the live top.** Cl
 
 ## P3 — Code health
 
-### From code review (2026-06-22)
-- [ ] **Bug: fix recursive `log()` in `app.js:17`** — `const log = (...args) => { if (DEBUG) log(...args); }` calls itself → stack overflow whenever `DEBUG=true`. Should be `console.log(...args)`. Latent only because `DEBUG` is `false`. #claude
-- [ ] **Bug: handle `audio.play()` rejection in `player.html`** (`loadShow`, ~line 188) — unhandled promise rejection under autoplay policy / rapid show-switching; power button can show "on" while nothing plays. Add a `.catch()`. #claude
-- [ ] **Harden `dev-server.js` against path traversal** — `path.join(PUBLIC_DIR, decodeURIComponent(url))` can escape `public/` (e.g. serve `.env`). Add a `filePath.startsWith(PUBLIC_DIR)` guard. Local-only, low severity. #claude
-- [ ] **Reconcile dev-port drift** — `dev-server.js` listens on 3001 and serves legacy `index.html` at `/`; README/CLAUDE say 8888 + `player.html`; `speak.js` allowlist comment says 3000. Pick one port, serve `player.html` at `/` to match the Netlify redirect, fix the docs + allowlist comment. #claude
-- [ ] **Add empty-input guards in `build_shows.py` / `render_show.py`** — `durations[0]` and `rnd.choice(snips)` throw an opaque `IndexError` with zero tracks/snippets; fail with a clear message instead. #claude
-- [ ] **Repo housekeeping** — remove the stray `q` line in `.gitignore`; update `package.json` description (still says "Spotify integration", which is gone). #claude
+### Done — code review fixes (2026-06-22, commits 4b761ea / 6b0c665)
+- [x] ~~Fix recursive `log()` in `app.js`~~ → now `console.log`
+- [x] ~~Handle `audio.play()` rejection in `player.html`~~ → `.catch()` at both call sites
+- [x] ~~Harden `dev-server.js` against path traversal~~ → `startsWith(PUBLIC_DIR)` guard; serves `player.html` at `/`
+- [x] ~~Reconcile dev-port drift~~ → dev = 3001, docs + `speak.js` allowlist aligned, `dev:netlify` = 8888
+- [x] ~~Empty-input guards in `build_shows.py` / `render_show.py`~~
+- [x] ~~Repo housekeeping~~ → stray `.gitignore` line removed, `package.json` fixed, repo URLs → `radio-webapp`
+
+### Design & deploy (2026-06-22)
+- [x] ~~Redesign `player.html`~~ — retro receiver refresh, then re-themed to white/silver + pastel-pink with red highlights (commit 9f0660b; backups `player.html.bak` / `player.html.dark.bak`). Verified via jsdom DOM test.
+- [ ] **Rebuild `rom-radio-deploy.zip`** before deploying — the current zip is stale (predates the pink redesign). #claude
+- [ ] **Decide untracked files** — gitignore `public/*.bak` backups; commit `public/_redirects` (needed so drag-and-drop deploy serves `player.html` at `/`). #claude
+- [ ] **Deploy the redesigned site** to Netlify — drag-and-drop the rebuilt zip, or `npm run deploy` (needs `netlify login`). #claude
 
 ### Standing
 - [ ] **Decide the fate of the legacy live engine** (`index.html` / `app.js` real-time TTS). The project direction is pre-rendered shows; either keep the legacy path documented or archive it so it stops reading as a parallel architecture.

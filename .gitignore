@@ -55,3 +55,14 @@ public/*.bak
 
 # Manual deploy artifact (rebuild by zipping public/)
 rom-radio-deploy.zip
+
+# --- OpenWolf scaffolding (commit the brain, ignore generated/volatile) ---
+graphify-out/
+.wolf/anatomy.md
+.wolf/memory.md
+.wolf/daemon.log
+.wolf/cron-state.json
+.wolf/token-ledger.json
+.wolf/suggestions.json
+.wolf/designqc-report.json
+.wolf/hooks/_session.json

@@ -18,7 +18,7 @@
     "web-app"
   ],
   "author": "Daniel",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "main": "index.js",
   "repository": {
     "type": "git",

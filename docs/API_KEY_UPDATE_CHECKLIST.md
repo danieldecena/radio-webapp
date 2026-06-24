@@ -8,7 +8,7 @@
 ## 🎉 Completed
 
 - ✅ Old API key deleted from ElevenLabs
-- ✅ New API key generated: `sk_36763...8403`
+- ✅ New API key generated: `<YOUR_ELEVENLABS_API_KEY>`
 - ✅ Local `.env` file updated
 - ✅ API key tested and verified working
 
@@ -29,7 +29,7 @@ Choose the platform you're using:
 3. [ ] Click **Site settings** → **Environment variables**
 4. [ ] Find `ELEVENLABS_API_KEY`
 5. [ ] Click **Options** → **Edit**
-6. [ ] Replace value with: `sk_36763345876ec7d1f668816731fef8d910899f7662bd8403`
+6. [ ] Replace value with: `<YOUR_ELEVENLABS_API_KEY>`
 7. [ ] Click **Save**
 8. [ ] Go to **Deploys** tab
 9. [ ] Click **Trigger deploy** → **Clear cache and deploy site**
@@ -40,7 +40,7 @@ Choose the platform you're using:
 ```bash
 npm install -g netlify-cli  # If not installed
 netlify login
-netlify env:set ELEVENLABS_API_KEY sk_36763345876ec7d1f668816731fef8d910899f7662bd8403
+netlify env:set ELEVENLABS_API_KEY <YOUR_ELEVENLABS_API_KEY>
 netlify deploy --prod
 ```
 
@@ -55,7 +55,7 @@ netlify deploy --prod
 3. [ ] Click **Settings** → **Environment Variables**
 4. [ ] Find `ELEVENLABS_API_KEY`
 5. [ ] Click **Edit** (pencil icon)
-6. [ ] Replace value with: `sk_36763345876ec7d1f668816731fef8d910899f7662bd8403`
+6. [ ] Replace value with: `<YOUR_ELEVENLABS_API_KEY>`
 7. [ ] Make sure all environments are selected:
    - ☑️ Production
    - ☑️ Preview
@@ -74,7 +74,7 @@ npx vercel env rm ELEVENLABS_API_KEY production
 
 # Add new key
 npx vercel env add ELEVENLABS_API_KEY
-# When prompted, paste: sk_36763345876ec7d1f668816731fef8d910899f7662bd8403
+# When prompted, paste: <YOUR_ELEVENLABS_API_KEY>
 # Select all environments (Production, Preview, Development)
 
 # Deploy
@@ -161,7 +161,7 @@ Your update is successful if:
 
 - Netlify: Check Site settings → Environment variables
 - Vercel: Check Settings → Environment Variables
-- Make sure it matches: `sk_36763345876ec7d1f668816731fef8d910899f7662bd8403`
+- Make sure it matches: `<YOUR_ELEVENLABS_API_KEY>`
 
 **Check deployment logs:**
 
@@ -209,7 +209,7 @@ Your new key has the same limits:
 ---
 
 **Last Updated**: 2026-02-17
-**New API Key**: `sk_36763...8403` (last 4: 8403)
+**New API Key**: `<YOUR_ELEVENLABS_API_KEY>` (last 4: 8403)
 
 ---
 

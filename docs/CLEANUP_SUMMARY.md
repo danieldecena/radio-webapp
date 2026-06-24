@@ -13,7 +13,7 @@ Your ElevenLabs API key was accidentally committed to git history. Even though i
 
 **Steps:**
 1. Go to [ElevenLabs Dashboard → API Keys](https://elevenlabs.io/app/settings/api-keys)
-2. Delete the old key (starts with `sk_956d5903ae...`)
+2. Delete the old key (starts with `<OLD_ROTATED_KEY_REDACTED>`)
 3. Generate a new API key
 4. Update your `.env` file locally
 5. Update environment variables on Netlify/Vercel
@@ -116,7 +116,7 @@ See [SECURITY.md](SECURITY.md) for detailed instructions.
 2. **Replaced with placeholders**:
    ```markdown
    # Before:
-   - Value: `sk_956d5903ae1fbf758d3621c5fd719bc57d6e37d32d16e791`
+   - Value: `<OLD_ROTATED_KEY_REDACTED>`
 
    # After:
    - Value: (paste your ElevenLabs API key here)

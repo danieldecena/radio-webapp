@@ -93,7 +93,13 @@ def render_show(tracks, drops, out_path, crossfade=6.0, intro_drop=None,
         if sweeper_path:
             add_input(sweeper_path, at_seconds - 0.9, 0.85, "fx")
         add_input(path, at_seconds, voice_gain, "voice")
-        dj_marks.append([round(max(0, start), 2), round(at_seconds + 2.6, 2)])
+        # DJ-on-air window reflects the ACTUAL spoken length (not a fixed 2.6s),
+        # so the "ON AIR" indicator matches long talk-ups and banter segments.
+        try:
+            voice_dur = probe_duration(str(path))
+        except Exception:
+            voice_dur = 2.6
+        dj_marks.append([round(max(0, start), 2), round(at_seconds + voice_dur + 0.4, 2)])
 
     if intro_drop:
         add_drop(intro_drop, 1.6)

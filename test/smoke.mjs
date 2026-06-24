@@ -55,6 +55,34 @@ for (const id of dataIds) {
   if (!manifestIds.has(id)) fail(`show id ${id} in data.js but missing from manifest.json`);
 }
 
+// (d) If a continuous broadcast exists, validate its enriched cue.
+const bcCuePath = resolve(showsDir, 'broadcast.cue.json');
+const bcMp3Path = resolve(showsDir, 'broadcast.mp3');
+if (existsSync(bcCuePath)) {
+  const bc = JSON.parse(readFileSync(bcCuePath, 'utf8'));
+  if (!existsSync(bcMp3Path)) fail('broadcast.cue.json exists but broadcast.mp3 is missing');
+  if (!(bc.duration > 0)) fail('broadcast cue: duration must be > 0');
+
+  if (!Array.isArray(bc.entryMarkers) || !bc.entryMarkers.length) {
+    fail('broadcast cue: entryMarkers missing or empty');
+  } else {
+    const sorted = bc.entryMarkers.every((v, i, a) => i === 0 || a[i - 1] <= v);
+    if (!sorted) fail('broadcast cue: entryMarkers not sorted ascending');
+    for (const m of bc.entryMarkers)
+      if (m < 0 || m > bc.duration) fail(`broadcast cue: entryMarker ${m} out of [0, ${bc.duration}]`);
+  }
+
+  for (const d of (bc.djMeta || [])) {
+    if (d.start < 0 || d.end > bc.duration + 1 || d.start > d.end)
+      fail(`broadcast cue: djMeta window [${d.start}, ${d.end}] out of bounds / inverted`);
+  }
+  // every track start should coincide with an entry marker (clean tune-in points)
+  const markerSet = new Set((bc.entryMarkers || []).map(Number));
+  for (const t of (bc.tracks || []))
+    if (!markerSet.has(Number(t.start)))
+      fail(`broadcast cue: track start ${t.start} has no matching entry marker`);
+}
+
 if (failed) {
   process.exit(1);
 }

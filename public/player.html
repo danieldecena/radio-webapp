@@ -102,6 +102,33 @@
   .empty { font-size:12px; color:var(--ink-dim); line-height:1.55; }
   .empty code { background:#fdeef3; padding:1px 5px; border-radius:4px; color:var(--red-deep); }
 
+  /* DJ caption (what the DJ is saying right now, broadcast mode) */
+  .djcap { margin-top:8px; min-height:14px; font-size:11px; line-height:1.45; color:var(--ink-dim);
+    font-style:italic; opacity:0; transition:opacity .3s; }
+  .djcap.show { opacity:1; }
+  /* Featured LIVE broadcast row */
+  .show.live { border-color:var(--red); background:linear-gradient(180deg,#fff,#fdeef3);
+    box-shadow:0 0 0 1px rgba(230,57,80,.18); }
+  .show.live .t { color:var(--red-deep); }
+  .show .livedot { color:var(--red); font-size:10px; animation:blink 1.1s steps(1) infinite; }
+  .archtoggle { margin-top:12px; background:none; border:none; color:var(--ink-dim);
+    font-size:10px; letter-spacing:2px; text-transform:uppercase; cursor:pointer; padding:5px 2px; }
+  .archtoggle:hover { color:var(--red); }
+  #archivelist { margin-top:6px; }
+  /* Dedication banner (birthday / Valentine's / etc.) */
+  .dedication { text-align:center; font-size:12px; color:var(--red-deep); letter-spacing:1px;
+    margin:-6px 0 14px; padding:9px 10px; border-radius:10px; background:#fdeef3;
+    border:1px solid #f3cdd9; display:none; }
+  .dedication.show { display:block; animation:fadein .6s ease both; }
+  @keyframes fadein { from{ opacity:0; transform:translateY(-4px);} to{ opacity:1; transform:none;} }
+  /* Tune-in moment */
+  .track { transition:opacity .25s; }
+  .screen.tuning .track { opacity:.45; letter-spacing:1px; }
+  .power { transition:transform .12s ease, box-shadow .25s ease, border-color .25s ease; }
+  .brand .sig i { transition:height .3s ease, opacity .3s ease; }
+  .show.live .livedot { animation:heartbeat 1.6s ease-in-out infinite; }
+  @keyframes heartbeat { 0%,100%{ transform:scale(1); opacity:1;} 30%{ transform:scale(1.35); opacity:.7;} }
+
   #gate { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:24px;
     background:radial-gradient(120% 80% at 50% -10%, #fef8fa, #f6dfe8 70%); transition:opacity .55s ease; }
   #gate.fade-out { opacity:0; }
@@ -156,12 +183,14 @@
       <span class="sig" aria-hidden="true"><i></i><i></i><i></i></span>
     </header>
     <p class="tagline">Victoria's station for love</p>
+    <div class="dedication" id="dedication"></div>
 
     <section class="screen" aria-live="polite">
       <div class="nowlabel">Now Playing <span class="onair" id="onair">● ON AIR</span></div>
       <div class="track" id="track">— select a show —</div>
       <div class="bar"><div class="fill" id="fill"></div></div>
       <div class="time"><span id="cur">0:00</span><span id="dur">0:00</span></div>
+      <div class="djcap" id="djcap"></div>
     </section>
 
     <div class="controls">
@@ -171,8 +200,9 @@
     </div>
 
     <section class="shows">
-      <h3>Shows</h3>
       <div id="showlist"><div class="empty">Loading…</div></div>
+      <button id="archtoggle" class="archtoggle" type="button" hidden>▸ Show archive</button>
+      <div id="archivelist" hidden></div>
     </section>
   </main>
 
@@ -182,6 +212,9 @@
        opened directly from disk in Safari, where fetch() is blocked. Harmless
        if missing — the script then fetches the manifest instead. -->
   <script src="shows/data.js" onerror="window.__noData=true"></script>
+  <!-- Inlined continuous-broadcast data (broadcast.mp3 + enriched cue). Lets the
+       LIVE broadcast work from file:// too. Harmless if absent. -->
+  <script src="shows/broadcast.data.js" onerror="window.__noBroadcast=true"></script>
 
 <script>
   const audio = document.getElementById("audio");
@@ -193,9 +226,104 @@
   const onair = document.getElementById("onair");
   const vol = document.getElementById("vol");
   const showlist = document.getElementById("showlist");
+  const archtoggle = document.getElementById("archtoggle");
+  const archivelist = document.getElementById("archivelist");
 
   let cue = null;       // current show's cue sheet
   let activeId = null;
+  const djcap = document.getElementById("djcap");
+  const screenEl = document.querySelector(".screen");
+  let tuningUntil = 0;
+
+  // Brief radio static that fades as the station "locks in" — the tune-in moment.
+  function playTuneInStatic() {
+    try {
+      const Ctx = window.AudioContext || window.webkitAudioContext;
+      const ac = new Ctx();
+      const dur = 1.2, sr = ac.sampleRate;
+      const buf = ac.createBuffer(1, sr * dur, sr), d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * 0.5;
+      const src = ac.createBufferSource(); src.buffer = buf;
+      const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 1800;
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0.16, ac.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0008, ac.currentTime + dur);
+      src.connect(bp); bp.connect(g); g.connect(ac.destination);
+      src.start(); src.stop(ac.currentTime + dur);
+      src.onended = () => { try { ac.close(); } catch (e) {} };
+    } catch (e) {}
+  }
+
+  // ----- Continuous broadcast clock -------------------------------------------
+  // The broadcast is anchored to a fixed time origin, so it's always "live" at a
+  // real point on its timeline: power off, come back later, and it has moved on.
+  const BROADCAST_EPOCH = Date.UTC(2025, 0, 1, 0, 0, 0); // anchor (configurable)
+  let isBroadcast = false, bcCue = null, bcFile = null, driftTimer = null;
+
+  const bcPosition = () =>
+    ((Date.now() - BROADCAST_EPOCH) / 1000) % bcCue.duration;
+
+  function snapToMarker(t) {            // nearest clean entry point at/just before t
+    const marks = (bcCue.entryMarkers && bcCue.entryMarkers.length) ? bcCue.entryMarkers : [0];
+    let best = marks[0];
+    for (const x of marks) { if (x <= t) best = x; }
+    return best;
+  }
+
+  // Pause tiers: tape-resume (<20s) → live-drift (<45m) → fresh re-tune (snap).
+  function bcResumeTarget() {
+    const offTime = +localStorage.getItem("rom_bc_offTime") || 0;
+    const offPos  = +localStorage.getItem("rom_bc_offPos")  || 0;
+    const gap = (Date.now() - offTime) / 1000;
+    if (offTime && gap < 20)        return offPos;            // barely paused
+    const live = bcPosition();
+    if (offTime && gap < 45 * 60)   return live;              // kept broadcasting
+    return snapToMarker(live);                                // fresh re-tune / first listen
+  }
+
+  function bcRecordOff() {
+    localStorage.setItem("rom_bc_offTime", Date.now());
+    localStorage.setItem("rom_bc_offPos", audio.currentTime || 0);
+  }
+
+  function startDrift() {
+    stopDrift();
+    driftTimer = setInterval(() => {
+      if (!isBroadcast || audio.paused) return;
+      const want = bcPosition();
+      if (Math.abs(audio.currentTime - want) > 1.5) {
+        try { audio.currentTime = want; } catch (e) {}
+      }
+    }, 30000);
+  }
+  function stopDrift() { if (driftTimer) clearInterval(driftTimer); driftTimer = null; }
+
+  function startBroadcast() {
+    isBroadcast = true; cue = bcCue;
+    document.querySelectorAll(".show").forEach((el) =>
+      el.classList.toggle("active", el.dataset.id === "broadcast"));
+    audio.src = bcFile;
+    durEl.textContent = fmt(bcCue.duration);
+    audio.volume = parseFloat(vol.value);
+    const seekAndPlay = () => {
+      playTuneInStatic();
+      screenEl.classList.add("tuning");
+      trackEl.textContent = "tuning in…";
+      tuningUntil = Date.now() + 1200;
+      setTimeout(() => screenEl.classList.remove("tuning"), 1200);
+      try { audio.currentTime = bcResumeTarget(); } catch (e) {}
+      audio.play().then(() => powerBtn.classList.add("on")).catch(() => {});
+    };
+    if (audio.readyState >= 1) seekAndPlay();
+    else audio.addEventListener("loadedmetadata", seekAndPlay, { once: true });
+    startDrift();
+  }
+
+  const djText = (t) => {              // what the DJ is saying at time t (broadcast)
+    if (!bcCue || !bcCue.djMeta) return "";
+    const d = bcCue.djMeta.find((m) => t >= m.start && t <= m.end);
+    return d ? d.text : "";
+  };
 
   const fmt = (s) => {
     if (!isFinite(s)) return "0:00";
@@ -218,6 +346,7 @@
 
   async function loadShow(show) {
     if (!show.rendered) return;
+    isBroadcast = false; stopDrift(); djcap.classList.remove("show");
     activeId = show.id;
     document.querySelectorAll(".show").forEach((el) =>
       el.classList.toggle("active", +el.dataset.id === show.id));
@@ -239,13 +368,8 @@
       .catch(() => powerBtn.classList.remove("on"));
   }
 
-  function renderList(shows) {
-    if (!shows.length) {
-      showlist.innerHTML =
-        '<div class="empty">No shows yet. Run <code>python3 scripts/build_shows.py --all</code> to generate them into public/shows/.</div>';
-      return;
-    }
-    showlist.innerHTML = "";
+  function renderList(shows, container = showlist) {
+    container.innerHTML = "";
     for (const s of shows) {
       const div = document.createElement("div");
       div.className = "show";
@@ -256,11 +380,21 @@
         `<span class="meta">${s.tracks} tracks</span></span>` +
         `<span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>`;
       div.addEventListener("click", () => loadShow(s));
-      showlist.appendChild(div);
+      container.appendChild(div);
     }
   }
 
   powerBtn.addEventListener("click", () => {
+    if (!isBroadcast && !audio.src && bcCue) { startBroadcast(); return; } // power on = tune in LIVE
+    if (isBroadcast) {
+      if (audio.paused) {
+        try { audio.currentTime = bcResumeTarget(); } catch (e) {}
+        audio.play().catch(() => {}); powerBtn.classList.add("on");
+      } else {
+        bcRecordOff(); audio.pause(); powerBtn.classList.remove("on");
+      }
+      return;
+    }
     if (!audio.src) return;
     if (audio.paused) { audio.play().catch(() => {}); powerBtn.classList.add("on"); }
     else { audio.pause(); powerBtn.classList.remove("on"); }
@@ -271,12 +405,23 @@
     const t = audio.currentTime;
     fill.style.width = (t / (audio.duration || (cue && cue.duration) || 1)) * 100 + "%";
     curEl.textContent = fmt(t);
-    trackEl.textContent = currentTitle(t) || "— playing —";
-    onair.classList.toggle("live", djLive(t));
+    if (Date.now() >= tuningUntil) trackEl.textContent = currentTitle(t) || "— playing —";
+    const live = djLive(t);
+    onair.classList.toggle("live", live);
+    if (isBroadcast) {
+      const txt = live ? djText(t) : "";
+      djcap.textContent = txt;
+      djcap.classList.toggle("show", !!txt);
+    }
   });
   audio.addEventListener("pause", () => powerBtn.classList.remove("on"));
   audio.addEventListener("play", () => powerBtn.classList.add("on"));
   audio.addEventListener("ended", () => {
+    if (isBroadcast) {                 // seamless loop: re-anchor to the clock
+      try { audio.currentTime = bcPosition(); } catch (e) {}
+      audio.play().catch(() => {});
+      return;
+    }
     // roll into the next rendered show, radio-style
     if (window._shows) {
       const idx = window._shows.findIndex((s) => s.id === activeId);
@@ -289,20 +434,69 @@
     onair.classList.remove("live");
   });
 
+  async function setupBroadcast() {
+    if (window.BROADCAST_DATA) {
+      bcCue = window.BROADCAST_DATA.cue; bcFile = window.BROADCAST_DATA.file; return;
+    }
+    try {
+      bcCue = await (await fetch("shows/broadcast.cue.json")).json();
+      bcFile = "shows/broadcast.mp3";
+    } catch { bcCue = null; }
+  }
+
+  function addLiveRow() {
+    if (!bcCue) return;
+    const div = document.createElement("div");
+    div.className = "show live"; div.dataset.id = "broadcast";
+    div.innerHTML =
+      '<span class="num livedot">●</span>' +
+      '<span class="info"><span class="t">LIVE — 96.6 ROM</span>' +
+      "<span class=\"meta\">Victoria's station for love</span></span>" +
+      '<span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
+    div.addEventListener("click", startBroadcast);
+    showlist.prepend(div);
+  }
+
   (async function init() {
+    await setupBroadcast();
     // Prefer inlined data (works from file:// in Safari); fall back to fetch.
     if (window.SHOWS_DATA && Array.isArray(window.SHOWS_DATA.shows)) {
       window._shows = window.SHOWS_DATA.shows;
-      renderList(window._shows.filter(s => s.rendered));
-      return;
+    } else {
+      try {
+        const data = await (await fetch("shows/manifest.json")).json();
+        window._shows = data.shows || [];
+      } catch { window._shows = []; }
     }
-    try {
-      const data = await (await fetch("shows/manifest.json")).json();
-      window._shows = data.shows || [];
-      renderList(window._shows.filter(s => s.rendered));
-    } catch {
+    const rendered = (window._shows || []).filter(s => s.rendered);
+    if (bcCue) {
+      // LIVE broadcast IS the station — no show list, no loop length, no archive.
+      showlist.innerHTML = "";
+      addLiveRow();
+      trackEl.textContent = "— press power to tune in —";
+    } else if (rendered.length) {
+      renderList(rendered);
+    } else {
       showlist.innerHTML =
-        '<div class="empty">No show data found. Run <code>python3 scripts/build_shows.py --all</code> to generate the shows, then reopen this page.</div>';
+        '<div class="empty">No audio yet. Run <code>python3 scripts/build_shows.py --broadcast --hours 3</code> to generate the continuous broadcast, then reopen this page.</div>';
+    }
+  })();
+
+  // Dedication banner on special dates — woven in for Pauline.
+  (function dedication() {
+    const SPECIAL = {
+      "06-25": "♥ Happy Birthday, Pauline ♥",
+      "02-14": "♥ Happy Valentine's Day, Pauline ♥",
+      "12-25": "♥ Merry Christmas, Pauline ♥",
+      "01-01": "♥ Happy New Year, Pauline ♥",
+    };
+    const n = new Date();
+    const key = String(n.getMonth() + 1).padStart(2, "0") + "-" +
+                String(n.getDate()).padStart(2, "0");
+    if (SPECIAL[key]) {
+      const el = document.getElementById("dedication");
+      el.textContent = SPECIAL[key];
+      el.classList.add("show");
     }
   })();
 </script>

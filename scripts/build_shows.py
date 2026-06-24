@@ -15,6 +15,7 @@ Usage:
 """
 
 import argparse
+import datetime
 import json
 import random
 from pathlib import Path
@@ -96,6 +97,138 @@ def render_one(index, shows, snips):
     return out, cue
 
 
+def dj_text_map():
+    """Map each voiced break file (rel 'audio/breaks/..') -> its spoken text."""
+    m = {}
+    if BREAKS_MANIFEST.exists():
+        try:
+            data = json.loads(BREAKS_MANIFEST.read_text())
+            for entries in data.get("categories", {}).values():
+                for e in entries:
+                    m[e["file"]] = e.get("text", "")
+            for entries in data.get("special", {}).values():
+                for e in entries:
+                    m[e["file"]] = e.get("text", "")
+            for e in data.get("banter", []):
+                m[e["file"]] = e.get("text", "")
+        except Exception:
+            pass
+    return m
+
+
+def break_pools():
+    """(talkups, stationids, banter) as rel file paths from the voiced manifest."""
+    talkups, ids, banter = [], [], []
+    if BREAKS_MANIFEST.exists():
+        try:
+            data = json.loads(BREAKS_MANIFEST.read_text())
+            cats = data.get("categories", {})
+            talkups = [e["file"] for e in cats.get("talkups", [])
+                       if (ROOT / "public" / e["file"]).exists()]
+            ids = [e["file"] for e in cats.get("stationids", [])
+                   if (ROOT / "public" / e["file"]).exists()]
+            banter = [e["file"] for e in data.get("banter", [])
+                      if (ROOT / "public" / e["file"]).exists()]
+        except Exception:
+            pass
+    if not talkups and not ids:  # fallback to legacy snippets
+        ids = [str(p.relative_to(ROOT / "public")) for p in SNIPPET_DIR.glob("*.mp3")]
+    return talkups, ids, banter
+
+
+def special_pool(date_key):
+    """Voiced special-date breaks (e.g. birthday '06-25') for a given MM-DD."""
+    out = []
+    if date_key and BREAKS_MANIFEST.exists():
+        try:
+            data = json.loads(BREAKS_MANIFEST.read_text())
+            for e in data.get("special", {}).get(date_key, []):
+                if (ROOT / "public" / e["file"]).exists():
+                    out.append(e["file"])
+        except Exception:
+            pass
+    return out
+
+
+def render_broadcast(n_tracks=50, banter_every=8, crossfade=7.0, hours=None,
+                     special_date=None):
+    """Render ONE long continuous broadcast mix + an enriched cue.
+
+    The cue adds two fields the broadcast-clock player needs:
+      • entryMarkers — clean tune-in points (track downbeats) so a long-gap
+        re-tune lands on a song start, not mid-word.
+      • djMeta — per-break {start,end,kind,text} so the UI can show what the
+        DJ is saying and which kind of break (talkup / stationid / banter).
+    """
+    SHOWS_DIR.mkdir(parents=True, exist_ok=True)
+    all_tracks = music_tracks()
+    if not all_tracks:
+        raise SystemExit("No music in public/music/.")
+    rnd = random.Random(SEED)
+    rnd.shuffle(all_tracks)
+    if hours:
+        n_tracks = min(len(all_tracks), int(hours * 60 / 3.7) + 1)
+    tracks = all_tracks[:min(n_tracks, len(all_tracks))]
+
+    talkups, ids, banter = break_pools()
+    tmap = dj_text_map()
+
+    # Special date (birthday, Valentine's, anniversary…): auto-detect today's
+    # MM-DD unless overridden, then fold those breaks in prominently.
+    if special_date is None:
+        special_date = datetime.date.today().strftime("%m-%d")
+    special = special_pool(special_date)
+    if special:
+        print(f"Special date {special_date}: {len(special)} dedicated break(s) folded in.")
+
+    # On a special day the very first thing you hear is the dedication.
+    intro = special[0] if special else (
+        rnd.choice(ids) if ids else (rnd.choice(talkups) if talkups else None))
+    special_queue = list(special[1:])  # remaining specials, played early & often
+
+    drops = []
+    bcount = 0
+    for i in range(len(tracks) - 1):
+        if special_queue and i % 2 == 0:
+            drops.append(special_queue.pop(0))
+        elif banter and (i + 1) % banter_every == 0:
+            drops.append(banter[bcount % len(banter)]); bcount += 1
+        elif talkups and i % 2 == 0:
+            drops.append(rnd.choice(talkups))
+        elif ids and i % 4 == 0:
+            drops.append(rnd.choice(ids))
+        else:
+            drops.append(None)
+
+    out = SHOWS_DIR / "broadcast.mp3"
+    abs_drops = [str(ROOT / "public" / d) if d else None for d in drops]
+    abs_intro = str(ROOT / "public" / intro) if intro else None
+    cue = render_show([str(t) for t in tracks], abs_drops, str(out),
+                      crossfade=crossfade, intro_drop=abs_intro)
+
+    # --- enrich the cue ---
+    starts = [t["start"] for t in cue["tracks"]]
+    cue["entryMarkers"] = sorted(set([0.0] + [round(s, 2) for s in starts]))
+    ordered = ([intro] if intro else []) + [d for d in drops if d]
+    djmeta = []
+    for win, f in zip(cue.get("djWindows", []), ordered):
+        kind = ("banter" if "banter_" in f
+                else "special" if "special_" in f
+                else "stationid" if "stationids_" in f
+                else "talkup")
+        djmeta.append({"start": win[0], "end": win[1], "kind": kind,
+                       "text": tmap.get(f, "")})
+    cue["djMeta"] = djmeta
+    cue["loop"] = True
+
+    (SHOWS_DIR / "broadcast.cue.json").write_text(json.dumps(cue, indent=2))
+    (SHOWS_DIR / "broadcast.data.js").write_text(
+        "window.BROADCAST_DATA = "
+        + json.dumps({"file": "shows/broadcast.mp3", "cue": cue}, indent=2) + ";\n"
+    )
+    return out, cue
+
+
 def write_manifest(shows):
     SHOWS_DIR.mkdir(parents=True, exist_ok=True)
     entries = []
@@ -135,7 +268,21 @@ def main():
     ap.add_argument("--plan", action="store_true")
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--show", type=int)
+    ap.add_argument("--broadcast", action="store_true",
+                    help="render ONE long continuous mix (broadcast.mp3) for the broadcast clock")
+    ap.add_argument("--hours", type=float, help="target length in hours for --broadcast (e.g. 3)")
+    ap.add_argument("--tracks", type=int, default=50, help="track count for --broadcast")
+    ap.add_argument("--banter-every", type=int, default=8, dest="banter_every")
+    ap.add_argument("--date", help="force special-date breaks for MM-DD (e.g. 06-25 for the birthday); defaults to today")
     args = ap.parse_args()
+
+    if args.broadcast:
+        out, cue = render_broadcast(n_tracks=args.tracks, banter_every=args.banter_every,
+                                    hours=args.hours, special_date=args.date)
+        print(f"Rendered {out.name}: {cue['duration']/60:.1f} min, "
+              f"{len(cue['tracks'])} tracks, {len(cue.get('djMeta', []))} DJ breaks, "
+              f"{len(cue.get('entryMarkers', []))} entry markers")
+        return
 
     shows = plan_shows()
     snips = snippets()

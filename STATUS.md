@@ -1,12 +1,12 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-24 14:32
+> Last refresh: 2026-06-24 15:06
 
 ## Git
 - Branch: `fix/show-pipeline-cleanup`
-- Last commit: `4ed4845 Scrub leaked API keys from docs; add DJ script pipeline (20 seconds ago)`
-- Uncommitted: **2** — 2 uncommitted
+- Last commit: `4ed4845 Scrub leaked API keys from docs; add DJ script pipeline (34 minutes ago)`
+- Uncommitted: **7** — 7 uncommitted
 
 ## Tests
 - Run by hand: `npm test`

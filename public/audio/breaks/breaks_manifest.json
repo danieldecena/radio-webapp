@@ -1,0 +1,1287 @@
+{
+  "categories": {
+    "stationids": [
+      {
+        "text": "Ninety-six point six. Victoria's station for love.",
+        "file": "audio/breaks/stationids_0.mp3"
+      },
+      {
+        "text": "You're locked into the best love radio in Victoria, all music, all Pauline, all day.",
+        "file": "audio/breaks/stationids_1.mp3"
+      },
+      {
+        "text": "This is ROM radio, Victoria BC, and the hits keep coming.",
+        "file": "audio/breaks/stationids_2.mp3"
+      },
+      {
+        "text": "Every song here is dedicated to Pauline. Let's go.",
+        "file": "audio/breaks/stationids_3.mp3"
+      },
+      {
+        "text": "You're on Victoria's warmest frequency. Don't touch that dial.",
+        "file": "audio/breaks/stationids_4.mp3"
+      },
+      {
+        "text": "Back to back love songs, all night, from the heart of Victoria.",
+        "file": "audio/breaks/stationids_5.mp3"
+      },
+      {
+        "text": "Broadcasting live from Daniel's heart. Your station for love.",
+        "file": "audio/breaks/stationids_6.mp3"
+      },
+      {
+        "text": "The station built for Pauline. Stay locked in.",
+        "file": "audio/breaks/stationids_7.mp3"
+      },
+      {
+        "text": "You're listening to the Pauline station. More music in sixty seconds.",
+        "file": "audio/breaks/stationids_8.mp3"
+      },
+      {
+        "text": "Victoria's number one for love. Keep it right here.",
+        "file": "audio/breaks/stationids_9.mp3"
+      },
+      {
+        "text": "The request line only takes one name. Pauline.",
+        "file": "audio/breaks/stationids_10.mp3"
+      },
+      {
+        "text": "Nonstop hits from the heart of Victoria.",
+        "file": "audio/breaks/stationids_11.mp3"
+      },
+      {
+        "text": "You're tuned to the only station that really gets it.",
+        "file": "audio/breaks/stationids_12.mp3"
+      },
+      {
+        "text": "Powered by love, dedicated to Pauline.",
+        "file": "audio/breaks/stationids_13.mp3"
+      },
+      {
+        "text": "Your soundtrack, her station.",
+        "file": "audio/breaks/stationids_14.mp3"
+      },
+      {
+        "text": "Coming at you live from Victoria BC. This is 96.6 ROM.",
+        "file": "audio/breaks/stationids_15.mp3"
+      },
+      {
+        "text": "Where every hour is the Pauline hour.",
+        "file": "audio/breaks/stationids_16.mp3"
+      },
+      {
+        "text": "Locked into Victoria's frequency for love. Stay right where you are.",
+        "file": "audio/breaks/stationids_17.mp3"
+      },
+      {
+        "text": "Good music only, picked just for Pauline.",
+        "file": "audio/breaks/stationids_18.mp3"
+      },
+      {
+        "text": "Victoria's most romantic frequency. Turn it up.",
+        "file": "audio/breaks/stationids_19.mp3"
+      },
+      {
+        "text": "The hits don't stop, and neither do we.",
+        "file": "audio/breaks/stationids_20.mp3"
+      },
+      {
+        "text": "Live and direct from Victoria, dedicated to one.",
+        "file": "audio/breaks/stationids_21.mp3"
+      },
+      {
+        "text": "Pauline, this whole dial is yours.",
+        "file": "audio/breaks/stationids_22.mp3"
+      },
+      {
+        "text": "Keeping it locked, keeping it warm. This is ROM.",
+        "file": "audio/breaks/stationids_23.mp3"
+      },
+      {
+        "text": "More Pauline, less everything else.",
+        "file": "audio/breaks/stationids_24.mp3"
+      },
+      {
+        "text": "Victoria's finest. The music keeps rolling.",
+        "file": "audio/breaks/stationids_25.mp3"
+      },
+      {
+        "text": "The station that never stops loving Pauline.",
+        "file": "audio/breaks/stationids_26.mp3"
+      },
+      {
+        "text": "Big songs, bigger feelings. You're tuned in.",
+        "file": "audio/breaks/stationids_27.mp3"
+      },
+      {
+        "text": "Broadcasting love since day one. Stay tuned.",
+        "file": "audio/breaks/stationids_28.mp3"
+      },
+      {
+        "text": "And the next one's for you, Pauline.",
+        "file": "audio/breaks/stationids_29.mp3"
+      },
+      {
+        "text": "Victoria BC. Hits all night, love all the way.",
+        "file": "audio/breaks/stationids_30.mp3"
+      },
+      {
+        "text": "Pauline's radio, Daniel's idea. You're locked in.",
+        "file": "audio/breaks/stationids_31.mp3"
+      },
+      {
+        "text": "Turn it up, the good part's coming.",
+        "file": "audio/breaks/stationids_32.mp3"
+      },
+      {
+        "text": "Victoria's heartbeat, set to music.",
+        "file": "audio/breaks/stationids_33.mp3"
+      },
+      {
+        "text": "Ninety-six point six. Don't go anywhere.",
+        "file": "audio/breaks/stationids_34.mp3"
+      }
+    ],
+    "talkups": [
+      {
+        "text": "That's the sound of 96.6 ROM, and we're just warming up. Here's another for Pauline.",
+        "file": "audio/breaks/talkups_0.mp3"
+      },
+      {
+        "text": "You're locked into 96.6 ROM. Keeping the vibe going — turn it up.",
+        "file": "audio/breaks/talkups_1.mp3"
+      },
+      {
+        "text": "Back to back on 96.6 ROM. No commercials, no interruptions, just hits for Pauline.",
+        "file": "audio/breaks/talkups_2.mp3"
+      },
+      {
+        "text": "That one was for you, Pauline. This is 96.6 ROM — let's keep it rolling.",
+        "file": "audio/breaks/talkups_3.mp3"
+      },
+      {
+        "text": "96.6 ROM, coming in warm. Here comes your next favorite.",
+        "file": "audio/breaks/talkups_4.mp3"
+      },
+      {
+        "text": "Keep it locked on 96.6 ROM. Daniel lined this next one up special.",
+        "file": "audio/breaks/talkups_5.mp3"
+      },
+      {
+        "text": "You're with 96.6 ROM, Victoria's station for love. Hold tight, more music.",
+        "file": "audio/breaks/talkups_6.mp3"
+      },
+      {
+        "text": "That's how we do it on 96.6 ROM. Stay right here, this next one's a good one.",
+        "file": "audio/breaks/talkups_7.mp3"
+      },
+      {
+        "text": "Nonstop on 96.6 ROM. The hits keep coming, and they're all for Pauline.",
+        "file": "audio/breaks/talkups_8.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM. Crank it up — we're rolling straight into the next track.",
+        "file": "audio/breaks/talkups_9.mp3"
+      },
+      {
+        "text": "No talk, all heart. 96.6 ROM, here's more music for Pauline.",
+        "file": "audio/breaks/talkups_10.mp3"
+      },
+      {
+        "text": "You're listening to 96.6 ROM. Let's slide right into the next one.",
+        "file": "audio/breaks/talkups_11.mp3"
+      },
+      {
+        "text": "96.6 ROM, keeping you company. Here's another from the Pauline playlist.",
+        "file": "audio/breaks/talkups_12.mp3"
+      },
+      {
+        "text": "That was smooth. This is 96.6 ROM — stay locked, here comes more.",
+        "file": "audio/breaks/talkups_13.mp3"
+      },
+      {
+        "text": "Victoria, you're on 96.6 ROM. The love keeps playing. Up next, a favorite.",
+        "file": "audio/breaks/talkups_14.mp3"
+      },
+      {
+        "text": "96.6 ROM, all love, all day. Rolling into the next track now.",
+        "file": "audio/breaks/talkups_15.mp3"
+      },
+      {
+        "text": "Keep it here on 96.6 ROM. Daniel's got the whole hour planned for Pauline.",
+        "file": "audio/breaks/talkups_16.mp3"
+      },
+      {
+        "text": "That's 96.6 ROM for you — one great song into the next. Here we go.",
+        "file": "audio/breaks/talkups_17.mp3"
+      }
+    ],
+    "shoutouts": [
+      {
+        "text": "You're locked in to 96.6 ROM, Victoria's only station dedicated entirely to Pauline. Daniel made sure of that.",
+        "file": "audio/breaks/shoutouts_0.mp3"
+      },
+      {
+        "text": "That was a good one. This is 96.6 ROM, playing the hits and thinking about Pauline's laugh. Stay tuned.",
+        "file": "audio/breaks/shoutouts_1.mp3"
+      },
+      {
+        "text": "96.6 ROM, Victoria BC. If you're Pauline, this one's for you. If you're not Pauline, please hand the phone over.",
+        "file": "audio/breaks/shoutouts_2.mp3"
+      },
+      {
+        "text": "You're listening to 96.6 ROM. Daniel called in earlier and dedicated the entire rest of the day to Pauline. Respect.",
+        "file": "audio/breaks/shoutouts_3.mp3"
+      },
+      {
+        "text": "This is your boy on 96.6 ROM, Victoria's warmest station. Shoutout to Pauline, the girl with the best book recommendations in all of BC.",
+        "file": "audio/breaks/shoutouts_4.mp3"
+      },
+      {
+        "text": "96.6 ROM checking in. Nacho, if you're somehow listening, your mom is incredible and Daniel agrees.",
+        "file": "audio/breaks/shoutouts_5.mp3"
+      },
+      {
+        "text": "That was a banger. You're tuned into 96.6 ROM, where every song is hand picked by someone who really, really likes Pauline.",
+        "file": "audio/breaks/shoutouts_6.mp3"
+      },
+      {
+        "text": "Good to have you with us on 96.6 ROM. Scientists still can't explain how Pauline is so funny and so sweet at the same time. Research ongoing.",
+        "file": "audio/breaks/shoutouts_7.mp3"
+      },
+      {
+        "text": "You're locked in. 96.6 ROM, Victoria BC. The only radio station powered entirely by Daniel's feelings.",
+        "file": "audio/breaks/shoutouts_8.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM. Pauline, wherever you are right now, Daniel wants you to know you look good today. That's not a guess, that's a fact.",
+        "file": "audio/breaks/shoutouts_9.mp3"
+      },
+      {
+        "text": "96.6 ROM in the building. Shoutout to the Sims building downtown Victoria, still standing, still iconic, still very much giving Sims 2 energy.",
+        "file": "audio/breaks/shoutouts_10.mp3"
+      },
+      {
+        "text": "You're tuned into 96.6 ROM. We play the hits, we think about Pauline, and occasionally Nacho walks across the broadcast desk.",
+        "file": "audio/breaks/shoutouts_11.mp3"
+      },
+      {
+        "text": "96.6 ROM, Victoria's most romantic station. Pauline has been named this station's official muse for the third year running. Congratulations.",
+        "file": "audio/breaks/shoutouts_12.mp3"
+      },
+      {
+        "text": "That was a certified classic. This is 96.6 ROM. Stay with us, more music and more Pauline appreciation coming right up.",
+        "file": "audio/breaks/shoutouts_13.mp3"
+      },
+      {
+        "text": "You're listening to 96.6 ROM. Daniel called in to say hi to Pauline. We told him to say it himself. He said this whole station counts.",
+        "file": "audio/breaks/shoutouts_14.mp3"
+      },
+      {
+        "text": "96.6 ROM checking in from Victoria BC. Raising Cane's has been notified that their number one fan is tuned in right now.",
+        "file": "audio/breaks/shoutouts_15.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM. Pauline is funny, sweet, and owns a cat named Nacho. Victoria does not deserve her.",
+        "file": "audio/breaks/shoutouts_16.mp3"
+      },
+      {
+        "text": "You're on 96.6 ROM, the station that plays music between loving thoughts about Pauline. It's a niche format but it works.",
+        "file": "audio/breaks/shoutouts_17.mp3"
+      },
+      {
+        "text": "96.6 ROM live from Victoria. Shoutout to every book Pauline has ever read. You were in good hands.",
+        "file": "audio/breaks/shoutouts_18.mp3"
+      },
+      {
+        "text": "That was smooth. Almost as smooth as Pauline convincing Daniel to do whatever she wants. Almost.",
+        "file": "audio/breaks/shoutouts_19.mp3"
+      },
+      {
+        "text": "96.6 ROM in your ears. We asked Daniel what his favourite thing about Pauline is. He said everything and we had to cut him off.",
+        "file": "audio/breaks/shoutouts_20.mp3"
+      },
+      {
+        "text": "You're listening to 96.6 ROM. Nacho has been named this station's official mascot. No audition was needed.",
+        "file": "audio/breaks/shoutouts_21.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM, Victoria BC. Pauline is out here being wonderful and the rest of us are just trying to keep up.",
+        "file": "audio/breaks/shoutouts_22.mp3"
+      },
+      {
+        "text": "96.6 ROM coming at you live. Someone very smart once said the best things in life are free. That someone was looking at Pauline.",
+        "file": "audio/breaks/shoutouts_23.mp3"
+      },
+      {
+        "text": "You're tuned in to 96.6 ROM. This station runs on good music and the energy Pauline brings into every room.",
+        "file": "audio/breaks/shoutouts_24.mp3"
+      },
+      {
+        "text": "96.6 ROM, your Victoria home. Daniel has submitted a formal request that this song be dedicated to Pauline. Request approved.",
+        "file": "audio/breaks/shoutouts_25.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM. Pauline's laugh has been voted Victoria's best sound two years running. The ocean came in second.",
+        "file": "audio/breaks/shoutouts_26.mp3"
+      },
+      {
+        "text": "You're locked in to 96.6 ROM. Nacho was unavailable for comment but sources say he agrees Daniel is good people.",
+        "file": "audio/breaks/shoutouts_27.mp3"
+      },
+      {
+        "text": "96.6 ROM live and direct. Shoutout to Pauline for being the kind of person who makes ordinary days feel like something.",
+        "file": "audio/breaks/shoutouts_28.mp3"
+      },
+      {
+        "text": "That was a hit. This is 96.6 ROM where the only thing better than the music is knowing Pauline is listening.",
+        "file": "audio/breaks/shoutouts_29.mp3"
+      },
+      {
+        "text": "You're on 96.6 ROM, Victoria BC. Raising Cane's sauce deserves its own radio station but for now it settles for a shoutout.",
+        "file": "audio/breaks/shoutouts_30.mp3"
+      },
+      {
+        "text": "96.6 ROM checking in. Pauline picked up a book today and the rest of Victoria immediately felt less well-read.",
+        "file": "audio/breaks/shoutouts_31.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM. Daniel has been a loyal listener since day one. Pauline is the reason he found the station.",
+        "file": "audio/breaks/shoutouts_32.mp3"
+      },
+      {
+        "text": "You're tuned into 96.6 ROM. We don't take requests but if we did, Daniel would have requested every song for Pauline.",
+        "file": "audio/breaks/shoutouts_33.mp3"
+      },
+      {
+        "text": "96.6 ROM live from the heart of Victoria. Nacho is curled up somewhere perfect right now. We're sure of it.",
+        "file": "audio/breaks/shoutouts_34.mp3"
+      },
+      {
+        "text": "That was beautiful. Almost as beautiful as Pauline mid-chapter, completely ignoring the world. Respect.",
+        "file": "audio/breaks/shoutouts_35.mp3"
+      },
+      {
+        "text": "You're listening to 96.6 ROM. This station was built for one person. You know who you are, Pauline.",
+        "file": "audio/breaks/shoutouts_36.mp3"
+      },
+      {
+        "text": "96.6 ROM in Victoria. Scientists have confirmed that Pauline being funny and sweet simultaneously defies known physics.",
+        "file": "audio/breaks/shoutouts_37.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM. Shoutout to the Sims building for being so committed to the bit. We see you downtown.",
+        "file": "audio/breaks/shoutouts_38.mp3"
+      },
+      {
+        "text": "You're on 96.6 ROM. Daniel said to tell Pauline she's his favourite. We're not allowed to say who the runner up is.",
+        "file": "audio/breaks/shoutouts_39.mp3"
+      },
+      {
+        "text": "96.6 ROM, Victoria's warmest frequency. Pauline, you're doing amazing. This message is from Daniel and also from us.",
+        "file": "audio/breaks/shoutouts_40.mp3"
+      },
+      {
+        "text": "That was a good one. This is 96.6 ROM. Stay tuned for more music and one more reason Daniel thinks Pauline is everything.",
+        "file": "audio/breaks/shoutouts_41.mp3"
+      },
+      {
+        "text": "You're locked in to 96.6 ROM. Nacho doesn't know what a radio station is but he'd love this one.",
+        "file": "audio/breaks/shoutouts_42.mp3"
+      },
+      {
+        "text": "96.6 ROM live. Pauline reading a book is the most peaceful and intimidating sight in all of Victoria.",
+        "file": "audio/breaks/shoutouts_43.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM. Daniel wanted to dedicate this next song to Pauline. We wanted to dedicate the whole station. We won.",
+        "file": "audio/breaks/shoutouts_44.mp3"
+      },
+      {
+        "text": "You're tuned into 96.6 ROM. Victoria's finest, broadcasting the kind of love that makes Nacho roll his eyes.",
+        "file": "audio/breaks/shoutouts_45.mp3"
+      },
+      {
+        "text": "96.6 ROM checking in. Raising Cane's should know they have a true champion in Pauline. Crown her already.",
+        "file": "audio/breaks/shoutouts_46.mp3"
+      },
+      {
+        "text": "That was smooth. This is 96.6 ROM. Stay right here because the next song is even better and Pauline deserves it.",
+        "file": "audio/breaks/shoutouts_47.mp3"
+      },
+      {
+        "text": "You're on 96.6 ROM, Victoria BC. The Sims building called in. It said it's flattered and hopes Pauline visits soon.",
+        "file": "audio/breaks/shoutouts_48.mp3"
+      },
+      {
+        "text": "96.6 ROM live. Shoutout to Pauline for being exactly the kind of person this station was made for.",
+        "file": "audio/breaks/shoutouts_49.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM. Daniel is somewhere right now thinking about Pauline. This is not breaking news.",
+        "file": "audio/breaks/shoutouts_50.mp3"
+      },
+      {
+        "text": "You're listening to 96.6 ROM. Nacho is living his best life and Pauline made that possible. Legend behavior.",
+        "file": "audio/breaks/shoutouts_51.mp3"
+      },
+      {
+        "text": "96.6 ROM, Victoria. Every song on this station has been approved by someone who thinks Pauline has great taste.",
+        "file": "audio/breaks/shoutouts_52.mp3"
+      },
+      {
+        "text": "That was a hit. 96.6 ROM. We asked the Sims building for comment. It just stood there looking fictional.",
+        "file": "audio/breaks/shoutouts_53.mp3"
+      },
+      {
+        "text": "You're tuned into 96.6 ROM. Pauline, this station exists because Daniel wanted to give you something that lasts.",
+        "file": "audio/breaks/shoutouts_54.mp3"
+      },
+      {
+        "text": "96.6 ROM in your ears. Victoria is a beautiful city but it got a lot better when Pauline was in it.",
+        "file": "audio/breaks/shoutouts_55.mp3"
+      },
+      {
+        "text": "This is 96.6 ROM. Nacho walked across the broadcast desk again. We're not mad. We could never be mad at Nacho.",
+        "file": "audio/breaks/shoutouts_56.mp3"
+      },
+      {
+        "text": "You're on 96.6 ROM. Daniel called in to say he's lucky. We told him Pauline is luckier. He disagreed respectfully.",
+        "file": "audio/breaks/shoutouts_57.mp3"
+      },
+      {
+        "text": "96.6 ROM, Victoria's number one station for love, music, and occasional Nacho updates. Stay locked in.",
+        "file": "audio/breaks/shoutouts_58.mp3"
+      },
+      {
+        "text": "That was perfect. Just like Pauline. This is 96.6 ROM and we'll be right back after this.",
+        "file": "audio/breaks/shoutouts_59.mp3"
+      }
+    ],
+    "commercials": [
+      {
+        "text": "Quick word from Raising Cane's Victoria before we get back into it. Look, if Pauline's already thinking about the sauce, I fully support that decision. Raising Cane's. Open now.",
+        "file": "audio/breaks/commercials_0.mp3"
+      },
+      {
+        "text": "This segment is brought to you by Nacho. Not the food. The cat. Soft, mysterious, fully in charge. Nacho — Pauline's cat, Daniel's aspiration.",
+        "file": "audio/breaks/commercials_1.mp3"
+      },
+      {
+        "text": "96.6 ROM is brought to you by the Sims building, downtown Victoria. You built it. You named it. It lives rent free in all of our heads now. The Sims building.",
+        "file": "audio/breaks/commercials_2.mp3"
+      },
+      {
+        "text": "A word from Pauline's reading list. It's long. It's impressive. It's already better than yours. Pauline's reading list — still growing, not accepting suggestions.",
+        "file": "audio/breaks/commercials_3.mp3"
+      },
+      {
+        "text": "Today's broadcast is brought to you by Daniel's feelings for Pauline. No expiry date. No fine print. Just that.",
+        "file": "audio/breaks/commercials_4.mp3"
+      },
+      {
+        "text": "Nacho's afternoon nap is sponsoring this hour. Do not interrupt. Do not negotiate. Nacho's nap — scheduled, sacred, non-negotiable.",
+        "file": "audio/breaks/commercials_5.mp3"
+      },
+      {
+        "text": "We'll be right back. But first — Raising Cane's sauce. You know what it is. Pauline knows what it is. That's enough said.",
+        "file": "audio/breaks/commercials_6.mp3"
+      },
+      {
+        "text": "Quick break. Brought to you by the Sims building. Still the most fictional real building in Victoria. Still Pauline's favourite landmark. Still standing.",
+        "file": "audio/breaks/commercials_7.mp3"
+      },
+      {
+        "text": "96.6 ROM is sponsored this hour by Pauline's laugh. Clinically proven to make everything better. No known side effects except happiness.",
+        "file": "audio/breaks/commercials_8.mp3"
+      },
+      {
+        "text": "Brought to you by Daniel's dedication to Pauline. Unlimited supply. No fine print. No terms. Just ongoing.",
+        "file": "audio/breaks/commercials_9.mp3"
+      },
+      {
+        "text": "Nacho's judging stare is sponsoring this moment. He sees everything. He says nothing. He knows. Nacho — always watching, never explaining.",
+        "file": "audio/breaks/commercials_10.mp3"
+      },
+      {
+        "text": "This hour is sponsored by Victoria BC — home of Pauline, the Sims building, and the best mild weather in Canada. Victoria. She deserves it.",
+        "file": "audio/breaks/commercials_11.mp3"
+      },
+      {
+        "text": "Pauline's book collection is sponsoring this segment. Impressive, curated, and not lending anything out. Pauline's books — read, loved, stacked correctly.",
+        "file": "audio/breaks/commercials_12.mp3"
+      },
+      {
+        "text": "Raising Cane's Victoria wants you to know they're open and Pauline is welcome anytime. Everyone else too. But especially Pauline.",
+        "file": "audio/breaks/commercials_13.mp3"
+      },
+      {
+        "text": "Brought to you by Pauline's taste. In music. In food. In people. Consistently excellent. Pauline's taste — the gold standard.",
+        "file": "audio/breaks/commercials_14.mp3"
+      },
+      {
+        "text": "This segment is sponsored by Nacho, the cat who chose Pauline and never looked back. Smart animal. Great judge of character.",
+        "file": "audio/breaks/commercials_15.mp3"
+      },
+      {
+        "text": "The Sims building downtown Victoria is sponsoring this break. Still standing. Still iconic. Still waiting for its expansion pack.",
+        "file": "audio/breaks/commercials_16.mp3"
+      },
+      {
+        "text": "Daniel's admiration for Pauline is sponsoring this hour. Currently at maximum capacity with room for more somehow.",
+        "file": "audio/breaks/commercials_17.mp3"
+      },
+      {
+        "text": "Pauline being funny is sponsoring this moment. Free of charge. Unplanned. Devastating every single time.",
+        "file": "audio/breaks/commercials_18.mp3"
+      },
+      {
+        "text": "Nacho's personal space requirements are sponsoring this segment. Respected by Pauline. Actively negotiated with Daniel. Nacho — firm on boundaries.",
+        "file": "audio/breaks/commercials_19.mp3"
+      },
+      {
+        "text": "Raising Cane's chicken fingers are sponsoring this break. The official meal of great taste and Pauline's approval. High bar. Cleared easily.",
+        "file": "audio/breaks/commercials_20.mp3"
+      },
+      {
+        "text": "This hour is sponsored by the concept of a perfect Sunday with Pauline. Daniel submitted this ad himself. We approved it immediately.",
+        "file": "audio/breaks/commercials_21.mp3"
+      },
+      {
+        "text": "Pauline's sweet side is sponsoring this segment. Always present. Always genuine. Always appreciated. Pauline — consistent, excellent, the whole thing.",
+        "file": "audio/breaks/commercials_22.mp3"
+      },
+      {
+        "text": "Victoria's Inner Harbour is sponsoring this break. Beautiful year round. Even better when Pauline is somewhere near it.",
+        "file": "audio/breaks/commercials_23.mp3"
+      },
+      {
+        "text": "Nacho's selective affection is sponsoring this moment. Earned, not given. Daniel is still working on it. Progress is being made slowly.",
+        "file": "audio/breaks/commercials_24.mp3"
+      },
+      {
+        "text": "Pauline reading in comfortable silence is sponsoring this hour. Peaceful. Perfect. Please do not disturb either of them.",
+        "file": "audio/breaks/commercials_25.mp3"
+      },
+      {
+        "text": "The Sims building is back. Still the most fictional real building in Victoria. Still Pauline's call from day one. Still correct.",
+        "file": "audio/breaks/commercials_26.mp3"
+      },
+      {
+        "text": "Daniel's playlist for Pauline is sponsoring this segment. Every song chosen with purpose. Every song approved by love.",
+        "file": "audio/breaks/commercials_27.mp3"
+      },
+      {
+        "text": "Raising Cane's lemonade is sponsoring this break. Cold, refreshing, Pauline's trusted companion at the table. Raising Cane's lemonade — correct choice.",
+        "file": "audio/breaks/commercials_28.mp3"
+      },
+      {
+        "text": "This hour is sponsored by Pauline existing. Simply existing. Doing incredible things for Victoria's overall energy just by being here.",
+        "file": "audio/breaks/commercials_29.mp3"
+      },
+      {
+        "text": "Nacho's warmth is sponsoring this moment. Reserved for Pauline. Occasionally extended to Daniel on cold nights. Nacho — selective but fair.",
+        "file": "audio/breaks/commercials_30.mp3"
+      },
+      {
+        "text": "Sponsored by the first time Daniel realized Pauline was something special. That exact moment. It's still going.",
+        "file": "audio/breaks/commercials_31.mp3"
+      },
+      {
+        "text": "Pauline's sarcasm is sponsoring this segment. Sharp. Well timed. Always landing. A gift to everyone in the room. Pauline's sarcasm — free, frequent, elite.",
+        "file": "audio/breaks/commercials_32.mp3"
+      },
+      {
+        "text": "Victoria sunsets are sponsoring this break. Best viewed with someone you love. Daniel has someone in mind. One specific person.",
+        "file": "audio/breaks/commercials_33.mp3"
+      },
+      {
+        "text": "Nacho knocking something off the table is sponsoring this hour. No witnesses. Pauline knows it was him. Nacho maintains his innocence.",
+        "file": "audio/breaks/commercials_34.mp3"
+      },
+      {
+        "text": "Pauline's smile is sponsoring this segment. No further description needed. You already know. Pauline's smile — that's the whole ad.",
+        "file": "audio/breaks/commercials_35.mp3"
+      },
+      {
+        "text": "Raising Cane's Victoria is sponsoring this break. Where Pauline goes to be happy and Daniel goes to watch Pauline be happy. Raising Cane's.",
+        "file": "audio/breaks/commercials_36.mp3"
+      },
+      {
+        "text": "The Sims building at night is sponsoring this moment. Somehow even more fictional after dark. Pauline was right about this from the start.",
+        "file": "audio/breaks/commercials_37.mp3"
+      },
+      {
+        "text": "This hour is sponsored by Daniel and Pauline. Together. That's it. That's the whole ad. That's enough.",
+        "file": "audio/breaks/commercials_38.mp3"
+      },
+      {
+        "text": "Nacho sleeping on Pauline's book is sponsoring this segment. The original bookmark. Unasked for. Irreplaceable. Nacho — always in the right spot.",
+        "file": "audio/breaks/commercials_39.mp3"
+      }
+    ],
+    "weather": [
+      {
+        "text": "96.6 ROM weather update for Victoria BC. Expect a warm front moving in from wherever Pauline is right now. Temperatures feeling just right.",
+        "file": "audio/breaks/weather_0.mp3"
+      },
+      {
+        "text": "Victoria weather on 96.6 ROM. Skies are partly cloudy over the Inner Harbour but completely clear in Pauline's vicinity. Enjoy it.",
+        "file": "audio/breaks/weather_1.mp3"
+      },
+      {
+        "text": "Weather update from 96.6 ROM. Mild temperatures across Greater Victoria today. Daniel reports feeling warm regardless. Unrelated to the forecast.",
+        "file": "audio/breaks/weather_2.mp3"
+      },
+      {
+        "text": "96.6 ROM weather. Expect light rain near Beacon Hill Park this afternoon, heavy sunshine wherever Pauline decides to show up.",
+        "file": "audio/breaks/weather_3.mp3"
+      },
+      {
+        "text": "Victoria forecast on 96.6 ROM. Temperatures sitting at a comfortable 14 degrees. Pauline's presence adds approximately 6 degrees of warmth to any room.",
+        "file": "audio/breaks/weather_4.mp3"
+      },
+      {
+        "text": "Weather on 96.6 ROM. The Juan de Fuca Strait is looking calm today. Much like Pauline mid-chapter. Do not disturb either.",
+        "file": "audio/breaks/weather_5.mp3"
+      },
+      {
+        "text": "96.6 ROM Victoria weather. Overcast skies downtown near the Sims building. The building remains unbothered. It has seen worse.",
+        "file": "audio/breaks/weather_6.mp3"
+      },
+      {
+        "text": "Weather update on 96.6 ROM. A sweet front is moving across Victoria from the east. Meteorologists believe Pauline may be responsible.",
+        "file": "audio/breaks/weather_7.mp3"
+      },
+      {
+        "text": "Victoria forecast from 96.6 ROM. Expect comfortable highs of 16 degrees. Perfect weather for reading outside. Pauline, take note.",
+        "file": "audio/breaks/weather_8.mp3"
+      },
+      {
+        "text": "96.6 ROM weather. Light winds across the Inner Harbour today. Nacho has been advised to stay indoors. He was already indoors. Good cat.",
+        "file": "audio/breaks/weather_9.mp3"
+      },
+      {
+        "text": "Weather on 96.6 ROM. Rain expected near Mount Doug this evening. Cozy indoor weather. Perfect for books and Raising Cane's delivery.",
+        "file": "audio/breaks/weather_10.mp3"
+      },
+      {
+        "text": "96.6 ROM Victoria forecast. Temperatures mild and manageable. The Sims building is experiencing its regular level of fictional energy. All clear.",
+        "file": "audio/breaks/weather_11.mp3"
+      },
+      {
+        "text": "Weather update from 96.6 ROM. A warm front from the south is bringing comfortable temperatures to Victoria. Daniel called it. He said Pauline brought the warmth.",
+        "file": "audio/breaks/weather_12.mp3"
+      },
+      {
+        "text": "96.6 ROM weather. Mostly sunny skies over downtown Victoria today. The Sims building is looking particularly simulated in this light.",
+        "file": "audio/breaks/weather_13.mp3"
+      },
+      {
+        "text": "Victoria weather on 96.6 ROM. Expect a light breeze off the harbour this afternoon. Great weather for a walk with someone you love.",
+        "file": "audio/breaks/weather_14.mp3"
+      },
+      {
+        "text": "96.6 ROM forecast. Temperatures holding steady at 15 degrees across Victoria. Pauline's laugh has been measured at significantly warmer.",
+        "file": "audio/breaks/weather_15.mp3"
+      },
+      {
+        "text": "Weather on 96.6 ROM. Cloudy with a chance of coziness across Greater Victoria. Nacho has already claimed the warmest spot in the house.",
+        "file": "audio/breaks/weather_16.mp3"
+      },
+      {
+        "text": "96.6 ROM Victoria weather. Clear skies expected through the evening. Perfect night for looking at the Sims building and wondering about its lore.",
+        "file": "audio/breaks/weather_17.mp3"
+      },
+      {
+        "text": "Weather update on 96.6 ROM. Mild and pleasant across Victoria today. Conditions ideal for reading, cats, and Raising Cane's runs.",
+        "file": "audio/breaks/weather_18.mp3"
+      },
+      {
+        "text": "96.6 ROM forecast for Victoria. A front of pure sweetness has settled over the city. Sources point to Pauline. No further investigation needed.",
+        "file": "audio/breaks/weather_19.mp3"
+      },
+      {
+        "text": "Victoria weather from 96.6 ROM. Partly sunny with occasional clouds near the harbour. Daniel has declared it perfect weather regardless.",
+        "file": "audio/breaks/weather_20.mp3"
+      },
+      {
+        "text": "96.6 ROM weather. Temperatures cool but comfortable downtown. The Sims building is holding up well. Structurally sound, aesthetically questionable.",
+        "file": "audio/breaks/weather_21.mp3"
+      },
+      {
+        "text": "Weather on 96.6 ROM. Expect light showers near Beacon Hill this afternoon. Nacho is unbothered. Nacho is always unbothered.",
+        "file": "audio/breaks/weather_22.mp3"
+      },
+      {
+        "text": "96.6 ROM Victoria forecast. Clear and calm across the city today. The kind of day Pauline would call perfect from behind a good book.",
+        "file": "audio/breaks/weather_23.mp3"
+      },
+      {
+        "text": "Weather update from 96.6 ROM. A gentle warmth has settled over Victoria. Meteorologists confirmed it arrived the moment Pauline woke up.",
+        "file": "audio/breaks/weather_24.mp3"
+      },
+      {
+        "text": "96.6 ROM weather. Mild temperatures and light winds across Greater Victoria. Great conditions for everything Pauline enjoys.",
+        "file": "audio/breaks/weather_25.mp3"
+      },
+      {
+        "text": "Victoria weather on 96.6 ROM. Overcast skies but no rain expected. The Sims building looks especially mysterious in grey light. As intended.",
+        "file": "audio/breaks/weather_26.mp3"
+      },
+      {
+        "text": "96.6 ROM forecast. Comfortable temperatures holding through the evening. Perfect weather for Nacho's extended nap schedule. He approves.",
+        "file": "audio/breaks/weather_27.mp3"
+      },
+      {
+        "text": "Weather on 96.6 ROM. Sunny breaks expected over the Inner Harbour this afternoon. Daniel has requested Pauline enjoy them personally.",
+        "file": "audio/breaks/weather_28.mp3"
+      },
+      {
+        "text": "96.6 ROM Victoria weather. A warm and funny front is moving through the city today. Pauline is suspected. Pauline is always suspected.",
+        "file": "audio/breaks/weather_29.mp3"
+      },
+      {
+        "text": "Weather update on 96.6 ROM. Light rain near the Malahat this morning clearing by afternoon. Victoria doing what Victoria does.",
+        "file": "audio/breaks/weather_30.mp3"
+      },
+      {
+        "text": "96.6 ROM forecast. Temperatures mild across the city. Good book weather. Raising Cane's weather. Nacho nap weather. Perfect day.",
+        "file": "audio/breaks/weather_31.mp3"
+      },
+      {
+        "text": "Victoria weather from 96.6 ROM. Skies clearing over downtown this afternoon. The Sims building catching some light. Looking very expansion pack right now.",
+        "file": "audio/breaks/weather_32.mp3"
+      },
+      {
+        "text": "96.6 ROM weather. A cozy front has settled over Greater Victoria. Sources confirm Nacho saw it coming and positioned himself accordingly.",
+        "file": "audio/breaks/weather_33.mp3"
+      },
+      {
+        "text": "Weather on 96.6 ROM. Comfortable highs expected today across Victoria BC. Daniel says every day is a good day when it has Pauline in it. Meteorologists agree.",
+        "file": "audio/breaks/weather_34.mp3"
+      }
+    ],
+    "traffic": [
+      {
+        "text": "96.6 ROM traffic update. Douglas Street moving smoothly in both directions. Almost as smoothly as Pauline switches between funny and sweet. Almost.",
+        "file": "audio/breaks/traffic_0.mp3"
+      },
+      {
+        "text": "Traffic on 96.6 ROM. The Malahat is clear this morning. Conditions are perfect. Daniel would still rather stay wherever Pauline is.",
+        "file": "audio/breaks/traffic_1.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Pat Bay Highway moving well in both directions. No delays unless you count Daniel taking the long way to see Pauline.",
+        "file": "audio/breaks/traffic_2.mp3"
+      },
+      {
+        "text": "Traffic update from 96.6 ROM. Johnson Street Bridge operating normally. Victoria's infrastructure remains solid. Unlike the Sims building which operates on vibes.",
+        "file": "audio/breaks/traffic_3.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. McKenzie Ave seeing light volume this hour. Smooth sailing across Greater Victoria. Nacho has been advised to avoid rush hour. He was already home.",
+        "file": "audio/breaks/traffic_4.mp3"
+      },
+      {
+        "text": "Traffic on 96.6 ROM. Douglas Street clear downtown. The Sims building area seeing normal foot traffic of people stopping to question its architecture.",
+        "file": "audio/breaks/traffic_5.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic update. Pat Bay Highway moving at posted speeds. No incidents to report unless you count Daniel being down bad for Pauline. Ongoing situation.",
+        "file": "audio/breaks/traffic_6.mp3"
+      },
+      {
+        "text": "Traffic from 96.6 ROM. Inner Harbour area clear and accessible. Beautiful view today. Daniel recommends visiting it with Pauline specifically.",
+        "file": "audio/breaks/traffic_7.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Malahat Drive clear in both directions this morning. Smooth conditions throughout. Nacho has no commute and continues to thrive.",
+        "file": "audio/breaks/traffic_8.mp3"
+      },
+      {
+        "text": "Traffic update on 96.6 ROM. McKenzie Ave and Douglas Street intersection moving well. Victoria roads cooperative today. Unlike Nacho who is on his own schedule.",
+        "file": "audio/breaks/traffic_9.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Johnson Street Bridge clear with no delays. The Sims building nearby, standing confidently, existing in its own reality as always.",
+        "file": "audio/breaks/traffic_10.mp3"
+      },
+      {
+        "text": "Traffic on 96.6 ROM. Pat Bay Highway light this hour. If you're heading to Raising Cane's, all routes are clear. Pauline would call this good news.",
+        "file": "audio/breaks/traffic_11.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic update. Douglas Street moving freely through downtown. The Sims building visible on the route. Worth a slow drive past.",
+        "file": "audio/breaks/traffic_12.mp3"
+      },
+      {
+        "text": "Traffic from 96.6 ROM. Greater Victoria roads quiet this afternoon. Good time to take a scenic drive. Better time to stay in with Pauline and a good book.",
+        "file": "audio/breaks/traffic_13.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Malahat clear with no weather delays. Roads are cooperating today. Daniel is cooperating with whatever Pauline wants to do today.",
+        "file": "audio/breaks/traffic_14.mp3"
+      },
+      {
+        "text": "Traffic update on 96.6 ROM. Inner Harbour roads moving smoothly. Light pedestrian traffic near the waterfront. Peaceful Victoria afternoon in full effect.",
+        "file": "audio/breaks/traffic_15.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. McKenzie Ave clear through to Douglas Street. No issues reported. Nacho reported no issues either from his position on the couch.",
+        "file": "audio/breaks/traffic_16.mp3"
+      },
+      {
+        "text": "Traffic on 96.6 ROM. Johnson Street Bridge operating normally this evening. The Sims building lit up at night, looking more fictional than ever. Drive safe.",
+        "file": "audio/breaks/traffic_17.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic update. Pat Bay Highway moving well northbound and southbound. No delays. Raising Cane's reachable within normal travel times. Good news for Pauline.",
+        "file": "audio/breaks/traffic_18.mp3"
+      },
+      {
+        "text": "Traffic from 96.6 ROM. Downtown Victoria roads clear this morning. The Sims building standing firm. Some things never change and we are grateful.",
+        "file": "audio/breaks/traffic_19.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Douglas Street moving smoothly through the city core. Light volume expected through the afternoon. Daniel calls this ideal Pauline time.",
+        "file": "audio/breaks/traffic_20.mp3"
+      },
+      {
+        "text": "Traffic update on 96.6 ROM. Malahat Drive clear with good visibility. All major Victoria routes operating normally. Nacho has no travel plans. As expected.",
+        "file": "audio/breaks/traffic_21.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Inner Harbour area accessible with no closures. Gorgeous out there today. Pauline should see it. Daniel is putting in the formal request now.",
+        "file": "audio/breaks/traffic_22.mp3"
+      },
+      {
+        "text": "Traffic on 96.6 ROM. McKenzie Ave moving at normal speeds this hour. Greater Victoria roads cooperating. The Sims building offering no traffic delays, only existential ones.",
+        "file": "audio/breaks/traffic_23.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic update. Pat Bay Highway and Malahat both clear this morning. Good conditions throughout BC. Nacho remains stationary. Consistent as always.",
+        "file": "audio/breaks/traffic_24.mp3"
+      },
+      {
+        "text": "Traffic from 96.6 ROM. Johnson Street Bridge clear and open. Downtown Victoria accessible. The Sims building welcoming visitors who want to feel slightly confused.",
+        "file": "audio/breaks/traffic_25.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Douglas Street light volume through downtown this afternoon. Easy driving conditions. Ideal for a Raising Cane's run for Pauline.",
+        "file": "audio/breaks/traffic_26.mp3"
+      },
+      {
+        "text": "Traffic update on 96.6 ROM. All major Victoria routes clear this evening. Beautiful night in the city. Made better by Pauline existing in it.",
+        "file": "audio/breaks/traffic_27.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Malahat clear with no incidents. Pat Bay Highway moving well. Roads are good. Life is good. Pauline is great. 96.6 ROM.",
+        "file": "audio/breaks/traffic_28.mp3"
+      },
+      {
+        "text": "Traffic on 96.6 ROM. Inner Harbour roads and surrounding streets moving smoothly. Great evening in Victoria. Nacho is somewhere warm. Pauline is somewhere wonderful.",
+        "file": "audio/breaks/traffic_29.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic update. McKenzie Ave through to Douglas moving freely. No delays reported. Daniel delayed only by wanting to stay with Pauline longer. Not a traffic issue.",
+        "file": "audio/breaks/traffic_30.mp3"
+      },
+      {
+        "text": "Traffic from 96.6 ROM. Johnson Street Bridge and downtown core clear this morning. The Sims building greeting commuters with its signature fictional energy.",
+        "file": "audio/breaks/traffic_31.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Pat Bay Highway light northbound. Great conditions for travel. Even better conditions for staying in Victoria with Pauline and Nacho.",
+        "file": "audio/breaks/traffic_32.mp3"
+      },
+      {
+        "text": "Traffic update on 96.6 ROM. All Victoria routes operating normally. Roads smooth. Music good. Pauline listening. Daniel happy. 96.6 ROM, signing off on traffic.",
+        "file": "audio/breaks/traffic_33.mp3"
+      },
+      {
+        "text": "96.6 ROM traffic. Douglas Street, McKenzie Ave, and the Malahat all clear. Victoria roads are doing their part. Daniel is doing his part. Pauline makes it all worth it.",
+        "file": "audio/breaks/traffic_34.mp3"
+      }
+    ],
+    "news": [
+      {
+        "text": "Breaking news on 96.6 ROM. Local man Daniel continues to be extremely into Pauline. Experts say the situation shows no signs of changing. Developing story.",
+        "file": "audio/breaks/news_0.mp3"
+      },
+      {
+        "text": "96.6 ROM news update. Nacho was spotted this morning in his favourite spot. Sources confirm the spot belonged to Pauline first. Nacho does not care.",
+        "file": "audio/breaks/news_1.mp3"
+      },
+      {
+        "text": "News from 96.6 ROM. Pauline was seen reading today. Witnesses report she looked completely at peace. Daniel witnessed this. Daniel agreed.",
+        "file": "audio/breaks/news_2.mp3"
+      },
+      {
+        "text": "96.6 ROM breaking news. Raising Cane's Victoria has confirmed Pauline remains one of their most appreciated customers. The sauce knows.",
+        "file": "audio/breaks/news_3.mp3"
+      },
+      {
+        "text": "News update on 96.6 ROM. The Sims building downtown Victoria was visited today. It still looks like it belongs in a loading screen. No updates on that front.",
+        "file": "audio/breaks/news_4.mp3"
+      },
+      {
+        "text": "96.6 ROM news. Sources close to Daniel confirm he thought about Pauline today. Sources also confirm this is not news. This happens every day.",
+        "file": "audio/breaks/news_5.mp3"
+      },
+      {
+        "text": "Breaking on 96.6 ROM. Nacho has once again claimed the softest blanket in the house. Pauline let him. Daniel is not surprised. Nobody is surprised.",
+        "file": "audio/breaks/news_6.mp3"
+      },
+      {
+        "text": "96.6 ROM news update. Pauline laughed today and reportedly made everyone around her immediately happier. Investigation into how she does this remains open.",
+        "file": "audio/breaks/news_7.mp3"
+      },
+      {
+        "text": "News from 96.6 ROM. Local couple Daniel and Pauline spotted being cute in Victoria. Witnesses described it as, quote, a lot. In the best way.",
+        "file": "audio/breaks/news_8.mp3"
+      },
+      {
+        "text": "96.6 ROM breaking news. Raising Cane's has been informed that their biggest Victoria supporter is currently tuned into 96.6 ROM. They are honoured.",
+        "file": "audio/breaks/news_9.mp3"
+      },
+      {
+        "text": "News update on 96.6 ROM. Nacho has filed no complaints today. This is either because everything is perfect or because Nacho handles things internally.",
+        "file": "audio/breaks/news_10.mp3"
+      },
+      {
+        "text": "96.6 ROM news. Pauline finished a book today. Victoria's overall intelligence level rose measurably. Daniel was not surprised. He knows who he's with.",
+        "file": "audio/breaks/news_11.mp3"
+      },
+      {
+        "text": "Breaking on 96.6 ROM. The Sims building has once again been spotted looking aggressively fictional. Downtown Victoria unfazed. Pauline delighted.",
+        "file": "audio/breaks/news_12.mp3"
+      },
+      {
+        "text": "96.6 ROM news update. Daniel has confirmed that today was a good day. When asked why, he mentioned Pauline. When asked for more detail, he just said Pauline again.",
+        "file": "audio/breaks/news_13.mp3"
+      },
+      {
+        "text": "News from 96.6 ROM. Nacho was observed today making a very deliberate choice about where to sit. He chose Pauline's side. Smart cat. Excellent taste.",
+        "file": "audio/breaks/news_14.mp3"
+      },
+      {
+        "text": "96.6 ROM breaking news. Local sources confirm Pauline is funny, sweet, well-read, and extremely good at choosing chicken. Victoria considers itself lucky.",
+        "file": "audio/breaks/news_15.mp3"
+      },
+      {
+        "text": "News update on 96.6 ROM. The Sims building issued a statement today. The statement was just its facade. It spoke volumes. Pauline translated it perfectly.",
+        "file": "audio/breaks/news_16.mp3"
+      },
+      {
+        "text": "96.6 ROM news. Raising Cane's sauce continues to be excellent. Pauline continues to know this. The rest of Victoria is catching up slowly.",
+        "file": "audio/breaks/news_17.mp3"
+      },
+      {
+        "text": "Breaking on 96.6 ROM. Scientists studying the phenomenon of Pauline being both hilarious and sweet have requested more funding. Research is ongoing.",
+        "file": "audio/breaks/news_18.mp3"
+      },
+      {
+        "text": "96.6 ROM news update. Nacho was found napping today in a position that defied physics. Pauline documented it. The photo was sent to Daniel immediately.",
+        "file": "audio/breaks/news_19.mp3"
+      },
+      {
+        "text": "News from 96.6 ROM. Daniel would like Victoria to know that Pauline is his favourite person. Victoria has acknowledged this. Nacho had no comment.",
+        "file": "audio/breaks/news_20.mp3"
+      },
+      {
+        "text": "96.6 ROM breaking news. A new chapter has been started by Pauline somewhere in Victoria right now. The book is lucky. Daniel is luckier.",
+        "file": "audio/breaks/news_21.mp3"
+      },
+      {
+        "text": "News update on 96.6 ROM. The Sims building was seen this evening looking especially built-by-a-player-with-no-architecture-degree. Pauline called it from the start.",
+        "file": "audio/breaks/news_22.mp3"
+      },
+      {
+        "text": "96.6 ROM news. Sources confirm Nacho has been fed, loved, and given optimal napping conditions. Pauline is responsible. Nacho accepts this as his due.",
+        "file": "audio/breaks/news_23.mp3"
+      },
+      {
+        "text": "Breaking on 96.6 ROM. Pauline was funny today. Then sweet. Then funny again. Daniel did not know how to handle it. He handled it by smiling a lot.",
+        "file": "audio/breaks/news_24.mp3"
+      },
+      {
+        "text": "96.6 ROM news update. Raising Cane's Victoria has been officially recognized as a cornerstone of Pauline's happiness. The station stands behind this.",
+        "file": "audio/breaks/news_25.mp3"
+      },
+      {
+        "text": "News from 96.6 ROM. Daniel and Pauline's story continues to be one of Victoria's best kept secrets. 96.6 ROM is happy to report on it.",
+        "file": "audio/breaks/news_26.mp3"
+      },
+      {
+        "text": "96.6 ROM breaking news. Nacho knocked something over today. There were no witnesses but Pauline knows it was him. Nacho maintains his innocence.",
+        "file": "audio/breaks/news_27.mp3"
+      },
+      {
+        "text": "News update on 96.6 ROM. The Sims building has been standing in Victoria long enough to become a landmark. Pauline named it. The name stuck. It always will.",
+        "file": "audio/breaks/news_28.mp3"
+      },
+      {
+        "text": "96.6 ROM final news update of the hour. Daniel made this station for Pauline because some feelings are too big for a text message. This is 96.6 ROM. Stay tuned.",
+        "file": "audio/breaks/news_29.mp3"
+      }
+    ],
+    "short": [
+      {
+        "text": "96.6 ROM. For Pauline.",
+        "file": "audio/breaks/short_0.mp3"
+      },
+      {
+        "text": "Daniel's pick for Pauline.",
+        "file": "audio/breaks/short_1.mp3"
+      },
+      {
+        "text": "Pauline's favorites, all day.",
+        "file": "audio/breaks/short_2.mp3"
+      },
+      {
+        "text": "Nacho is listening.",
+        "file": "audio/breaks/short_3.mp3"
+      },
+      {
+        "text": "Made with love for P.",
+        "file": "audio/breaks/short_4.mp3"
+      },
+      {
+        "text": "Victoria's Pauline Station.",
+        "file": "audio/breaks/short_5.mp3"
+      },
+      {
+        "text": "Thinking of Pauline.",
+        "file": "audio/breaks/short_6.mp3"
+      },
+      {
+        "text": "Approved by Nacho.",
+        "file": "audio/breaks/short_7.mp3"
+      },
+      {
+        "text": "Just for you, Pauline.",
+        "file": "audio/breaks/short_8.mp3"
+      },
+      {
+        "text": "96.6. Pauline's world.",
+        "file": "audio/breaks/short_9.mp3"
+      },
+      {
+        "text": "Daniel loves Pauline.",
+        "file": "audio/breaks/short_10.mp3"
+      },
+      {
+        "text": "Nacho wants a treat.",
+        "file": "audio/breaks/short_11.mp3"
+      },
+      {
+        "text": "Songs for P.",
+        "file": "audio/breaks/short_12.mp3"
+      },
+      {
+        "text": "Raising Cane's run?",
+        "file": "audio/breaks/short_13.mp3"
+      },
+      {
+        "text": "Building memories.",
+        "file": "audio/breaks/short_14.mp3"
+      },
+      {
+        "text": "Pauline FM.",
+        "file": "audio/breaks/short_15.mp3"
+      },
+      {
+        "text": "Keep smiling, Pauline.",
+        "file": "audio/breaks/short_16.mp3"
+      },
+      {
+        "text": "From Daniel, to Pauline.",
+        "file": "audio/breaks/short_17.mp3"
+      },
+      {
+        "text": "Nacho says hello.",
+        "file": "audio/breaks/short_18.mp3"
+      },
+      {
+        "text": "The Pauline Mix.",
+        "file": "audio/breaks/short_19.mp3"
+      },
+      {
+        "text": "Only for her.",
+        "file": "audio/breaks/short_20.mp3"
+      },
+      {
+        "text": "Victoria loves Pauline.",
+        "file": "audio/breaks/short_21.mp3"
+      },
+      {
+        "text": "Sims break later?",
+        "file": "audio/breaks/short_22.mp3"
+      },
+      {
+        "text": "96.6 ROM. All love.",
+        "file": "audio/breaks/short_23.mp3"
+      },
+      {
+        "text": "Pauline's anthem.",
+        "file": "audio/breaks/short_24.mp3"
+      },
+      {
+        "text": "Daniel is DJing.",
+        "file": "audio/breaks/short_25.mp3"
+      },
+      {
+        "text": "Hey Pauline.",
+        "file": "audio/breaks/short_26.mp3"
+      },
+      {
+        "text": "Nacho's nap time.",
+        "file": "audio/breaks/short_27.mp3"
+      },
+      {
+        "text": "For the best girl.",
+        "file": "audio/breaks/short_28.mp3"
+      },
+      {
+        "text": "Music for P.",
+        "file": "audio/breaks/short_29.mp3"
+      },
+      {
+        "text": "Daniel <3 Pauline.",
+        "file": "audio/breaks/short_30.mp3"
+      },
+      {
+        "text": "Forever 96.6.",
+        "file": "audio/breaks/short_31.mp3"
+      },
+      {
+        "text": "Pauline's radio.",
+        "file": "audio/breaks/short_32.mp3"
+      },
+      {
+        "text": "Playing your song.",
+        "file": "audio/breaks/short_33.mp3"
+      },
+      {
+        "text": "Hi Nacho.",
+        "file": "audio/breaks/short_34.mp3"
+      },
+      {
+        "text": "More hits for Pauline.",
+        "file": "audio/breaks/short_35.mp3"
+      },
+      {
+        "text": "Daniel misses you.",
+        "file": "audio/breaks/short_36.mp3"
+      },
+      {
+        "text": "Pauline's choice.",
+        "file": "audio/breaks/short_37.mp3"
+      },
+      {
+        "text": "Extra sauce.",
+        "file": "audio/breaks/short_38.mp3"
+      },
+      {
+        "text": "96.6 ROM. Yours.",
+        "file": "audio/breaks/short_39.mp3"
+      }
+    ]
+  },
+  "special": {
+    "06-25": [
+      {
+        "text": "Happy Birthday Pauline, from 96.6 ROM, Victoria BC. Daniel called in this morning to dedicate the entire station to you. We told him that's every day. He said today it's official.",
+        "file": "audio/breaks/special_06-25_0.mp3"
+      },
+      {
+        "text": "96.6 ROM Birthday Special. Pauline is celebrating today and Victoria is better for it. Nacho does not fully understand birthdays but he is present and that counts.",
+        "file": "audio/breaks/special_06-25_1.mp3"
+      },
+      {
+        "text": "It's June 25th on 96.6 ROM. Somewhere in Victoria, Pauline is having a birthday. Daniel has been ready for this day for months. This station has been ready since it was built.",
+        "file": "audio/breaks/special_06-25_2.mp3"
+      },
+      {
+        "text": "Birthday broadcast on 96.6 ROM. Pauline, you are funny and sweet and well-read and the reason this station exists. Happy Birthday. Daniel did not need a microphone to say that but we gave him one anyway.",
+        "file": "audio/breaks/special_06-25_3.mp3"
+      }
+    ],
+    "02-14": [
+      {
+        "text": "Happy Valentine's Day from 96.6 ROM. Daniel called in to dedicate the entire day to Pauline. We told him that's every day here. He said fair enough.",
+        "file": "audio/breaks/special_02-14_0.mp3"
+      },
+      {
+        "text": "96.6 ROM Valentine's Day special broadcast. The flowers are nice. The chocolates are fine. But this station runs all year. That's the real gift.",
+        "file": "audio/breaks/special_02-14_1.mp3"
+      },
+      {
+        "text": "It's February 14th on 96.6 ROM. Pauline, you are loved every day, but today Victoria officially agrees. The city has been fully informed.",
+        "file": "audio/breaks/special_02-14_2.mp3"
+      },
+      {
+        "text": "Valentine's Day on 96.6 ROM. Daniel submitted a formal dedication. It just said Pauline's name, seven times, in all caps. We aired it as written.",
+        "file": "audio/breaks/special_02-14_3.mp3"
+      }
+    ],
+    "01-01": [
+      {
+        "text": "Happy New Year from 96.6 ROM, Victoria BC. The year is new. The station is still dedicated to Pauline. Some things don't need to change.",
+        "file": "audio/breaks/special_01-01_0.mp3"
+      },
+      {
+        "text": "96.6 ROM ringing in the new year. Daniel's resolution is Pauline. Nacho's resolution is more naps. Both are fully achievable.",
+        "file": "audio/breaks/special_01-01_1.mp3"
+      }
+    ],
+    "12-25": [
+      {
+        "text": "Merry Christmas from 96.6 ROM. The best gift this station ever received was Pauline listening. Everything else is just bonus.",
+        "file": "audio/breaks/special_12-25_0.mp3"
+      },
+      {
+        "text": "96.6 ROM Christmas special. Victoria is quiet and beautiful today. Pauline makes it even more so. That is not a seasonal opinion. That is permanent.",
+        "file": "audio/breaks/special_12-25_1.mp3"
+      }
+    ],
+    "12-31": [
+      {
+        "text": "New Year's Eve on 96.6 ROM. The year had a lot of things in it. The best thing was Pauline. That is the official year-end review.",
+        "file": "audio/breaks/special_12-31_0.mp3"
+      },
+      {
+        "text": "96.6 ROM signing off on the year. Daniel's highlight reel is entirely Pauline. Nacho made a cameo. Strong year overall.",
+        "file": "audio/breaks/special_12-31_1.mp3"
+      }
+    ]
+  },
+  "banter": [
+    {
+      "text": "A: Welcome back to 96.6 ROM, Victoria's station for love. I'm here with my co-host, and we need to talk about Pauline.  B: We always need to talk about Pauline. That's the entire station.  A: Fair point. You know Daniel built this whole frequency just for her?  B: I do. Honestly, couples like that make the rest of us look bad.  A: In the best way. Alright — enough about us. This next one's for Pauline.",
+      "file": "audio/breaks/banter_0.mp3",
+      "turns": 5
+    },
+    {
+      "text": "B: So I hear there's a cat running this station now.  A: Nacho. Official mascot. Didn't even have to audition.  B: Didn't have to. Have you seen him? That's pure star power.  A: Pauline's cat, Daniel's role model. We respect the hierarchy here.  B: As we should. Here's more music on 96.6 ROM.",
+      "file": "audio/breaks/banter_1.mp3",
+      "turns": 5
+    },
+    {
+      "text": "A: Quick question. How many books do you think Pauline's read this year?  B: More than this entire city combined, easily.  A: That's the rumor. Victoria's collective IQ ticks up every time she opens one.  B: Meanwhile Daniel's just over there, completely smitten.  A: Aren't we all. Back to the hits on 96.6 ROM.",
+      "file": "audio/breaks/banter_2.mp3",
+      "turns": 5
+    },
+    {
+      "text": "B: Okay, settle a debate. Best thing in Victoria.  A: Easy. Pauline.  B: Obviously Pauline. I meant besides Pauline.  A: Then it's a tie between the Sims building and Raising Cane's sauce.  B: Strong answers. Pauline approves of at least one of those.  A: She approves of the sauce. Let's get back to the music.",
+      "file": "audio/breaks/banter_3.mp3",
+      "turns": 6
+    },
+    {
+      "text": "A: Before we roll into this next set — anything you want to say to Pauline?  B: Just that this whole station is a love letter, and we're lucky to read it out loud.  A: Couldn't have said it better. Pauline, this next one's for you. 96.6 ROM.",
+      "file": "audio/breaks/banter_4.mp3",
+      "turns": 3
+    }
+  ]
+}

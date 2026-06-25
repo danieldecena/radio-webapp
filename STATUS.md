@@ -1,11 +1,11 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-24 22:34
+> Last refresh: 2026-06-24 22:38
 
 ## Git
 - Branch: `fix/show-pipeline-cleanup`
-- Last commit: `70c5058 Add continuous broadcast clock + two-DJ voicing + birthday show + UI polish (6 hours ago)`
+- Last commit: `4638029 Ignore break-audio in subfolders, not just top level (11 seconds ago)`
 - Uncommitted: **1** — 1 uncommitted
 
 ## Tests

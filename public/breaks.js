@@ -83,47 +83,91 @@ const SPECIAL_DATES = {
   // Add anniversary: '03-15': [ "Happy anniversary..." ],
 };
 
+// ============================================
+// TWO-DJ BANTER (co-host segments)
+// Each conversation is an ordered list of turns. dj:'A' = main DJ,
+// dj:'B' = female co-host. The voicing script renders each turn with that
+// DJ's voice and stitches the conversation into one longer break that plays
+// occasionally; the solo DJ carries everything else.
+// ============================================
+const DJ_BANTER = [
+  [
+    { dj: 'A', text: "Welcome back to 96.6 ROM, Victoria's station for love. I'm here with my co-host, and we need to talk about Pauline." },
+    { dj: 'B', text: "We always need to talk about Pauline. That's the entire station." },
+    { dj: 'A', text: "Fair point. You know Daniel built this whole frequency just for her?" },
+    { dj: 'B', text: "I do. Honestly, couples like that make the rest of us look bad." },
+    { dj: 'A', text: "In the best way. Alright — enough about us. This next one's for Pauline." },
+  ],
+  [
+    { dj: 'B', text: "So I hear there's a cat running this station now." },
+    { dj: 'A', text: "Nacho. Official mascot. Didn't even have to audition." },
+    { dj: 'B', text: "Didn't have to. Have you seen him? That's pure star power." },
+    { dj: 'A', text: "Pauline's cat, Daniel's role model. We respect the hierarchy here." },
+    { dj: 'B', text: "As we should. Here's more music on 96.6 ROM." },
+  ],
+  [
+    { dj: 'A', text: "Quick question. How many books do you think Pauline's read this year?" },
+    { dj: 'B', text: "More than this entire city combined, easily." },
+    { dj: 'A', text: "That's the rumor. Victoria's collective IQ ticks up every time she opens one." },
+    { dj: 'B', text: "Meanwhile Daniel's just over there, completely smitten." },
+    { dj: 'A', text: "Aren't we all. Back to the hits on 96.6 ROM." },
+  ],
+  [
+    { dj: 'B', text: "Okay, settle a debate. Best thing in Victoria." },
+    { dj: 'A', text: "Easy. Pauline." },
+    { dj: 'B', text: "Obviously Pauline. I meant besides Pauline." },
+    { dj: 'A', text: "Then it's a tie between the Sims building and Raising Cane's sauce." },
+    { dj: 'B', text: "Strong answers. Pauline approves of at least one of those." },
+    { dj: 'A', text: "She approves of the sauce. Let's get back to the music." },
+  ],
+  [
+    { dj: 'A', text: "Before we roll into this next set — anything you want to say to Pauline?" },
+    { dj: 'B', text: "Just that this whole station is a love letter, and we're lucky to read it out loud." },
+    { dj: 'A', text: "Couldn't have said it better. Pauline, this next one's for you. 96.6 ROM." },
+  ],
+];
+
 const DJ_BREAKS = {
 
   // ============================================
   // QUICK STATION IDs (35) - SHORT 10-20 SEC
   // ============================================
   stationids: [
-    "Ninety-six point six, ROM. Victoria's station for love.",
-    "You're locked into 96.6 ROM — all music, all Pauline, all day.",
-    "This is 96.6 ROM, Victoria BC, and the hits keep coming.",
-    "96.6 ROM. Every song dedicated to Pauline. Let's go.",
-    "You're on 96.6 ROM — don't touch that dial.",
-    "Back to back love songs on 96.6 ROM, Victoria's warmest frequency.",
-    "This is 96.6 ROM, broadcasting live from Daniel's heart.",
-    "96.6 ROM — the station built for Pauline. Stay locked in.",
-    "You're listening to 96.6 ROM. More music in sixty seconds.",
-    "96.6 ROM, Victoria's number one for love. Keep it right here.",
-    "This is 96.6 ROM, and the request line only takes one name. Pauline.",
-    "96.6 ROM — nonstop hits from the heart of Victoria.",
-    "You're tuned to 96.6 ROM, the only station that really gets it.",
-    "96.6 ROM. Powered by love, dedicated to Pauline.",
-    "This is 96.6 ROM — your soundtrack, her station.",
-    "Coming at you live, 96.6 ROM, Victoria BC.",
-    "96.6 ROM, where every hour is the Pauline hour.",
-    "You're locked into 96.6 ROM. Stay right where you are.",
-    "This is 96.6 ROM — good music only, picked just for Pauline.",
-    "96.6 ROM, Victoria's most romantic frequency. Turn it up.",
-    "You're with 96.6 ROM. The hits don't stop and neither do we.",
-    "96.6 ROM — live and direct from Victoria, dedicated to one.",
-    "This is 96.6 ROM. Pauline, this whole dial is yours.",
-    "96.6 ROM, keeping it locked, keeping it warm.",
-    "You're on 96.6 ROM. More Pauline, less everything else.",
-    "This is 96.6 ROM, Victoria's finest. The music keeps rolling.",
-    "96.6 ROM — the station that never stops loving Pauline.",
-    "You're tuned into 96.6 ROM. Big songs, bigger feelings.",
-    "96.6 ROM. Broadcasting love since day one. Stay tuned.",
-    "This is 96.6 ROM, and the next one's for you, Pauline.",
-    "96.6 ROM, Victoria BC. Hits all night, love all the way.",
-    "You're locked in. 96.6 ROM — Pauline's radio, Daniel's idea.",
-    "This is 96.6 ROM. Turn it up, the good part's coming.",
-    "96.6 ROM — Victoria's heartbeat, set to music.",
-    "You're listening to 96.6 ROM. Don't go anywhere.",
+    "Ninety-six point six. Victoria's station for love.",
+    "You're locked into the best love radio in Victoria, all music, all Pauline, all day.",
+    "This is ROM radio, Victoria BC, and the hits keep coming.",
+    "Every song here is dedicated to Pauline. Let's go.",
+    "You're on Victoria's warmest frequency. Don't touch that dial.",
+    "Back to back love songs, all night, from the heart of Victoria.",
+    "Broadcasting live from Daniel's heart. Your station for love.",
+    "The station built for Pauline. Stay locked in.",
+    "You're listening to the Pauline station. More music in sixty seconds.",
+    "Victoria's number one for love. Keep it right here.",
+    "The request line only takes one name. Pauline.",
+    "Nonstop hits from the heart of Victoria.",
+    "You're tuned to the only station that really gets it.",
+    "Powered by love, dedicated to Pauline.",
+    "Your soundtrack, her station.",
+    "Coming at you live from Victoria BC. This is 96.6 ROM.",
+    "Where every hour is the Pauline hour.",
+    "Locked into Victoria's frequency for love. Stay right where you are.",
+    "Good music only, picked just for Pauline.",
+    "Victoria's most romantic frequency. Turn it up.",
+    "The hits don't stop, and neither do we.",
+    "Live and direct from Victoria, dedicated to one.",
+    "Pauline, this whole dial is yours.",
+    "Keeping it locked, keeping it warm. This is ROM.",
+    "More Pauline, less everything else.",
+    "Victoria's finest. The music keeps rolling.",
+    "The station that never stops loving Pauline.",
+    "Big songs, bigger feelings. You're tuned in.",
+    "Broadcasting love since day one. Stay tuned.",
+    "And the next one's for you, Pauline.",
+    "Victoria BC. Hits all night, love all the way.",
+    "Pauline's radio, Daniel's idea. You're locked in.",
+    "Turn it up, the good part's coming.",
+    "Victoria's heartbeat, set to music.",
+    "Ninety-six point six. Don't go anywhere.",
   ],
 
   // ============================================
@@ -444,6 +488,7 @@ function getAnyRandomBreak() {
 export {
   STATION_CONFIG,
   DJ_BREAKS,
+  DJ_BANTER,
   STATION_TAGLINES,
   SPECIAL_DATES,
   TIME_WEIGHTS,

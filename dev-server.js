@@ -82,7 +82,8 @@ http
       return;
     }
 
-    if (url === "/") url = "/index.html";
+    // Serve the pre-rendered player at root, matching the Netlify redirect.
+    if (url === "/") url = "/player.html";
 
     // Safely decode the URL (the MP3s have spaces and special characters)
     let decodedUrl;
@@ -93,6 +94,13 @@ http
     }
 
     const filePath = path.join(PUBLIC_DIR, decodedUrl);
+
+    // Prevent path traversal outside PUBLIC_DIR (e.g. /..%2f.env)
+    if (filePath !== PUBLIC_DIR && !filePath.startsWith(PUBLIC_DIR + path.sep)) {
+      res.writeHead(403);
+      res.end("Forbidden");
+      return;
+    }
 
     fs.readFile(filePath, (err, data) => {
       if (err) {

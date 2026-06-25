@@ -16,7 +16,7 @@ ElevenLabs API key was accidentally committed to git history in documentation fi
 🔴 **CRITICAL: Regenerate your ElevenLabs API key immediately**
 
 1. Go to [ElevenLabs Dashboard → API Keys](https://elevenlabs.io/app/settings/api-keys)
-2. Delete the compromised key: `sk_956d5903ae...` (ending in `...16e791`)
+2. Delete the compromised key: `<OLD_ROTATED_KEY_REDACTED>` (ending in `...16e791`)
 3. Generate a new API key
 4. Update your environment variables:
    - Local: Update `.env` file
@@ -51,7 +51,7 @@ If you want to remove the key from git history entirely:
 brew install git-filter-repo
 
 # Remove the key from all history
-git filter-repo --replace-text <(echo "sk_956d5903ae1fbf758d3621c5fd719bc57d6e37d32d16e791==>REDACTED_API_KEY")
+git filter-repo --replace-text <(echo "<OLD_ROTATED_KEY_REDACTED>==>REDACTED_API_KEY")
 
 # Force push (WARNING: destructive operation)
 git push origin --force --all

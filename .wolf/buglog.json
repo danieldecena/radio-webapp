@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "bugs": [
+    {
+      "id": "bug-001",
+      "timestamp": "2026-06-25T17:39:24.985Z",
+      "error_message": "Incorrect value in code",
+      "file": "videos/birthday-banner/index.html",
+      "root_cause": "Had \"Inter\"",
+      "fix": "Changed to \"Helvetica Neue\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-06-25T17:39:24.987Z"
+    },
+    {
+      "id": "bug-002",
+      "timestamp": "2026-06-25T17:39:44.383Z",
+      "error_message": "Significant refactor of ",
+      "file": "videos/birthday-banner/index.html",
+      "root_cause": "10 lines replaced/restructured",
+      "fix": "Rewrote 24→24 lines (10 removed) | Also: <div id=\"glow\" class=\"clip\" data-start=\"0\" data-du; <span class=\"heart\"      id=\"h1\" data-start=\"0\" da",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 2,
+      "last_seen": "2026-06-25T17:39:44.387Z"
+    },
+    {
+      "id": "bug-003",
+      "timestamp": "2026-06-25T17:42:15.608Z",
+      "error_message": "Significant refactor of ",
+      "file": "public/player.html",
+      "root_cause": "10 lines replaced/restructured",
+      "fix": "Rewrote 12→8 lines (10 removed) | Also: .hero { width:min(440px,96vw); }; .herobar { display:flex; align-items:center; gap:1 | Also: // Slim birthday banner above the radio — tap it t; const bar = document.getElementById(\"herobar\");",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "html"
+      ],
+      "related_bugs": [],
+      "occurrences": 3,
+      "last_seen": "2026-06-25T17:42:38.638Z"
+    },
+    {
+      "id": "bug-004",
+      "timestamp": "2026-06-25T17:45:26.739Z",
+      "error_message": "Incorrect value in code",
+      "file": "share-with-pauline.command",
+      "root_cause": "Had \"$OUT/birthday.mp4\"",
+      "fix": "Changed to \"$OUT/\"",
+      "tags": [
+        "auto-detected",
+        "wrong-value",
+        "command"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-25T17:45:26.739Z"
+    },
+    {
+      "id": "bug-005",
+      "timestamp": "2026-06-25T17:47:06.057Z",
+      "error_message": "Significant refactor of ",
+      "file": "scripts/make-mac-app.command",
+      "root_cause": "2 lines replaced/restructured",
+      "fix": "Rewrote 3→6 lines (2 removed)",
+      "tags": [
+        "auto-detected",
+        "refactor",
+        "command"
+      ],
+      "related_bugs": [],
+      "occurrences": 1,
+      "last_seen": "2026-06-25T17:47:06.057Z"
+    }
+  ]
+}

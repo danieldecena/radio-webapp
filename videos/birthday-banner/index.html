@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=480" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      :root {
+        --cream: #fffafc;
+        --pink: #f4a9c0;
+        --pink-soft: #f9d4e0;
+        --red: #e63950;
+        --red-deep: #cf2c45;
+        --ink: #42323a;
+        --ink-dim: #8a7c83;
+      }
+      html, body {
+        width: 1920px;
+        height: 480px;
+        overflow: hidden;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 480px;
+        background: linear-gradient(118deg, #fffafc 0%, #fdeef3 55%, #fbe0ea 100%);
+      }
+      /* soft glow behind the headline */
+      #glow {
+        position: absolute;
+        left: 50%; top: 50%;
+        width: 1500px; height: 700px;
+        transform: translate(-50%, -50%);
+        background: radial-gradient(ellipse at center, rgba(244,169,192,.55), rgba(244,169,192,0) 65%);
+        filter: blur(8px);
+      }
+      .stack {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+        text-align: center;
+      }
+      #kicker {
+        font-size: 26px;
+        font-weight: 600;
+        letter-spacing: 8px;
+        text-transform: uppercase;
+        color: var(--red-deep);
+      }
+      #kicker .dot { color: var(--red); margin: 0 14px; }
+      #title {
+        position: relative;
+        font-family: Georgia, "Times New Roman", serif;
+        font-style: italic;
+        font-weight: 600;
+        font-size: 132px;
+        line-height: 1;
+        color: var(--red);
+        white-space: nowrap;
+      }
+      #title .word { display: inline-block; }
+      /* shine sweep over the headline */
+      #shine {
+        position: absolute;
+        left: -40%; top: 0;
+        width: 40%; height: 100%;
+        background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.85) 50%, rgba(255,255,255,0) 100%);
+        mix-blend-mode: overlay;
+        pointer-events: none;
+      }
+      #sub {
+        font-size: 28px;
+        font-weight: 500;
+        letter-spacing: 2px;
+        color: var(--ink-dim);
+      }
+      .heart {
+        position: absolute;
+        color: var(--pink);
+        opacity: 0;
+        will-change: transform, opacity;
+      }
+      .heart.deep { color: var(--red); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="8"
+      data-width="1920"
+      data-height="480"
+    >
+      <div id="glow"></div>
+
+      <!-- drifting hearts (decorative) -->
+      <span class="heart"      id="h1" style="left:180px;  top:120px; font-size:34px;">♥</span>
+      <span class="heart deep" id="h2" style="left:320px;  top:330px; font-size:22px;">♥</span>
+      <span class="heart"      id="h3" style="left:1560px; top:110px; font-size:40px;">♥</span>
+      <span class="heart deep" id="h4" style="left:1680px; top:340px; font-size:26px;">♥</span>
+      <span class="heart"      id="h5" style="left:1430px; top:380px; font-size:20px;">♥</span>
+      <span class="heart"      id="h6" style="left:430px;  top:90px;  font-size:18px;">♥</span>
+
+      <div class="stack">
+        <div id="kicker">
+          96.6 ROM <span class="dot">♥</span> VICTORIA'S STATION FOR LOVE
+        </div>
+        <div id="title">
+          <span class="word" id="w1">Happy</span>
+          <span class="word" id="w2">Birthday,</span>
+          <span class="word" id="w3">Pauline</span>
+          <span id="shine"></span>
+        </div>
+        <div id="sub">
+          made with love, for you ♥
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // glow breathes in and holds
+      tl.from("#glow", { opacity: 0, scale: 0.85, duration: 1.4, ease: "power2.out" }, 0);
+
+      // kicker
+      tl.from("#kicker", { opacity: 0, y: -18, duration: 0.9, ease: "power3.out" }, 0.25);
+
+      // headline — words rise + soften in, staggered
+      tl.from(
+        ["#w1", "#w2", "#w3"],
+        { opacity: 0, y: 46, filter: "blur(10px)", duration: 1.0, ease: "power3.out", stagger: 0.16 },
+        0.5
+      );
+
+      // shine sweep across the headline (one pass), once words are in
+      tl.fromTo("#shine", { x: 0 }, { x: "1300%", duration: 1.1, ease: "power1.inOut" }, 1.7);
+
+      // subtitle
+      tl.from("#sub", { opacity: 0, y: 16, duration: 0.9, ease: "power2.out" }, 1.4);
+
+      // hearts pop in, staggered
+      tl.fromTo(
+        ".heart",
+        { opacity: 0, scale: 0.4, y: 20 },
+        { opacity: 0.9, scale: 1, y: 0, duration: 0.8, ease: "back.out(1.7)", stagger: 0.12 },
+        0.8
+      );
+      // ...then drift gently upward and settle (deterministic, seek-safe)
+      tl.to(".heart", { y: -24, duration: 3.2, ease: "sine.inOut", stagger: 0.12 }, 1.8);
+
+      // final tender heartbeat on the headline
+      tl.to("#title", { scale: 1.03, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, 5.0);
+
+      tl.seek(0);
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

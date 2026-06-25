@@ -1,12 +1,12 @@
 # STATUS — radio
 
 > Ground-truth state. Read this BEFORE reading code. Auto-refreshed by the Stop hook; hand-edit the "Confirmed working" / "Known broken" sections.
-> Last refresh: 2026-06-25 10:51
+> Last refresh: 2026-06-25 13:46
 
 ## Git
 - Branch: `fix/show-pipeline-cleanup`
-- Last commit: `f26e2fd Replace tall portrait banner with a wide HyperFrames birthday banner (32 seconds ago)`
-- Uncommitted: **0** — clean tree
+- Last commit: `f26e2fd Replace tall portrait banner with a wide HyperFrames birthday banner (3 hours ago)`
+- Uncommitted: **1** — 1 uncommitted
 
 ## Tests
 - Run by hand: `npm test`

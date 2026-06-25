@@ -28,7 +28,7 @@ cp public/manifest.json     "$OUT/"         2>/dev/null
 cp public/sw.js             "$OUT/"         2>/dev/null
 cp public/icon*.png         "$OUT/"         2>/dev/null
 cp public/favicon.ico       "$OUT/"         2>/dev/null
-cp public/gift/*.mp4        "$OUT/"         2>/dev/null   # birthday video, if present
+cp public/gift/*.mp4        "$OUT/birthday.mp4"  2>/dev/null   # video banner the page plays
 
 cd "$HOME/Desktop" && zip -r -q "$NAME.zip" "$NAME"
 

@@ -20,9 +20,15 @@
     background:radial-gradient(120% 80% at 50% -10%, #fef8fa 0%, #fbeaf0 55%, #f6dfe8 100%);
     color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-    display:flex; align-items:center; justify-content:center;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px;
     padding:calc(20px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom));
   }
+
+  .hero { width:min(440px,96vw); display:flex; flex-direction:column; gap:6px; }
+  .herovid { display:block; margin:0 auto; max-width:100%; max-height:26vh; border-radius:16px;
+    background:#000; box-shadow:0 14px 34px rgba(150,120,135,.22); }
+  .herocap { text-align:center; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+    color:var(--red-deep); }
 
   .radio {
     width:min(440px,96vw);
@@ -181,6 +187,11 @@
       </p>
     </div>
   </div>
+
+  <section class="hero" id="hero" hidden>
+    <video id="bdayvideo" class="herovid" src="birthday.mp4" playsinline controls preload="metadata"></video>
+    <div class="herocap">♥ Press play — a birthday message</div>
+  </section>
 
   <main class="radio">
     <header class="brand">
@@ -508,6 +519,15 @@
       el.textContent = SPECIAL[key];
       el.classList.add("show");
     }
+  })();
+
+  // Birthday video banner above the radio — shows only if birthday.mp4 is present.
+  (function birthdayBanner() {
+    const hero = document.getElementById("hero");
+    const v = document.getElementById("bdayvideo");
+    if (!hero || !v) return;
+    v.addEventListener("loadedmetadata", () => { hero.hidden = false; });
+    v.addEventListener("error", () => { hero.hidden = true; });
   })();
 </script>
 <script>

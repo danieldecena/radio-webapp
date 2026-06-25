@@ -73,3 +73,5 @@ public/audio/breaks/**/*.mp3
 
 # HyperFrames birthday video (regenerable; shipped in the bundle)
 public/gift/*.mp4
+
+public/birthday.mp4

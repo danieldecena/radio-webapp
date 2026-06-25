@@ -75,3 +75,9 @@ public/audio/breaks/**/*.mp3
 public/gift/*.mp4
 
 public/birthday.mp4
+
+# HyperFrames project render outputs (regenerable from videos/*/index.html)
+videos/*/renders/
+
+# Playwright MCP scratch (browser snapshots/screenshots)
+.playwright-mcp/

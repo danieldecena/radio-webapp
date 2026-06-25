@@ -24,11 +24,14 @@
     padding:calc(20px + env(safe-area-inset-top)) 18px calc(20px + env(safe-area-inset-bottom));
   }
 
-  .hero { width:min(440px,96vw); display:flex; flex-direction:column; gap:6px; }
-  .herovid { display:block; margin:0 auto; max-width:100%; max-height:26vh; border-radius:16px;
-    background:#000; box-shadow:0 14px 34px rgba(150,120,135,.22); }
-  .herocap { text-align:center; font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
-    color:var(--red-deep); }
+  .hero { width:min(440px,96vw); display:flex; flex-direction:column; gap:7px; }
+  /* wide, short birthday banner (HyperFrames render, 4:1) — plays inline, tap for the full message */
+  .herobanner { display:block; width:100%; border-radius:14px; cursor:pointer; background:#fff;
+    box-shadow:0 10px 26px rgba(150,120,135,.16); transition:transform .08s, box-shadow .2s; }
+  .herobanner:hover { box-shadow:0 12px 30px rgba(230,57,80,.18); }
+  .herobanner:active { transform:scale(.99); }
+  .herohint { text-align:center; font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-dim); }
+  .herovid { position:absolute; left:-9999px; width:1px; height:1px; opacity:0; pointer-events:none; }
 
   .radio {
     width:min(440px,96vw);
@@ -189,8 +192,10 @@
   </div>
 
   <section class="hero" id="hero" hidden>
+    <video id="bannervid" class="herobanner" src="banner.mp4" muted autoplay playsinline preload="auto"
+           role="button" tabindex="0" aria-label="Play Pauline's birthday message"></video>
+    <div class="herohint" id="herohint">♥ tap the banner to play your birthday message</div>
     <video id="bdayvideo" class="herovid" src="birthday.mp4" playsinline controls preload="metadata"></video>
-    <div class="herocap">♥ Press play — a birthday message</div>
   </section>
 
   <main class="radio">
@@ -521,13 +526,26 @@
     }
   })();
 
-  // Birthday video banner above the radio — shows only if birthday.mp4 is present.
+  // Wide birthday banner above the radio — plays inline; tap it for the full message fullscreen.
   (function birthdayBanner() {
     const hero = document.getElementById("hero");
+    const banner = document.getElementById("bannervid");
     const v = document.getElementById("bdayvideo");
-    if (!hero || !v) return;
-    v.addEventListener("loadedmetadata", () => { hero.hidden = false; });
-    v.addEventListener("error", () => { hero.hidden = true; });
+    if (!hero || !banner || !v) return;
+    // reveal once the wide banner is ready; hide it entirely if the banner is missing
+    banner.addEventListener("loadeddata", () => { hero.hidden = false; banner.play().catch(() => {}); });
+    banner.addEventListener("error", () => { hero.hidden = true; });
+    // no full message present → drop the "tap to play" hint, banner stays decorative
+    v.addEventListener("error", () => { const h = document.getElementById("herohint"); if (h) h.remove(); });
+    const playFull = () => {
+      try { v.currentTime = 0; } catch (e) {}
+      v.play().catch(() => {});
+      const fs = v.requestFullscreen || v.webkitRequestFullscreen || v.webkitEnterFullscreen;
+      if (fs) { try { fs.call(v); } catch (e) {} }
+    };
+    banner.addEventListener("click", playFull);
+    banner.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); playFull(); } });
+    v.addEventListener("ended", () => { if (document.exitFullscreen) document.exitFullscreen().catch(() => {}); });
   })();
 </script>
 <script>

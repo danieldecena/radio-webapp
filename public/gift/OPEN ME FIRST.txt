@@ -1,0 +1,27 @@
+96.6 ROM — Victoria's station for love  ♥
+Happy Birthday, Pauline 🎂
+
+────────────────────────────────────────────
+HOW TO OPEN THE RADIO (first time only)
+────────────────────────────────────────────
+
+Because this is a personal app made just for you (not from the App Store),
+macOS shows a one-time "Apple could not verify…" warning. It is completely
+safe. Here is how to open it — you only do this ONCE:
+
+EASIEST WAY
+  1. Right-click (or Control-click) the "96.6 ROM" app
+  2. Choose "Open"
+  3. Click "Open" again in the little box
+
+IF YOU DON'T SEE AN "OPEN" OPTION (newer Macs)
+  1. Double-click "96.6 ROM" once — you'll get the warning. Click "Done".
+  2. Open  System Settings ▸ Privacy & Security
+  3. Scroll down — you'll see a line about "96.6 ROM" being blocked.
+     Click "Open Anyway", then "Open".
+
+That's it. From then on, just double-click it like any app.
+You can also drag it into your Dock to keep it handy.
+
+When it opens: type your name to tune in, press play, and enjoy.
+The whole station is yours.  — D
